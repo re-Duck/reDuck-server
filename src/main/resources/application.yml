@@ -1,4 +1,7 @@
 spring:
+  config:
+    activate:
+      on-profile: dev
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -21,6 +24,21 @@ spring:
     hibernate:
       ddl-auto: update
 
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url:jdbc:h2:mem:testdb;MODE=MySQL
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql : true
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
 ## local
 ip: localhost
