@@ -1,10 +1,7 @@
 package reduck.reduck.domain.user.entity;
 
 
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import reduck.reduck.global.entity.BaseEntity;
 
 import javax.persistence.Column;
@@ -17,13 +14,23 @@ import javax.persistence.Table;
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(indexes = @Index(name = "idx_memberId", columnList = "memberId", unique = true))
-public class Member extends BaseEntity {
+@AllArgsConstructor
+@Builder
+@Table(indexes = @Index(name = "idx_userId", columnList = "userId", unique = true))
+public class User extends BaseEntity {
 
     @Column(length = 20)
     String password;
     @Column(length = 20, unique = true)
-    String memberId;
-    @Column(length = 20)
-    String name;
+    String userId;
+//    @Column(length = 20)
+//    String name;
+//
+//    String email;
+//    String profileImg;
+//    String company;
+//    String school;
+//    String developAnnual;
+
+
 }
