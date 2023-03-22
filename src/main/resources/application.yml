@@ -1,7 +1,4 @@
 spring:
-  config:
-    activate:
-      on-profile: dev
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -24,6 +21,8 @@ spring:
     hibernate:
       ddl-auto: update
 
+## local
+ip: localhost
 ---
 spring:
   config:
@@ -43,6 +42,4 @@ spring:
         format_sql : true
         dialect: org.hibernate.dialect.MySQL8Dialect
 
-## local
-ip: localhost
 
