@@ -1,5 +1,7 @@
 package reduck.reduck.domain.user.entity;
 
+import java.util.Arrays;
+
 public enum DevelopAnnual {
     zero("0"), // 취준생
     one("1"),
@@ -12,8 +14,12 @@ public enum DevelopAnnual {
     eight("8"),
     nine("9"),
     tenOver("10~"); //10년 이상
-    String annual;
+    private String annual;
 
+    public static DevelopAnnual getAnnual(String year) {
+        DevelopAnnual developAnnual = Arrays.stream(values()).filter(value -> value.annual.equals(year)).findAny().orElseThrow(IllegalArgumentException::new);
+        return developAnnual;
+    }
     DevelopAnnual(String annual) {
         this.annual = annual;
     }

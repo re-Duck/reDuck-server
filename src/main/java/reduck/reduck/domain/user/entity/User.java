@@ -4,10 +4,7 @@ package reduck.reduck.domain.user.entity;
 import lombok.*;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Index;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 
 @Entity
@@ -20,17 +17,19 @@ import javax.persistence.Table;
 public class User extends BaseEntity {
 
     @Column(length = 20)
-    String password;
+    private String password;
     @Column(length = 20, unique = true)
-    String userId;
-//    @Column(length = 20)
-//    String name;
-//
-//    String email;
-//    String profileImg;
-//    String company;
-//    String school;
-//    String developAnnual;
+    private String userId;
+    @Column(length = 20)
+    private String name;
+
+    private    String email;
+    private String profileImg;
+    private String company;
+    private String school;
+
+    @Enumerated(EnumType.STRING)
+    private DevelopAnnual developAnnual;
 
 
 }
