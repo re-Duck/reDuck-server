@@ -30,7 +30,9 @@ public class JwtProvider {
     private Key secretKey;
 
     // 만료시간 : 1Hour
-    private final long exp = 1000L * 60 * 60;
+    private final long exp = 1000L * 60;
+    // 리프레시 토큰  만료시간 : 1Day
+    private final long refreshExp = 1000L * 60 * 60 * 24 ;
 
     private final JpaUserDetailsService userDetailsService;
 
@@ -51,10 +53,19 @@ public class JwtProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
+    public String createRefreshToken(){
+        Date now = new Date();
+        return Jwts.builder()
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + refreshExp))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
 
     // 권한정보 획득
     // Spring Security 인증과정에서 권한확인을 위한 기능
     public Authentication getAuthentication(String token) {
+        System.out.println("JwtProvider.getAuthentication");
         UserDetails userDetails = userDetailsService.loadUserByUsername(this.getAccount(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
@@ -66,11 +77,44 @@ public class JwtProvider {
 
     // Authorization Header를 통해 인증을 한다.
     public String resolveToken(HttpServletRequest request) {
+        System.out.println("JwtProvider.resolveToken");
         return request.getHeader("Authorization");
+    }
+
+    public String resolveRefreshToken(HttpServletRequest request) {
+        return request.getHeader("REFRESH_TOKEN");
     }
 
     // 토큰 검증
     public boolean validateToken(String token) {
+        try {
+            // Bearer 검증
+            if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
+                return false;
+            } else {
+                token = token.split(" ")[1].trim();
+            }
+            Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            // 만료되었을 시 false
+            if (claims.getBody().getExpiration().before((new Date()))) {
+                //토큰 만료 exception 발생.
+            }
+            return !claims.getBody().getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean tokenExp(String token) {
+
+        Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+        if (claims.getBody().getExpiration().before((new Date()))) {
+            //토큰 만료 exception 발생.
+            return false;
+        }
+        return true;
+    }
+    public boolean validateRefreshToken(String token) {
         try {
             // Bearer 검증
             if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {

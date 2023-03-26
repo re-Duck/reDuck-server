@@ -5,8 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.dto.SignInResponseDto;
-import reduck.reduck.domain.user.dto.signOutDto;
+import reduck.reduck.domain.user.dto.SignOutDto;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.service.UserService;
@@ -18,7 +19,6 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInDto signInDto) throws Exception {
-
         return new ResponseEntity<>(userService.signIn(signInDto), HttpStatus.OK);
     }
 
@@ -28,7 +28,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<Void> signOut(@RequestBody signOutDto signOutDto) {
+    public ResponseEntity<Void> signOut(@RequestBody SignOutDto signOutDto) {
         return ResponseEntity.ok().build();
     }
 

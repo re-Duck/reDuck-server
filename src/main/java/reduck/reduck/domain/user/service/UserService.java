@@ -3,15 +3,13 @@ package reduck.reduck.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignInResponseDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
-import reduck.reduck.domain.user.dto.TokenInfoDto;
 import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.User;
@@ -27,7 +25,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
-
+    private final JwtService jwtService;
     @Transactional
     public boolean signUp(SignUpDto signUpDto) throws Exception {
         try {
@@ -54,18 +52,19 @@ public class UserService {
 
         User user = userRepository.findByUserId(dto.getUserId()).orElseThrow(() ->
                 new BadCredentialsException("잘못된 계정정보입니다."));
-        System.out.println("user = " + user);
-        System.out.println("user.getPassword() = " + user.getPassword());
-        System.out.println("dto.getPassword() = " + dto.getPassword());
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new BadCredentialsException("잘못된 계정정보입니다.");
         }
+        String refreshToken = jwtProvider.createRefreshToken();
+        jwtService.saveRefreshToken(refreshToken, user);
+
         return SignInResponseDto.builder()
                 .userId(user.getUserId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .roles(user.getRoles())
-                .token(jwtProvider.createToken(user.getUserId(), user.getRoles()))
+                .accessToken(jwtProvider.createToken(user.getUserId(), user.getRoles()))
+                .refreshToken(refreshToken)
                 .build();
     }
 

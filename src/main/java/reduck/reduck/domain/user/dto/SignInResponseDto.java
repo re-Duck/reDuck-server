@@ -24,8 +24,8 @@ public class SignInResponseDto {
 
     private List<Authority> roles = new ArrayList<>();
 
-    private String token;
-
+    private String accessToken;
+    private String refreshToken;
     public SignInResponseDto(User user) {
         this.userId = user.getUserId();
         this.name = user.getName();
