@@ -87,6 +87,7 @@ public class JwtProvider {
 
     // 토큰 검증
     public boolean validateToken(String token) {
+        System.out.println("JwtProvider.validateToken");
         try {
             // Bearer 검증
             if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
@@ -98,9 +99,12 @@ public class JwtProvider {
             // 만료되었을 시 false
             if (claims.getBody().getExpiration().before((new Date()))) {
                 //토큰 만료 exception 발생.
+                System.out.println("token expire");
             }
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
+            System.out.println("e = " + e);
+            System.out.println("e.getMessage() = " + e.getMessage());
             return false;
         }
     }

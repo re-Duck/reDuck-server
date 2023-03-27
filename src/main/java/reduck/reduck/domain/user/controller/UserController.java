@@ -17,12 +17,12 @@ import reduck.reduck.domain.user.service.UserService;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/login")
+    @PostMapping("/user") // -> /user
     public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInDto signInDto) throws Exception {
         return new ResponseEntity<>(userService.signIn(signInDto), HttpStatus.OK);
     }
 
-    @PostMapping("/register")
+    @PostMapping("/user/{userId}") // -> /user/{userId}
     public ResponseEntity<Boolean> signUp(@RequestBody SignUpDto signUpDto) throws Exception {
         return new ResponseEntity<>(userService.signUp(signUpDto), HttpStatus.OK);
     }
@@ -32,12 +32,12 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{userId}")
+    @DeleteMapping("/admin/{userID}")
     public ResponseEntity<Void> withdraw(@PathVariable("userId") String userId) {
         return ResponseEntity.ok().build();
 
     }
-    @GetMapping("/user/get/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<SignInResponseDto> getUser(@PathVariable("userId") String userId) throws Exception {
         return new ResponseEntity<>( userService.getUser(userId), HttpStatus.OK);
     }

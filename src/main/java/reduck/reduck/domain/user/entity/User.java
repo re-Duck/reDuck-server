@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     private String school;
 
     @Enumerated(EnumType.STRING)
-    private DevelopAnnual developAnnual;
+        private DevelopAnnual developAnnual;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Builder.Default

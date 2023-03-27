@@ -29,14 +29,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         System.out.println("JwtAuthenticationFilter.doFilterInternal");
-        System.out.println("filterChain = " + filterChain.getClass());
-        String token = jwtProvider.resolveToken(request);
         String servletPath = request.getServletPath();
-        String method = request.getMethod();
-        System.out.println("method = " + method);
+
+        System.out.println("filterChain = " + filterChain.getClass());
         System.out.println("servletPath = " + servletPath);
-        if(servletPath.equals("login"))
-        if (token != null && jwtProvider.validateToken(token)) {
+        String token = jwtProvider.resolveToken(request);
+        String method = request.getMethod();
+        //로그인 회원가입을 제외한 api사용은 token검증을 거친다.
+        if ((servletPath.equals("/user/{userId}") && method.equals("POST"))
+                || (servletPath.equals("/user") && method.equals("POST"))) {
+
+        }
+        else if (token != null && jwtProvider.validateToken(token)) {
             // check access token
             System.out.println("token = " + token);
             token = token.split(" ")[1].trim();

@@ -58,8 +58,9 @@ public class SecurityConfig {
                 .and()
                 // 조건별로 요청 허용/제한 설정
                 .authorizeRequests()
-                // 회원가입과 로그인은 모두 승인 => 만약 method type으로 분기 하고 싶다면 mvcMatchers 쓰면 될듯함.
-                .antMatchers("/register", "/login").permitAll()
+                // 회원가입과 로그인은 모두 승인 => 만약 method type + uri로 분기 하고 싶다면 mvcMatchers 쓰면 될듯함.
+                .mvcMatchers("POST", "/user", "/user/{userID}").permitAll()
+//                .antMatchers("/register").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 // /user 로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
@@ -74,6 +75,7 @@ public class SecurityConfig {
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
                         // 권한 문제가 발생했을 때 이 부분을 호출한다.
+                        System.out.println("request = " + request);
                         response.setStatus(403);
                         response.setCharacterEncoding("utf-8");
                         response.setContentType("text/html; charset=UTF-8");
@@ -84,6 +86,7 @@ public class SecurityConfig {
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
                         // 인증문제가 발생했을 때 이 부분을 호출한다.
+                        System.out.println("authException = " + authException);
                         response.setStatus(401);
                         response.setCharacterEncoding("utf-8");
                         response.setContentType("text/html; charset=UTF-8");
