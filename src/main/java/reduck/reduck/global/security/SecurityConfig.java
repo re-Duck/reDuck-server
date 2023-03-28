@@ -50,7 +50,7 @@ public class SecurityConfig {
                                 );
                                 return config;
                             };
-                            c.configurationSource(source);
+                            c .configurationSource(source);
                         }
                 )
                 // Spring Security 세션 정책 : 세션을 생성 및 사용하지 않음
