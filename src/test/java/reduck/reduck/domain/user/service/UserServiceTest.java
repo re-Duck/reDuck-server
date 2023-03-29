@@ -25,16 +25,18 @@ import static org.junit.jupiter.api.Assertions.*;
 @ActiveProfiles("test")
 class UserServiceTest {
     @Autowired
-    UserRepository memberRepository;
+    UserRepository userRepository;
     @Autowired
     JwtProvider jwtProvider;
     @Autowired
     JwtRepository jwtRepository;
     @Autowired
     UserService userService;
+
     @Test
     @Transactional
     void signUp() throws Exception {
+        //정상작동.
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId("test2")
                 .password("1234")
@@ -47,7 +49,8 @@ class UserServiceTest {
                 .build();
         boolean b = userService.signUp(signUpDto);
         Assertions.assertThat(b).isEqualTo(true);
-        boolean b2;
+        //이미 존재하는 아이디로 회원가입.
+
         SignUpDto signUpDto2 = SignUpDto.builder()
                 .userId("test2")
                 .password("1234")
@@ -58,38 +61,38 @@ class UserServiceTest {
                 .school(null)
                 .profileImg(null)
                 .build();
-        try {
-             b2 = userService.signUp(signUpDto2);
-            Assertions.assertThat(b2).isEqualTo(false);
-            System.out.println("b2 = " + b2);
-        }catch (Exception e){
-
-        }
-
-
+        Assertions.assertThatThrownBy(() -> {
+            userService.signUp(signUpDto2);
+        }).isInstanceOf(Exception.class);
     }
 
     @Test @Transactional
     void signIn() throws Exception {
         try {
-
+            //정상 작동
             SignInDto signInDto = SignInDto.builder()
                     .userId("test1")
                     .password("1234")
                     .build();
-            SignInResponseDto signInResponseDto = userService.signIn(signInDto);
+            userService.signIn(signInDto);
 
+            //아이디 일치 에러
             SignInDto signInDto2 = SignInDto.builder()
                     .userId("test3")
                     .password("1234")
                     .build();
-            SignInResponseDto signInResponseDto2 = userService.signIn(signInDto2);
+            Assertions.assertThatThrownBy(() -> {
+                userService.signIn(signInDto2);
+            }).isInstanceOf(BadCredentialsException.class);
 
+            //비밀번호 일치 에러
             SignInDto signInDto3 = SignInDto.builder()
                     .userId("test1")
                     .password("1234@@@@@@@@")
                     .build();
-            SignInResponseDto signInResponseDto3 = userService.signIn(signInDto3);
+            Assertions.assertThatThrownBy(() -> {
+                userService.signIn(signInDto3);
+            }).isInstanceOf(BadCredentialsException.class);
         } catch (BadCredentialsException e) {
             Assertions.assertThat(e.getClass().toString()).isEqualTo("class org.springframework.security.authentication.BadCredentialsException");
 
@@ -99,6 +102,11 @@ class UserServiceTest {
     }
 
     @Test
-    void getUser() {
+    @Transactional
+    void getUser() throws Exception {
+        User user = userService.getUser("test1");
+        Optional<User> findUser = userRepository.findByUserId("test1");
+        Assertions.assertThat(user).isEqualTo(findUser.get());
+
     }
 }

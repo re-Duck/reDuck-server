@@ -10,6 +10,7 @@ import reduck.reduck.domain.user.dto.SignInResponseDto;
 import reduck.reduck.domain.user.dto.SignOutDto;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
+import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 
 @RestController
@@ -38,7 +39,7 @@ public class UserController {
 
     }
     @GetMapping("/user/{userId}")
-    public ResponseEntity<SignInResponseDto> getUser(@PathVariable("userId") String userId) throws Exception {
+    public ResponseEntity<User> getUser(@PathVariable("userId") String userId) throws Exception {
         return new ResponseEntity<>( userService.getUser(userId), HttpStatus.OK);
     }
 }

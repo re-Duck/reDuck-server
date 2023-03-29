@@ -68,9 +68,9 @@ public class UserService {
                 .build();
     }
 
-    public SignInResponseDto getUser(String userId) throws Exception {
+    public User getUser(String userId) throws Exception {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new Exception("계정을 찾을 수 없는니다."));
-        return new SignInResponseDto(user);
+        return user;
     }
 
 }
