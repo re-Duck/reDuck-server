@@ -47,8 +47,7 @@ class UserServiceTest {
                 .school(null)
                 .profileImg(null)
                 .build();
-        boolean b = userService.signUp(signUpDto);
-        Assertions.assertThat(b).isEqualTo(true);
+       userService.signUp(signUpDto);
         //이미 존재하는 아이디로 회원가입.
 
         SignUpDto signUpDto2 = SignUpDto.builder()
@@ -70,26 +69,23 @@ class UserServiceTest {
     void signIn() throws Exception {
         try {
             //정상 작동
-            SignInDto signInDto = SignInDto.builder()
-                    .userId("test1")
-                    .password("1234")
-                    .build();
+            SignInDto signInDto = new SignInDto();
+            signInDto.setUserId("test1");
+            signInDto.setPassword("test1");
             userService.signIn(signInDto);
 
             //아이디 일치 에러
-            SignInDto signInDto2 = SignInDto.builder()
-                    .userId("test3")
-                    .password("1234")
-                    .build();
+            SignInDto signInDto2 = new SignInDto();
+            signInDto2.setUserId("test2");
+            signInDto2.setPassword("test1");
             Assertions.assertThatThrownBy(() -> {
                 userService.signIn(signInDto2);
             }).isInstanceOf(BadCredentialsException.class);
 
             //비밀번호 일치 에러
-            SignInDto signInDto3 = SignInDto.builder()
-                    .userId("test1")
-                    .password("1234@@@@@@@@")
-                    .build();
+            SignInDto signInDto3 = new SignInDto();
+            signInDto3.setUserId("test1");
+            signInDto3.setPassword("test1@@@");
             Assertions.assertThatThrownBy(() -> {
                 userService.signIn(signInDto3);
             }).isInstanceOf(BadCredentialsException.class);
