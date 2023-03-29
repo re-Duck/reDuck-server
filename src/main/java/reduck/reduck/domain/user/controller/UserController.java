@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reduck.reduck.domain.jwt.dto.AccessTokenDto;
 import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.dto.SignInResponseDto;
 import reduck.reduck.domain.user.dto.SignOutDto;
@@ -12,6 +13,8 @@ import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
+
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +27,9 @@ public class UserController {
     }
 
     @PostMapping("/user/{userId}") // -> /user/{userId}
-    public ResponseEntity<Boolean> signUp(@RequestBody SignUpDto signUpDto) throws Exception {
-        return new ResponseEntity<>(userService.signUp(signUpDto), HttpStatus.OK);
+    public ResponseEntity<Void> signUp(@RequestBody SignUpDto signUpDto) throws Exception {
+        userService.signUp(signUpDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping
@@ -35,11 +39,15 @@ public class UserController {
 
     @DeleteMapping("/admin/{userID}")
     public ResponseEntity<Void> withdraw(@PathVariable("userId") String userId) {
-        return ResponseEntity.ok().build();
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
     @GetMapping("/user/{userId}")
     public ResponseEntity<User> getUser(@PathVariable("userId") String userId) throws Exception {
         return new ResponseEntity<>( userService.getUser(userId), HttpStatus.OK);
+    }
+    @GetMapping("/user/{userId}/token")
+    public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request, @PathVariable("userId") String userId) throws Exception {
+        return new ResponseEntity<>(userService.refreshAccessToken(request, userId), HttpStatus.OK);
     }
 }

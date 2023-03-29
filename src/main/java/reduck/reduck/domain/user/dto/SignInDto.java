@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Builder
+//@Builder
 public class SignInDto {
 
     private String userId;
