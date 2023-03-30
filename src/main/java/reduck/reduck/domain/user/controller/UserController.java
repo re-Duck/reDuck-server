@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-
+    private final JwtService jwtService;
     @PostMapping("/user") // -> /user
     public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInDto signInDto) throws Exception {
         return new ResponseEntity<>(userService.signIn(signInDto), HttpStatus.OK);
@@ -48,6 +48,6 @@ public class UserController {
     }
     @GetMapping("/user/{userId}/token")
     public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request, @PathVariable("userId") String userId) throws Exception {
-        return new ResponseEntity<>(userService.refreshAccessToken(request, userId), HttpStatus.OK);
+        return new ResponseEntity<>(jwtService.refreshAccessToken(request, userId), HttpStatus.OK);
     }
 }

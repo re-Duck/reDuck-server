@@ -9,9 +9,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import reduck.reduck.domain.jwt.entity.RefreshToken;
+import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
-import reduck.reduck.domain.user.util.Utils;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
@@ -35,7 +35,7 @@ public class JwtProvider {
     private final long refreshExp = 1000L * 60 * 60 * 24 * 14;
 
     private final JpaUserDetailsService userDetailsService;
-    private final Utils utils;
+    private final JwtService jwtService;
     @PostConstruct
     protected void init() {
         secretKey = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
@@ -46,7 +46,7 @@ public class JwtProvider {
         String refreshToken = resolveToken(request);
         validateToken(refreshToken);
 
-        RefreshToken findRefreshToken = utils.getRefreshToken(user.getId());
+        RefreshToken findRefreshToken = jwtService.getRefreshToken(user.getId());
         if(!findRefreshToken.equals(refreshToken)){
             //refreshToken  불일치.
             throw new NoSuchElementException("일치하지 않는 refresh token입니다.");

@@ -1,14 +1,11 @@
 package reduck.reduck.domain.user.service;
 
 
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reduck.reduck.domain.jwt.dto.AccessTokenDto;
 import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignInResponseDto;
@@ -17,13 +14,9 @@ import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
-import reduck.reduck.domain.user.util.Utils;
 import reduck.reduck.global.security.JwtProvider;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -82,17 +75,5 @@ public class UserService {
         return user;
     }
 
-    @Transactional
-    public AccessTokenDto refreshAccessToken(HttpServletRequest request, String userId) throws Exception {
 
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
-        try {
-            return AccessTokenDto.builder()
-                    .accessToken(jwtProvider.refreshAccessToken(request, user))
-                    .build();
-        } catch (NoSuchElementException e) {
-                throw new AuthenticationException("일치하는 토큰이 없음.") {
-                };
-        }
-    }
 }
