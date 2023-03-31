@@ -48,6 +48,6 @@ public class UserController {
     }
     @GetMapping("/user/{userId}/token")
     public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request, @PathVariable("userId") String userId) throws Exception {
-        return new ResponseEntity<>(jwtService.refreshAccessToken(request, userId), HttpStatus.OK);
+        return new ResponseEntity<>(jwtService.reissuanceAccessToken(request, userId), HttpStatus.OK);
     }
 }

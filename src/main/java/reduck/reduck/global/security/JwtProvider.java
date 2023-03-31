@@ -29,33 +29,15 @@ public class JwtProvider {
 
     private Key secretKey;
 
-    // 만료시간 : 1Hour
+    // 만료시간 : 1min
     private final long exp = 1000L * 60;
     // 리프레시 토큰  만료시간 : 14 Day
     private final long refreshExp = 1000L * 60 * 60 * 24 * 14;
 
     private final JpaUserDetailsService userDetailsService;
-    private final JwtService jwtService;
     @PostConstruct
     protected void init() {
         secretKey = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
-    }
-
-    public String refreshAccessToken(HttpServletRequest request, User user ) throws Exception {
-        // refreshToken 유효성 검사.
-        String refreshToken = resolveToken(request);
-        validateToken(refreshToken);
-
-        RefreshToken findRefreshToken = jwtService.getRefreshToken(user.getId());
-        if(!findRefreshToken.equals(refreshToken)){
-            //refreshToken  불일치.
-            throw new NoSuchElementException("일치하지 않는 refresh token입니다.");
-        }
-
-        String userId = getAccount(refreshToken.split(" ")[1].trim());
-        return createToken(userId, user.getRoles());
-        // 통과시 access token 재발급, 실패시 refresh 토큰 유효성 에러 발생.
-
     }
 
     // 토큰 생성

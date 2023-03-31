@@ -42,7 +42,7 @@ public class User extends BaseEntity {
 
     public void setRoles(List<Authority> role) {
         this.roles = role;
-        role.forEach(o -> o.setMember(this));
+        role.forEach(o -> o.setUser(this));
     }
 
 }

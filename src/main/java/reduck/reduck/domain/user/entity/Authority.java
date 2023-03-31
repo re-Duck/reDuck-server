@@ -22,12 +22,12 @@ public class Authority {
 
     private String name;
 
-    @JoinColumn(name = "member")
+    @JoinColumn(name = "userPkId")
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
     private User user;
 
-    public void setMember(User user) {
+    public void setUser(User user) {
         this.user = user;
     }
 }
