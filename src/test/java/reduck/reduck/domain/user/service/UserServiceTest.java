@@ -71,13 +71,13 @@ class UserServiceTest {
             //정상 작동
             SignInDto signInDto = new SignInDto();
             signInDto.setUserId("test1");
-            signInDto.setPassword("test1");
+            signInDto.setPassword("1234");
             userService.signIn(signInDto);
 
             //아이디 일치 에러
             SignInDto signInDto2 = new SignInDto();
             signInDto2.setUserId("test2");
-            signInDto2.setPassword("test1");
+            signInDto2.setPassword("1234");
             Assertions.assertThatThrownBy(() -> {
                 userService.signIn(signInDto2);
             }).isInstanceOf(BadCredentialsException.class);

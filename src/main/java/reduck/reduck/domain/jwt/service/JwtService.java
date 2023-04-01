@@ -47,7 +47,6 @@ public class JwtService {
     }
     @Transactional
     public String getRefreshToken(Long userPKId) throws Exception {
-        System.out.println("Utils.getRefreshToken");
         List<RefreshToken> allByUserPKId = jwtRepository.findAllByUser_Id(userPKId);
         //불변 리스트로 리턴 필요?? // db에 save하지 않는 이상 문제가 될 부분은 없어보인다.
         return allByUserPKId.get(allByUserPKId.size()-1).getRefreshToken();
