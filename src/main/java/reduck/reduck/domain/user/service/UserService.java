@@ -10,9 +10,10 @@ import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignInResponseDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
+import reduck.reduck.domain.user.dto.mapper.SignInResponseDtoMapper;
 import reduck.reduck.domain.user.entity.Authority;
-import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.entity.mapper.UserMapper;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.security.JwtProvider;
 import java.io.IOException;
@@ -25,25 +26,33 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final JwtService jwtService;
+    private final UserMapper userMapper;
+    private final SignInResponseDtoMapper signInResponseDtoMapper;
     @Transactional
     public void signUp(SignUpDto signUpDto) throws Exception {
         try {
-            User user = User.builder()
-                    .userId(signUpDto.getUserId())
-                    .password(passwordEncoder.encode(signUpDto.getPassword()))
-                    .name(signUpDto.getName())
-                    .email(signUpDto.getEmail())
-                    .profileImg(signUpDto.getProfileImg())
-                    .company(signUpDto.getCompany())
-                    .school(signUpDto.getSchool())
-                    .developAnnual(DevelopAnnual.getAnnual(signUpDto.getDevelopAnnual()))
-                    .build();
+            saveProfileImg(signUpDto.getProfileImg());
+            User user = userMapper.from(signUpDto);
+//            User user = User.builder()
+//                    .userId(signUpDto.getUserId())
+//                    .password(passwordEncoder.encode(signUpDto.getPassword()))
+//                    .name(signUpDto.getName())
+//                    .email(signUpDto.getEmail())
+//                    .profileImg(signUpDto.getProfileImg())
+//                    .company(signUpDto.getCompany())
+//                    .school(signUpDto.getSchool())
+//                    .developAnnual(DevelopAnnual.getAnnual(signUpDto.getDevelopAnnual()))
+//                    .build();
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
             userRepository.save(user);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new Exception("잘못된 요청입니다.");
         }
+    }
+
+    private void saveProfileImg(String profileImg) {
+
     }
 
     @Transactional
@@ -56,15 +65,16 @@ public class UserService {
         }
         String refreshToken = jwtProvider.createRefreshToken(user.getUserId(), user.getRoles());
         jwtService.saveRefreshToken(refreshToken, user);
-
-        return SignInResponseDto.builder()
-                .userId(user.getUserId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .roles(user.getRoles())
-                .accessToken(jwtProvider.createToken(user.getUserId(), user.getRoles()))
-                .refreshToken(refreshToken)
-                .build();
+        String accessToken = jwtProvider.createToken(user.getUserId(), user.getRoles());
+        return signInResponseDtoMapper.of(user, accessToken, refreshToken);
+//        return SignInResponseDto.builder()
+//                .userId(user.getUserId())
+//                .name(user.getName())
+//                .email(user.getEmail())
+//                .roles(user.getRoles())
+//                .accessToken(accessToken)
+//                .refreshToken(refreshToken)
+//                .build();
     }
 
     @Transactional
