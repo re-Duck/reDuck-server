@@ -32,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 로그인
         if (servletPath.equals("/user") && method.equals("POST")) return true;
         // 회원가입
-        if (method.equals("/user/{userId}") && method.equals("POST")) return true;
+        if (servletPath.equals("/user/{userId}") && method.equals("POST")) return true;
         return false;
     }
 

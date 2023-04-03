@@ -6,6 +6,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignInResponseDto;
@@ -13,11 +14,19 @@ import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.dto.mapper.SignInResponseDtoMapper;
 import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.entity.mapper.UserMapper;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.security.JwtProvider;
+
+import javax.servlet.ServletException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.UUID;
+
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +37,10 @@ public class UserService {
     private final JwtService jwtService;
     private final UserMapper userMapper;
     private final SignInResponseDtoMapper signInResponseDtoMapper;
+
     @Transactional
     public void signUp(SignUpDto signUpDto) throws Exception {
         try {
-            saveProfileImg(signUpDto.getProfileImg());
             User user = userMapper.from(signUpDto);
 //            User user = User.builder()
 //                    .userId(signUpDto.getUserId())
@@ -50,11 +59,31 @@ public class UserService {
             throw new Exception("잘못된 요청입니다.");
         }
     }
+    @Transactional
+    public UserProfileImg saveImage(MultipartFile multipartFile) throws ServletException, IOException {
+        System.out.println("multipartFile = " + multipartFile);
+        String originalFilename = multipartFile.getOriginalFilename();
+        String storageName = UUID.randomUUID() + ".jpeg";
 
-    private void saveProfileImg(String profileImg) {
+        String path = "C:\\reduckStorage";
+        Path imagePath = Paths.get(path, storageName);
+        UserProfileImg userProfileImg = UserProfileImg.builder()
+                .storageName(storageName)
+                .uploadedName(originalFilename)
+                .path(String.valueOf(imagePath))
+                .build();
+        try {
+            Files.write(imagePath, multipartFile.getBytes());
+            // user profile img repository save.
+            //return : Long id
+            return userProfileImg;
 
+        } catch (Exception e) {
+            System.out.println("e.getCause() = " + e.getCause());
+            System.out.println("e.getMessage() = " + e.getMessage());
+            return null;
+        }
     }
-
     @Transactional
     public SignInResponseDto signIn(SignInDto dto) throws IOException {
 
@@ -66,7 +95,9 @@ public class UserService {
         String refreshToken = jwtProvider.createRefreshToken(user.getUserId(), user.getRoles());
         jwtService.saveRefreshToken(refreshToken, user);
         String accessToken = jwtProvider.createToken(user.getUserId(), user.getRoles());
-        return signInResponseDtoMapper.of(user, accessToken, refreshToken);
+        SignInResponseDto of = signInResponseDtoMapper.of(user, accessToken, refreshToken);
+        System.out.println("of = " + of);
+        return of;
 //        return SignInResponseDto.builder()
 //                .userId(user.getUserId())
 //                .name(user.getName())

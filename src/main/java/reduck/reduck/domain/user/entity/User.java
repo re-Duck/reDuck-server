@@ -2,13 +2,10 @@ package reduck.reduck.domain.user.entity;
 
 
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import reduck.reduck.global.entity.BaseEntity;
 
 import javax.persistence.*;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 
@@ -34,7 +31,7 @@ public class User extends BaseEntity {
     private String school;
 
     @Enumerated(EnumType.STRING)
-        private DevelopAnnual developAnnual;
+    private DevelopAnnual developAnnual;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @Builder.Default

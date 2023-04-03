@@ -21,7 +21,7 @@ public class UserMapper {
                     .password(passwordEncoder.encode(signUpDto.getPassword()))
                     .name(signUpDto.getName())
                     .email(signUpDto.getEmail())
-                    .profileImg(signUpDto.getProfileImg())
+//                    .profileImg(signUpDto.getProfileImg())
                     .company(signUpDto.getCompany())
                     .school(signUpDto.getSchool())
                     .developAnnual(DevelopAnnual.getAnnual(signUpDto.getDevelopAnnual()))

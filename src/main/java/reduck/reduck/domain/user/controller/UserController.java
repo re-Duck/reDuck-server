@@ -5,6 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import reduck.reduck.domain.jwt.dto.AccessTokenDto;
 import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.dto.SignInResponseDto;
@@ -14,7 +17,9 @@ import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 @RestController
 @RequiredArgsConstructor
@@ -29,6 +34,12 @@ public class UserController {
     @PostMapping("/user/{userId}") // -> /user/{userId}
     public ResponseEntity<Void> signUp(@RequestBody SignUpDto signUpDto) throws Exception {
         userService.signUp(signUpDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @PostMapping("/user/image")
+    public ResponseEntity<Void> saveImage(@RequestPart(required = false) MultipartFile multipartFile) throws ServletException, IOException {
+        System.out.println("multipartFile = " + multipartFile.getOriginalFilename());
+        userService.saveImage(multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
