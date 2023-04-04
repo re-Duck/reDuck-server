@@ -15,6 +15,7 @@ import reduck.reduck.domain.user.dto.SignOutDto;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.service.UserService;
 
 import javax.servlet.ServletException;
@@ -32,16 +33,15 @@ public class UserController {
     }
 
     @PostMapping("/user/{userId}") // -> /user/{userId}
-    public ResponseEntity<Void> signUp(@RequestBody SignUpDto signUpDto) throws Exception {
-        userService.signUp(signUpDto);
+        public ResponseEntity<Void> signUp(@RequestPart SignUpDto signUpDto, @RequestPart MultipartFile multipartFile) throws Exception {
+        userService.signUp  (signUpDto, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @PostMapping("/user/image")
-    public ResponseEntity<Void> saveImage(@RequestPart(required = false) MultipartFile multipartFile) throws ServletException, IOException {
-        System.out.println("multipartFile = " + multipartFile.getOriginalFilename());
-        userService.saveImage(multipartFile);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+//    @PostMapping("/user/image")
+//    public ResponseEntity<UserProfileImg> saveImage(@RequestPart(required = false) MultipartFile multipartFile) throws ServletException, IOException {
+//        UserProfileImg userProfileImg = userService.saveImage(multipartFile);
+//        return new ResponseEntity(userProfileImg, HttpStatus.CREATED);
+//    }
 
     @GetMapping
     public ResponseEntity<Void> signOut(@RequestBody SignOutDto signOutDto) {

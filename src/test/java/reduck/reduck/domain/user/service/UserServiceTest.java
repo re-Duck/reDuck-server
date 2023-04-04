@@ -4,22 +4,26 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import reduck.reduck.domain.jwt.entity.RefreshToken;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.jwt.repository.JwtRepository;
 import reduck.reduck.domain.user.dto.SignInDto;
-import reduck.reduck.domain.user.dto.SignInResponseDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
-import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.security.JwtProvider;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -32,6 +36,8 @@ class UserServiceTest {
     JwtRepository jwtRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    private WebApplicationContext webApplicationContext;
 
     @Test
     @Transactional
@@ -45,9 +51,20 @@ class UserServiceTest {
                 .developAnnual("8")
                 .company(null)
                 .school(null)
-                .profileImg(null)
                 .build();
-       userService.signUp(signUpDto);
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "file",
+                "hello.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "Hello, World!".getBytes()
+        );
+
+        MockMvc mockMvc
+                = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        mockMvc.perform(multipart("/upload").file(file))
+                .andExpect(status().isOk());
+        userService.signUp(signUpDto, file);
         //이미 존재하는 아이디로 회원가입.
 
         SignUpDto signUpDto2 = SignUpDto.builder()
@@ -58,10 +75,9 @@ class UserServiceTest {
                 .developAnnual("8")
                 .company(null)
                 .school(null)
-                .profileImg(null)
                 .build();
         Assertions.assertThatThrownBy(() -> {
-            userService.signUp(signUpDto2);
+            userService.signUp(signUpDto2, file);
         }).isInstanceOf(Exception.class);
     }
 

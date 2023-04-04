@@ -4,6 +4,8 @@ import lombok.*;
 import reduck.reduck.global.entity.BaseEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 
 @Entity
 @Builder
@@ -12,7 +14,12 @@ import javax.persistence.Entity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class UserProfileImg extends BaseEntity {
-    private String uploadedName;
-    private String storageName;
+    private String uploadeFiledName;
+    private String storageFileName;
+    private String extension;
+    private Long size;
     private String path;
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
 }
+

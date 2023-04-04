@@ -16,6 +16,7 @@ import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.entity.mapper.UserMapper;
+import reduck.reduck.domain.user.repository.UserProfileImgRepository;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.security.JwtProvider;
 
@@ -32,6 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final UserProfileImgRepository userProfileImgRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
     private final JwtService jwtService;
@@ -39,44 +41,39 @@ public class UserService {
     private final SignInResponseDtoMapper signInResponseDtoMapper;
 
     @Transactional
-    public void signUp(SignUpDto signUpDto) throws Exception {
+    public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) throws Exception {
         try {
             User user = userMapper.from(signUpDto);
-//            User user = User.builder()
-//                    .userId(signUpDto.getUserId())
-//                    .password(passwordEncoder.encode(signUpDto.getPassword()))
-//                    .name(signUpDto.getName())
-//                    .email(signUpDto.getEmail())
-//                    .profileImg(signUpDto.getProfileImg())
-//                    .company(signUpDto.getCompany())
-//                    .school(signUpDto.getSchool())
-//                    .developAnnual(DevelopAnnual.getAnnual(signUpDto.getDevelopAnnual()))
-//                    .build();
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
-            userRepository.save(user);
+            User userEntity = userRepository.save(user);
+            saveImage(userEntity,multipartFile);
+
         } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new Exception("잘못된 요청입니다.");
         }
     }
     @Transactional
-    public UserProfileImg saveImage(MultipartFile multipartFile) throws ServletException, IOException {
-        System.out.println("multipartFile = " + multipartFile);
+    public UserProfileImg saveImage(User user,MultipartFile multipartFile) throws ServletException, IOException {
         String originalFilename = multipartFile.getOriginalFilename();
-        String storageName = UUID.randomUUID() + ".jpeg";
-
+        String extension = originalFilename.split("\\.")[1];
+        String storageFileName = UUID.randomUUID() + "." + extension;
+        long size = multipartFile.getSize();
         String path = "C:\\reduckStorage";
-        Path imagePath = Paths.get(path, storageName);
+
+        Path imagePath = Paths.get(path, storageFileName);
         UserProfileImg userProfileImg = UserProfileImg.builder()
-                .storageName(storageName)
-                .uploadedName(originalFilename)
+                .storageFileName(storageFileName)
+                .uploadeFiledName(originalFilename)
                 .path(String.valueOf(imagePath))
+                .extension(extension)
+                .size(size)
+                .user(user)
                 .build();
         try {
             Files.write(imagePath, multipartFile.getBytes());
-            // user profile img repository save.
-            //return : Long id
-            return userProfileImg;
+            UserProfileImg profileImg = userProfileImgRepository.save(userProfileImg);
+            return profileImg;
 
         } catch (Exception e) {
             System.out.println("e.getCause() = " + e.getCause());
@@ -95,25 +92,13 @@ public class UserService {
         String refreshToken = jwtProvider.createRefreshToken(user.getUserId(), user.getRoles());
         jwtService.saveRefreshToken(refreshToken, user);
         String accessToken = jwtProvider.createToken(user.getUserId(), user.getRoles());
-        SignInResponseDto of = signInResponseDtoMapper.of(user, accessToken, refreshToken);
-        System.out.println("of = " + of);
-        return of;
-//        return SignInResponseDto.builder()
-//                .userId(user.getUserId())
-//                .name(user.getName())
-//                .email(user.getEmail())
-//                .roles(user.getRoles())
-//                .accessToken(accessToken)
-//                .refreshToken(refreshToken)
-//                .build();
+        return signInResponseDtoMapper.of(user, accessToken, refreshToken);
+
     }
 
     @Transactional
     public User getUser(String userId) throws Exception {
-        System.out.println("UserService.getUser");
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
-        System.out.println("user = " + user);
-        return user;
+        return userRepository.findByUserId(userId).orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
     }
 
 
