@@ -35,7 +35,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 로그인
         if (servletPath.equals("/user") && method.equals("POST")) return true;
         // 회원가입
-        if (servletPath.equals("/user/{userId}") && method.equals("POST")) return true;
+        if (servletPath.equals("/user/test1") && method.equals("POST")) return true;
         return false;
     }
 
@@ -45,23 +45,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String servletPath = request.getServletPath();
         String token = jwtProvider.resolveToken(request);
         System.out.println("token = " + token);
+
         //로그인 회원가입을 제외한 api사용은 token검증을 거친다.
-        if (validateRequest(request)) {
-        } else if (token != null && jwtProvider.validateToken(token)) {
+        if (token == null) {
+            System.out.println("token is null");
+        }
+        else if (token != null && jwtProvider.validateToken(token)) {
             // check access token
             token = token.split(" ")[1].trim();
             Authentication auth = jwtProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(auth);
 
-        } else {
-            if (jwtProvider.isExpireToken(token)) {
-                response.setStatus(SC_UNAUTHORIZED);
-                response.setContentType(APPLICATION_JSON_VALUE);
-                response.setCharacterEncoding("utf-8");
-                response.getWriter().write("ACCESS TOKEN 이 만료되었습니다.");
-                new ObjectMapper().writeValue(response.getWriter(), HttpStatus.UNAUTHORIZED);
-            }
+        } else if (token != null &&jwtProvider.isExpireToken(token)) {
+            response.setStatus(SC_UNAUTHORIZED);
+            response.setContentType(APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding("utf-8");
+            response.getWriter().write("ACCESS TOKEN 이 만료되었습니다.");
+            new ObjectMapper().writeValue(response.getWriter(), HttpStatus.UNAUTHORIZED);
         }
+
         filterChain.doFilter(request, response);
     }
 }

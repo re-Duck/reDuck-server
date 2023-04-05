@@ -43,10 +43,11 @@ public class UserService {
     @Transactional
     public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) throws Exception {
         try {
+            System.out.println("UserService.signUp");
             User user = userMapper.from(signUpDto);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
             User userEntity = userRepository.save(user);
-            saveImage(userEntity,multipartFile);
+            saveProfileImage(userEntity,multipartFile);
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -54,7 +55,7 @@ public class UserService {
         }
     }
     @Transactional
-    public UserProfileImg saveImage(User user,MultipartFile multipartFile) throws ServletException, IOException {
+    public UserProfileImg saveProfileImage(User user,MultipartFile multipartFile) throws ServletException, IOException {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;

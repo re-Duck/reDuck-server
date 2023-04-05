@@ -33,12 +33,14 @@ public class UserController {
     }
 
     @PostMapping("/user/{userId}") // -> /user/{userId}
-        public ResponseEntity<Void> signUp(@RequestPart SignUpDto signUpDto, @RequestPart MultipartFile multipartFile) throws Exception {
-        userService.signUp  (signUpDto, multipartFile);
+        public ResponseEntity<Void> signUp(@RequestPart SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
+        userService.signUp(signUpDto, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 //    @PostMapping("/user/image")
-//    public ResponseEntity<UserProfileImg> saveImage(@RequestPart(required = false) MultipartFile multipartFile) throws ServletException, IOException {
+//    public ResponseEntity<UserProfileImg> saveImage(@RequestPart SignInDto signInDto, @RequestPart(required = false) MultipartFile multipartFile) throws ServletException, IOException {
+//        System.out.println("signInDto.getUserId() = " + signInDto.getUserId());
+//        System.out.println("signInDto.getPassword() = " + signInDto.getPassword());
 //        UserProfileImg userProfileImg = userService.saveImage(multipartFile);
 //        return new ResponseEntity(userProfileImg, HttpStatus.CREATED);
 //    }
