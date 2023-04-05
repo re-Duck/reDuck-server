@@ -27,30 +27,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         this.jwtProvider = jwtProvider;
     }
 
-    private boolean validateRequest(HttpServletRequest request) {
-        String servletPath = request.getServletPath();
-        String method = request.getMethod();
-        System.out.println("servletPath = " + servletPath);
-        System.out.println("Pattern.matches(\"^[a-z0-9]*$\") = " + Pattern.matches("^[a-z0-9]*$", "test2"));
-        // 로그인
-        if (servletPath.equals("/user") && method.equals("POST")) return true;
-        // 회원가입
-        if (servletPath.equals("/user/test1") && method.equals("POST")) return true;
-        return false;
-    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("JwtAuthenticationFilter.doFilterInternal");
         String servletPath = request.getServletPath();
         String token = jwtProvider.resolveToken(request);
-        System.out.println("token = " + token);
 
         //로그인 회원가입을 제외한 api사용은 token검증을 거친다.
-        if (token == null) {
-            System.out.println("token is null");
-        }
-        else if (token != null && jwtProvider.validateToken(token)) {
+        if (token != null && jwtProvider.validateToken(token)) {
             // check access token
             token = token.split(" ")[1].trim();
             Authentication auth = jwtProvider.getAuthentication(token);

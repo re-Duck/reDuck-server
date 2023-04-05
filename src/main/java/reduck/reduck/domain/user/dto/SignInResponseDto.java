@@ -27,10 +27,4 @@ public class SignInResponseDto {
     private String accessToken;
     private String refreshToken;
 
-    public SignInResponseDto(User user) {
-        this.userId = user.getUserId();
-        this.name = user.getName();
-        this.email = user.getEmail();
-        this.roles = user.getRoles();
-    }
 }

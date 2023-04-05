@@ -30,7 +30,7 @@ public class JwtProvider {
     private Key secretKey;
 
     // 만료시간 : 1 Day
-    private final long exp = 1000L * 60 * 60 * 24;
+    private final long exp = 1000L * 30;
     // 리프레시 토큰  만료시간 : 14 Day
     private final long refreshExp = 1000L * 60 * 60 * 24 * 14;
 
@@ -68,7 +68,6 @@ public class JwtProvider {
     // 권한정보 획득
     // Spring Security 인증과정에서 권한확인을 위한 기능
     public Authentication getAuthentication(String token) {
-        System.out.println("JwtProvider.getAuthentication");
         UserDetails userDetails = userDetailsService.loadUserByUsername(this.getAccount(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
@@ -80,14 +79,12 @@ public class JwtProvider {
 
     // Authorization Header를 통해 인증을 한다.
     public String resolveToken(HttpServletRequest request) {
-        System.out.println("JwtProvider.resolveToken");
         return request.getHeader("Authorization");
     }
 
 
     // 토큰 검증
     public boolean validateToken(String token) {
-        System.out.println("JwtProvider.validateToken");
         try {
             // Bearer 검증
             if (!token.substring(0, "BEARER ".length()).equalsIgnoreCase("BEARER ")) {
@@ -99,8 +96,6 @@ public class JwtProvider {
             // 만료되었을 시 false
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
-            System.out.println("e = " + e);
-            System.out.println("e.getMessage() = " + e.getMessage());
             return false;
         }
     }
@@ -112,7 +107,6 @@ public class JwtProvider {
             Jws<Claims> claims = Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
             return false;
         } catch (ExpiredJwtException e) {
-            System.out.println("e.getMessage() = " + e.getMessage());
             return true;
         }
 

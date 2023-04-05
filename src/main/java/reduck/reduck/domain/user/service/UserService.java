@@ -2,7 +2,7 @@ package reduck.reduck.domain.user.service;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.BadCredentialsException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,10 +18,12 @@ import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.entity.mapper.UserMapper;
 import reduck.reduck.domain.user.repository.UserProfileImgRepository;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.CommonErrorCode;
+import reduck.reduck.global.exception.exception.CommonException;
+import reduck.reduck.global.exception.errorcode.UserErrorCode;
+import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 
-import javax.servlet.ServletException;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +32,7 @@ import java.util.UUID;
 
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
@@ -40,29 +43,31 @@ public class UserService {
     private final UserMapper userMapper;
     private final SignInResponseDtoMapper signInResponseDtoMapper;
 
+    private final String PATH = "C:\\reduckStorage";
+
     @Transactional
-    public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) throws Exception {
+    public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
-            System.out.println("UserService.signUp");
             User user = userMapper.from(signUpDto);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
             User userEntity = userRepository.save(user);
-            saveProfileImage(userEntity,multipartFile);
+            saveProfileImage(userEntity, multipartFile);
 
         } catch (Exception e) {
-            System.out.println(e.getMessage());
-            throw new Exception("잘못된 요청입니다.");
+            UserException userException = new UserException(UserErrorCode.DUPLICATE_USER_ID);
+            log.error("회원가입 실패. user id 중복.", userException);
+            throw userException;
         }
     }
+
     @Transactional
-    public UserProfileImg saveProfileImage(User user,MultipartFile multipartFile) throws ServletException, IOException {
+    public UserProfileImg saveProfileImage(User user, MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
         long size = multipartFile.getSize();
-        String path = "C:\\reduckStorage";
 
-        Path imagePath = Paths.get(path, storageFileName);
+        Path imagePath = Paths.get(PATH, storageFileName);
         UserProfileImg userProfileImg = UserProfileImg.builder()
                 .storageFileName(storageFileName)
                 .uploadeFiledName(originalFilename)
@@ -77,18 +82,18 @@ public class UserService {
             return profileImg;
 
         } catch (Exception e) {
-            System.out.println("e.getCause() = " + e.getCause());
-            System.out.println("e.getMessage() = " + e.getMessage());
-            return null;
+            log.error("이미지 저장 실패", e);
+            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Transactional
-    public SignInResponseDto signIn(SignInDto dto) throws IOException {
+    public SignInResponseDto signIn(SignInDto dto){
 
         User user = userRepository.findByUserId(dto.getUserId()).orElseThrow(() ->
-                new BadCredentialsException("잘못된 계정정보입니다."));
+                new UserException(UserErrorCode.USER_NOT_EXIST));
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new BadCredentialsException("잘못된 계정정보입니다.");
+            throw new UserException(UserErrorCode.INVALID_PASSWORD);
         }
         String refreshToken = jwtProvider.createRefreshToken(user.getUserId(), user.getRoles());
         jwtService.saveRefreshToken(refreshToken, user);
@@ -98,8 +103,8 @@ public class UserService {
     }
 
     @Transactional
-    public User getUser(String userId) throws Exception {
-        return userRepository.findByUserId(userId).orElseThrow(() -> new Exception("계정을 찾을 수 없습니다."));
+    public User getUser(String userId) {
+        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
 
 

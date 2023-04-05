@@ -33,7 +33,6 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        System.out.println("SecurityConfig.filterChain");
         http
                 // ID, Password 문자열을 Base64로 인코딩하여 전달하는 구조
                 .httpBasic().disable()
@@ -42,8 +41,6 @@ public class SecurityConfig {
                 // CORS 설정
                 .cors(c -> {
                             CorsConfigurationSource source = request -> {
-
-                                System.out.println("=================================================");
                                 // Cors 허용 패턴
                                 CorsConfiguration config = new CorsConfiguration();
                                 config.setAllowedOrigins(
@@ -80,7 +77,6 @@ public class SecurityConfig {
                     @Override
                     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
                         // 권한 문제가 발생했을 때 이 부분을 호출한다.
-                        System.out.println("request = " + request);
                         response.setStatus(403);
                         response.setCharacterEncoding("utf-8");
                         response.setContentType("text/html; charset=UTF-8");
@@ -91,7 +87,6 @@ public class SecurityConfig {
                     @Override
                     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
                         // 인증문제가 발생했을 때 이 부분을 호출한다.
-                        System.out.println("authException = " + authException);
                         response.setStatus(401);
                         response.setCharacterEncoding("utf-8");
                         response.setContentType("text/html; charset=UTF-8");
