@@ -20,8 +20,7 @@ spring:
           time_zone: Asia/Seoul
     hibernate:
       ddl-auto: update
-jwt:
-  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+
 ## local
 ip: localhost
 ---
@@ -29,27 +28,17 @@ spring:
   config:
     activate:
       on-profile: test
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
   datasource:
-    url: jdbc:mysql://localhost:3306/reduck_test?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&characterSetResults=UTF-8&characterEncoding=UTF-8
-    username: root
-    password: p39pwt12!
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:h2:mem:test;MODE=MySQL
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
   jpa:
-
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-    generate-ddl: true
+    hibernate:
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
-        format_sql: true
-        jdbc:
-          time_zone: Asia/Seoul
-    hibernate:
-      ddl-auto: update
+        format_sql : true
+        dialect: org.hibernate.dialect.MySQL8Dialect
 
-jwt:
-  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
