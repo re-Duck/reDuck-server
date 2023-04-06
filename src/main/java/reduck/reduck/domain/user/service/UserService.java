@@ -48,10 +48,12 @@ public class UserService {
     @Transactional
     public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
+            UserProfileImg userProfileImg = saveProfileImage(multipartFile);
+
             User user = userMapper.from(signUpDto);
+            user.setProfileImg(userProfileImg);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
-            User userEntity = userRepository.save(user);
-            saveProfileImage(userEntity, multipartFile);
+            userRepository.save(user);
 
         } catch (Exception e) {
             UserException userException = new UserException(UserErrorCode.DUPLICATE_USER_ID);
@@ -61,7 +63,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileImg saveProfileImage(User user, MultipartFile multipartFile) {
+    public UserProfileImg saveProfileImage( MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
@@ -74,7 +76,6 @@ public class UserService {
                 .path(String.valueOf(imagePath))
                 .extension(extension)
                 .size(size)
-                .user(user)
                 .build();
         try {
             Files.write(imagePath, multipartFile.getBytes());
