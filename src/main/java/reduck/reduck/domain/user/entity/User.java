@@ -36,6 +36,11 @@ public class User extends BaseEntity {
     @Builder.Default
     private List<Authority> roles = new ArrayList<>();
 
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(referencedColumnName = "id")
+    private UserProfileImg profileImg;
+
     public void setRoles(List<Authority> role) {
         this.roles = role;
         role.forEach(o -> o.setUser(this));

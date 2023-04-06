@@ -30,7 +30,7 @@ public class JwtProvider {
     private Key secretKey;
 
     // 만료시간 : 1 Day
-    private final long exp = 1000L * 30;
+    private final long exp = 1000L * 60;
     // 리프레시 토큰  만료시간 : 14 Day
     private final long refreshExp = 1000L * 60 * 60 * 24 * 14;
 

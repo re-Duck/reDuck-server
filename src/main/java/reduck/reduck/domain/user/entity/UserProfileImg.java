@@ -20,9 +20,9 @@ public class UserProfileImg extends BaseEntity {
     private String extension;
     private Long size;
     private String path;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(referencedColumnName = "userId")
-    private User user;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(referencedColumnName = "userId")
+//    private User user;
 }
 
