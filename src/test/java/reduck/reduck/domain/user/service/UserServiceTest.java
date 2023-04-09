@@ -116,7 +116,7 @@ class UserServiceTest {
     @Test
     @Transactional
     void getUser() throws Exception {
-        User user = userService.getUser("test1");
+        User user = userService.findByUserId("test1");
         Optional<User> findUser = userRepository.findByUserId("test1");
         Assertions.assertThat(user).isEqualTo(findUser.get());
 
