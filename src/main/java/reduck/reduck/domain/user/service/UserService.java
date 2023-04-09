@@ -104,9 +104,12 @@ public class UserService {
     }
 
     @Transactional
-    public User getUser(String userId) {
+    public User findByUserId(String userId){
         return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
-
+    @Transactional
+    public User findById(Long id){
+        return userRepository.findById(id).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+    }
 
 }

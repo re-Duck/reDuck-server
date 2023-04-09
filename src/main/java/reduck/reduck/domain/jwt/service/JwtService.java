@@ -8,13 +8,10 @@ import reduck.reduck.domain.jwt.dto.AccessTokenDto;
 import reduck.reduck.domain.jwt.entity.RefreshToken;
 import reduck.reduck.domain.jwt.repository.JwtRepository;
 import reduck.reduck.domain.user.entity.User;
-import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.domain.user.service.UserService;
 import reduck.reduck.global.exception.errorcode.JwtErrorCode;
 import reduck.reduck.global.exception.exception.JwtException;
-import reduck.reduck.global.exception.errorcode.UserErrorCode;
-import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -22,7 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class JwtService {
     private final JwtRepository jwtRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final JwtProvider jwtProvider;
 
     @Transactional
@@ -35,8 +32,9 @@ public class JwtService {
     @Transactional
     public AccessTokenDto reissuanceAccessToken(HttpServletRequest request, String userId) throws Exception {
 
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
-        String findRefreshToken = getRefreshToken(user.getId());
+//        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        User user = userService.findByUserId(userId);
+        String findRefreshToken = findAllByUserPk(user.getId());
         String requestRefreshToken = jwtProvider.resolveToken(request);
         jwtProvider.validateToken(requestRefreshToken);
 
@@ -49,7 +47,7 @@ public class JwtService {
     }
 
     @Transactional
-    public String getRefreshToken(Long userPKId) throws Exception {
+    public String findAllByUserPk(Long userPKId) throws Exception {
         List<RefreshToken> allByUserPKId = jwtRepository.findAllByUser_Id(userPKId);
         return allByUserPKId.get(allByUserPKId.size() - 1).getRefreshToken();
     }
