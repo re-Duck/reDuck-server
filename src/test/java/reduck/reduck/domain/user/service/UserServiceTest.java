@@ -12,8 +12,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
-import reduck.reduck.domain.jwt.repository.JwtRepository;
+import reduck.reduck.domain.auth.repository.AuthRepository;
+import reduck.reduck.domain.auth.service.AuthService;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
@@ -33,9 +33,11 @@ class UserServiceTest {
     @Autowired
     JwtProvider jwtProvider;
     @Autowired
-    JwtRepository jwtRepository;
+    AuthRepository authRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    AuthService authService;
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -88,14 +90,14 @@ class UserServiceTest {
             SignInDto signInDto = new SignInDto();
             signInDto.setUserId("test1");
             signInDto.setPassword("1234");
-            userService.signIn(signInDto);
+            authService.signIn(signInDto);
 
             //아이디 일치 에러
             SignInDto signInDto2 = new SignInDto();
             signInDto2.setUserId("test2");
             signInDto2.setPassword("1234");
             Assertions.assertThatThrownBy(() -> {
-                userService.signIn(signInDto2);
+                authService.signIn(signInDto2);
             }).isInstanceOf(BadCredentialsException.class);
 
             //비밀번호 일치 에러
@@ -103,7 +105,7 @@ class UserServiceTest {
             signInDto3.setUserId("test1");
             signInDto3.setPassword("test1@@@");
             Assertions.assertThatThrownBy(() -> {
-                userService.signIn(signInDto3);
+                authService.signIn(signInDto3);
             }).isInstanceOf(BadCredentialsException.class);
         } catch (BadCredentialsException e) {
             Assertions.assertThat(e.getClass().toString()).isEqualTo("class org.springframework.security.authentication.BadCredentialsException");

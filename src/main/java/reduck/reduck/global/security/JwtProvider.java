@@ -8,17 +8,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import reduck.reduck.domain.jwt.entity.RefreshToken;
-import reduck.reduck.domain.jwt.service.JwtService;
 import reduck.reduck.domain.user.entity.Authority;
-import reduck.reduck.domain.user.entity.User;
+
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 @Component
