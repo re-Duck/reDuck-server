@@ -46,7 +46,7 @@ public class UserController {
     }
     @GetMapping("/user/{userId}")
     public ResponseEntity<User> getUser(@PathVariable("userId") String userId) {
-        return new ResponseEntity<>( userService.getUser(userId), HttpStatus.OK);
+        return new ResponseEntity<>( userService.findByUserId(userId), HttpStatus.OK);
     }
     @GetMapping("/user/{userId}/token")
     public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request, @PathVariable("userId") String userId) throws Exception {
