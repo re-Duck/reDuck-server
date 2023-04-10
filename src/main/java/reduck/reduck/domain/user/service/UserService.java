@@ -30,6 +30,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private static final String PATH = "C:\\reduckStorage";
+    private static final String DEV_PATH = "/home/nuhgnod/develup/storage";
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -41,14 +42,10 @@ public class UserService {
             User user = UserMapper.from(signUpDto);
             user.setProfileImg(userProfileImg);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
-            user.setProfileImg(userProfileImg);
             userRepository.save(user);
-
         } catch (Exception e) {
-            System.out.println("e.getCause() = " + e.getCause());
             UserException userException = new UserException(UserErrorCode.DUPLICATE_USER_ID);
             log.error("회원가입 실패. user id 중복.", userException);
-            System.out.println("e.getMessage() = " + e.getMessage());
             throw userException;
         }
     }
@@ -67,7 +64,8 @@ public class UserService {
         String storageFileName = UUID.randomUUID() + "." + extension;
         long size = multipartFile.getSize();
 
-        Path imagePath = Paths.get(PATH, storageFileName);
+//        Path imagePath = Paths.get(PATH, storageFileName); //local용
+        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
                     .storageFileName(storageFileName)
