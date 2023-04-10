@@ -1,14 +1,13 @@
-package reduck.reduck.domain.jwt.repository;
+package reduck.reduck.domain.auth.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import reduck.reduck.domain.jwt.entity.RefreshToken;
+import reduck.reduck.domain.auth.entity.RefreshToken;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
-public interface JwtRepository extends JpaRepository<RefreshToken, Long> {
+public interface AuthRepository extends JpaRepository<RefreshToken, Long> {
     List<RefreshToken> findAllByUser_Id(Long id);
 
 }

@@ -1,4 +1,4 @@
-package reduck.reduck.domain.jwt.entity;
+package reduck.reduck.domain.auth.entity;
 
 import lombok.*;
 import reduck.reduck.domain.user.entity.User;
