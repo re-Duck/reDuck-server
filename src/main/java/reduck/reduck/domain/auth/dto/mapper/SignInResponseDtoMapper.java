@@ -1,6 +1,6 @@
-package reduck.reduck.domain.user.dto.mapper;
+package reduck.reduck.domain.auth.dto.mapper;
 
-import reduck.reduck.domain.user.dto.SignInResponseDto;
+import reduck.reduck.domain.auth.dto.SignInResponseDto;
 import reduck.reduck.domain.user.entity.User;
 
 public class SignInResponseDtoMapper {
@@ -10,6 +10,7 @@ public class SignInResponseDtoMapper {
                 .name(obj.getName())
                 .email(obj.getEmail())
                 .roles(obj.getRoles())
+                .userProfileImg(obj.getProfileImg())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -8,9 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.auth.dto.AccessTokenDto;
 import reduck.reduck.domain.auth.entity.RefreshToken;
 import reduck.reduck.domain.auth.repository.AuthRepository;
-import reduck.reduck.domain.user.dto.SignInDto;
-import reduck.reduck.domain.user.dto.SignInResponseDto;
-import reduck.reduck.domain.user.dto.mapper.SignInResponseDtoMapper;
+import reduck.reduck.domain.auth.dto.SignInDto;
+import reduck.reduck.domain.auth.dto.SignInResponseDto;
+import reduck.reduck.domain.auth.dto.mapper.SignInResponseDtoMapper;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.domain.user.service.UserService;
@@ -46,8 +46,6 @@ public class AuthService {
         return SignInResponseDtoMapper.of(user, accessToken, refreshToken);
 
     }
-
-
 
     @Transactional
     public void saveRefreshToken(String token, User user) {
