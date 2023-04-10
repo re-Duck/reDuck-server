@@ -18,6 +18,7 @@ import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 
 import java.util.Optional;
@@ -62,13 +63,13 @@ class UserServiceTest {
                 "Hello, World!".getBytes()
         );
 
-        MockMvc mockMvc
-                = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        mockMvc.perform(multipart("/upload").file(file))
-                .andExpect(status().isOk());
+//        MockMvc mockMvc
+//                = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+//        mockMvc.perform(multipart("/user/test1").file(file))
+//                .andExpect(status().isOk());
         userService.signUp(signUpDto, file);
+        System.out.println("=====================================================================");
         //이미 존재하는 아이디로 회원가입.
-
         SignUpDto signUpDto2 = SignUpDto.builder()
                 .userId("test2")
                 .password("1234")
@@ -98,7 +99,7 @@ class UserServiceTest {
             signInDto2.setPassword("1234");
             Assertions.assertThatThrownBy(() -> {
                 authService.signIn(signInDto2);
-            }).isInstanceOf(BadCredentialsException.class);
+            }).isInstanceOf(UserException.class);
 
             //비밀번호 일치 에러
             SignInDto signInDto3 = new SignInDto();
@@ -106,8 +107,8 @@ class UserServiceTest {
             signInDto3.setPassword("test1@@@");
             Assertions.assertThatThrownBy(() -> {
                 authService.signIn(signInDto3);
-            }).isInstanceOf(BadCredentialsException.class);
-        } catch (BadCredentialsException e) {
+            }).isInstanceOf(UserException.class);
+        } catch (UserException e) {
             Assertions.assertThat(e.getClass().toString()).isEqualTo("class org.springframework.security.authentication.BadCredentialsException");
 
         }

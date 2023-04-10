@@ -12,7 +12,6 @@ import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.entity.mapper.UserMapper;
-import reduck.reduck.domain.user.repository.UserProfileImgRepository;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.exception.CommonException;
@@ -32,8 +31,8 @@ import java.util.UUID;
 public class UserService {
     private static final String PATH = "C:\\reduckStorage";
     private final UserRepository userRepository;
-    private final UserProfileImgRepository userProfileImgRepository;
     private final PasswordEncoder passwordEncoder;
+
     @Transactional
     public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
@@ -42,9 +41,11 @@ public class UserService {
             User user = UserMapper.from(signUpDto);
             user.setProfileImg(userProfileImg);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
+            user.setProfileImg(userProfileImg);
             userRepository.save(user);
 
         } catch (Exception e) {
+            System.out.println("e.getCause() = " + e.getCause());
             UserException userException = new UserException(UserErrorCode.DUPLICATE_USER_ID);
             log.error("회원가입 실패. user id 중복.", userException);
             System.out.println("e.getMessage() = " + e.getMessage());
@@ -60,25 +61,24 @@ public class UserService {
     }
 
     @Transactional
-    public UserProfileImg saveProfileImage( MultipartFile multipartFile) {
+    public UserProfileImg saveProfileImage(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
         long size = multipartFile.getSize();
 
         Path imagePath = Paths.get(PATH, storageFileName);
-        UserProfileImg userProfileImg = UserProfileImg.builder()
-                .storageFileName(storageFileName)
-                .uploadeFiledName(originalFilename)
-                .path(String.valueOf(imagePath))
-                .extension(extension)
-                .size(size)
-                .build();
         try {
+            UserProfileImg userProfileImg = UserProfileImg.builder()
+                    .storageFileName(storageFileName)
+                    .uploadeFiledName(originalFilename)
+                    .path(String.valueOf(imagePath))
+                    .extension(extension)
+                    .size(size)
+                    .build();
+            System.out.println("userProfileImg = " + userProfileImg);
             Files.write(imagePath, multipartFile.getBytes());
-            UserProfileImg profileImg = userProfileImgRepository.save(userProfileImg);
-            System.out.println("profileImg = " + profileImg);
-            return profileImg;
+            return userProfileImg;
 
         } catch (Exception e) {
             log.error("이미지 저장 실패", e);
@@ -87,9 +87,8 @@ public class UserService {
     }
 
 
-
     @Transactional
-    public User findByUserId(String userId){
+    public User findByUserId(String userId) {
         return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
 
