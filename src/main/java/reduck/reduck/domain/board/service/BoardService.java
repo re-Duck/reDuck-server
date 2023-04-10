@@ -27,12 +27,11 @@ import java.util.stream.Stream;
 public class BoardService {
     private final BoardRepository boardRepository;
     private final BoardImageRepository boardImageRepository;
-    private final BoardMapper boardMapper;
     private final String PATH = "C:\\reduckStorage\\board";
 
     public void createBoard(BoardDto boardDto, List<MultipartFile> multipartFileList) {
         System.out.println("boardDto = " + boardDto.getImagePathList());
-        Board boardEntity = boardMapper.from(boardDto);
+        Board boardEntity = BoardMapper.from(boardDto);
         Board board = boardRepository.save(boardEntity);
         saveImage(board, multipartFileList);
     }

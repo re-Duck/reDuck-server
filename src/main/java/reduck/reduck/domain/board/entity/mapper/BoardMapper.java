@@ -4,7 +4,7 @@ import reduck.reduck.domain.board.dto.BoardDto;
 import reduck.reduck.domain.board.entity.Board;
 
 public class BoardMapper {
-    public Board from(Object obj) {
+    public static Board from(Object obj) {
         if (obj instanceof BoardDto) {
             BoardDto boardDto = (BoardDto) obj;
             Board board = Board.builder()
