@@ -47,7 +47,7 @@ public class User extends BaseEntity {
     @Override
     public String toString() {
 
-        return this.getPassword() + "\n" + this.profileImg.toString();
+        return this.getPassword() + "\n";
     }
 
     @Override
