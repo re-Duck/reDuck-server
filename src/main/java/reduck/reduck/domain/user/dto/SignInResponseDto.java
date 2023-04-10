@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import reduck.reduck.domain.user.entity.Authority;
-import reduck.reduck.domain.user.entity.User;
 import java.util.ArrayList;
 import java.util.List;
 

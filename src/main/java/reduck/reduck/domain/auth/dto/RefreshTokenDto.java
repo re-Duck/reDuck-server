@@ -1,4 +1,4 @@
-package reduck.reduck.domain.jwt.dto;
+package reduck.reduck.domain.auth.dto;
 
 
 import lombok.Builder;

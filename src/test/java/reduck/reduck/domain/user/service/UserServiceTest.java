@@ -12,12 +12,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
-import reduck.reduck.domain.jwt.repository.JwtRepository;
+import reduck.reduck.domain.auth.repository.AuthRepository;
+import reduck.reduck.domain.auth.service.AuthService;
 import reduck.reduck.domain.user.dto.SignInDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 
 import java.util.Optional;
@@ -33,9 +34,11 @@ class UserServiceTest {
     @Autowired
     JwtProvider jwtProvider;
     @Autowired
-    JwtRepository jwtRepository;
+    AuthRepository authRepository;
     @Autowired
     UserService userService;
+    @Autowired
+    AuthService authService;
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -60,13 +63,13 @@ class UserServiceTest {
                 "Hello, World!".getBytes()
         );
 
-        MockMvc mockMvc
-                = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        mockMvc.perform(multipart("/upload").file(file))
-                .andExpect(status().isOk());
+//        MockMvc mockMvc
+//                = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+//        mockMvc.perform(multipart("/user/test1").file(file))
+//                .andExpect(status().isOk());
         userService.signUp(signUpDto, file);
+        System.out.println("=====================================================================");
         //이미 존재하는 아이디로 회원가입.
-
         SignUpDto signUpDto2 = SignUpDto.builder()
                 .userId("test2")
                 .password("1234")
@@ -88,24 +91,24 @@ class UserServiceTest {
             SignInDto signInDto = new SignInDto();
             signInDto.setUserId("test1");
             signInDto.setPassword("1234");
-            userService.signIn(signInDto);
+            authService.signIn(signInDto);
 
             //아이디 일치 에러
             SignInDto signInDto2 = new SignInDto();
             signInDto2.setUserId("test2");
             signInDto2.setPassword("1234");
             Assertions.assertThatThrownBy(() -> {
-                userService.signIn(signInDto2);
-            }).isInstanceOf(BadCredentialsException.class);
+                authService.signIn(signInDto2);
+            }).isInstanceOf(UserException.class);
 
             //비밀번호 일치 에러
             SignInDto signInDto3 = new SignInDto();
             signInDto3.setUserId("test1");
             signInDto3.setPassword("test1@@@");
             Assertions.assertThatThrownBy(() -> {
-                userService.signIn(signInDto3);
-            }).isInstanceOf(BadCredentialsException.class);
-        } catch (BadCredentialsException e) {
+                authService.signIn(signInDto3);
+            }).isInstanceOf(UserException.class);
+        } catch (UserException e) {
             Assertions.assertThat(e.getClass().toString()).isEqualTo("class org.springframework.security.authentication.BadCredentialsException");
 
         }

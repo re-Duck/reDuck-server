@@ -3,18 +3,15 @@ package reduck.reduck.domain.user.entity;
 import lombok.*;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
-@Entity
+
 @Builder
-@Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class UserProfileImg extends BaseEntity {
+@Embeddable
+@Data
+public class UserProfileImg {
     private String uploadeFiledName;
     private String storageFileName;
     private String extension;
