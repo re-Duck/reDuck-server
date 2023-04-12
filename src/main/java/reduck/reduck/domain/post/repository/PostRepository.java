@@ -1,9 +1,16 @@
-package reduck.reduck.domain.board.repository;
+package reduck.reduck.domain.post.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import reduck.reduck.domain.board.entity.Board;
+import reduck.reduck.domain.post.entity.Post;
+
+import java.util.Optional;
 
 @Repository
-public interface BoardRepository  extends JpaRepository<Board, Long> {
+public interface PostRepository extends JpaRepository<Post, Long> {
+
+    Optional<Post> findByPostOriginId(String userId);
+
+//    findAllByPostTypeWithPage();
+//    findAllByPostTypeWithOriginIdAndPage();
 }

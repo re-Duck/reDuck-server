@@ -49,7 +49,7 @@ class PostServiceTest {
             );
             files.add(file);
         }
-        boardService.createBoard(postDto, files);
+        boardService.createPost(postDto, files);
         Optional<Post> boardById = boardRepository.findById(1L);
 //        Assertions.assertThat()
     }
