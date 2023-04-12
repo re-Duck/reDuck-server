@@ -1,4 +1,4 @@
-package reduck.reduck.domain.board.entity;
+package reduck.reduck.domain.post.entity;
 
 import lombok.*;
 import reduck.reduck.domain.user.entity.User;
@@ -23,7 +23,7 @@ public class Comment extends BaseEntity {
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Board board;
+    private Post post;
 
     @Column(unique = true)
     private String originId;

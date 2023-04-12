@@ -1,4 +1,4 @@
-package reduck.reduck.domain.board.entity;
+package reduck.reduck.domain.post.entity;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -13,9 +13,9 @@ import javax.persistence.ManyToOne;
 @Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
-public class BoardImage extends ImageEntity {
+public class PostImage extends ImageEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Board board;
+    private Post post;
 
 }

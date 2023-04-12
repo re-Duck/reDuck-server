@@ -1,4 +1,4 @@
-package reduck.reduck.domain.board.entity;
+package reduck.reduck.domain.post.entity;
 
 import lombok.*;
 import reduck.reduck.domain.user.entity.User;
@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class Board extends BaseEntity {
+public class Post extends BaseEntity {
     private String title;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -25,7 +25,7 @@ public class Board extends BaseEntity {
     private String postOriginId;
 
     @Enumerated(EnumType.STRING)
-    private BoardType boardType;
+    private PostType postType;
 
     @Column(columnDefinition = ("boolean default false"))
     private Boolean temporary;

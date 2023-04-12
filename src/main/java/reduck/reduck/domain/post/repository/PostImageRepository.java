@@ -1,8 +1,8 @@
-package reduck.reduck.domain.board.repository;
+package reduck.reduck.domain.post.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import reduck.reduck.domain.board.entity.BoardImage;
+import reduck.reduck.domain.post.entity.PostImage;
 @Repository
-public interface BoardImageRepository extends JpaRepository<BoardImage, Long> {
+public interface PostImageRepository extends JpaRepository<PostImage, Long> {
 }

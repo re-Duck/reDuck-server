@@ -1,16 +1,15 @@
-package reduck.reduck.domain.board.dto;
+package reduck.reduck.domain.post.dto;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import reduck.reduck.domain.board.entity.BoardType;
+import reduck.reduck.domain.post.entity.PostType;
 
 @Getter
 @Setter
-public class BoardDto {
+public class PostDto {
     private String title;
     private String userId;
     private String content;
     private String postOriginId;
-    private BoardType boardType;
+    private PostType postType;
 }

@@ -1,4 +1,4 @@
-package reduck.reduck.domain.board.entity;
+package reduck.reduck.domain.post.entity;
 
 import lombok.*;
 import lombok.experimental.SuperBuilder;

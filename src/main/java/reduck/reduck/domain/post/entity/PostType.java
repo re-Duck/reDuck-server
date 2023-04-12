@@ -1,6 +1,6 @@
-package reduck.reduck.domain.board.entity;
+package reduck.reduck.domain.post.entity;
 
-public enum BoardType {
+public enum PostType {
 
     qna("질문 게시판"),
     stack("기술 공유 게시판"),
@@ -10,7 +10,7 @@ public enum BoardType {
 
 
 
-    BoardType(String type) {
+    PostType(String type) {
         this.type = type;
     }
 }

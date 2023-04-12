@@ -1,6 +1,5 @@
-package reduck.reduck.domain.board.service;
+package reduck.reduck.domain.post.service;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -9,10 +8,10 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import reduck.reduck.domain.board.dto.BoardDto;
-import reduck.reduck.domain.board.entity.Board;
-import reduck.reduck.domain.board.entity.BoardType;
-import reduck.reduck.domain.board.repository.BoardRepository;
+import reduck.reduck.domain.post.dto.PostDto;
+import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.post.entity.PostType;
+import reduck.reduck.domain.post.repository.PostRepository;
 import reduck.reduck.domain.user.repository.UserRepository;
 
 import java.util.ArrayList;
@@ -22,23 +21,23 @@ import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class BoardServiceTest {
+class PostServiceTest {
     @Autowired
-    BoardService boardService;
+    PostService boardService;
     @Autowired
     UserRepository userRepository;
     @Autowired
-    BoardRepository boardRepository;
+    PostRepository boardRepository;
 
     @Test
     @Transactional
     void createBoard() {
-        BoardDto boardDto = new BoardDto();
-        boardDto.setBoardType(BoardType.qna);
-        boardDto.setContent("qwe rty uio");
-        boardDto.setTitle("test");
-        boardDto.setUserId("test2");
-        boardDto.setPostOriginId("origin");
+        PostDto postDto = new PostDto();
+        postDto.setPostType(PostType.qna);
+        postDto.setContent("qwe rty uio");
+        postDto.setTitle("test");
+        postDto.setUserId("test2");
+        postDto.setPostOriginId("origin");
         List<MultipartFile> files = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             MockMultipartFile file
@@ -50,15 +49,15 @@ class BoardServiceTest {
             );
             files.add(file);
         }
-        boardService.createBoard(boardDto, files);
-        Optional<Board> boardById = boardRepository.findById(1L);
+        boardService.createBoard(postDto, files);
+        Optional<Post> boardById = boardRepository.findById(1L);
 //        Assertions.assertThat()
     }
 
     @Test
     @Transactional
-    void saveImages(Board board, List<MultipartFile> files) {
-        boardService.saveImages(board, files);
+    void saveImages(Post post, List<MultipartFile> files) {
+        boardService.saveImages(post, files);
     }
 
     @Test
