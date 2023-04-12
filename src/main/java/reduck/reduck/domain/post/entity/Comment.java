@@ -25,10 +25,14 @@ public class Comment extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Board board;
 
-    private int likes;
-    private boolean fixed;
-
     @Column(unique = true)
     private String originId;
+
+    @Column(columnDefinition = "boolean default false")
+    private Boolean pin;
+
+    @Column(columnDefinition = "integer default 0")
+    private int likes;
+
 
 }

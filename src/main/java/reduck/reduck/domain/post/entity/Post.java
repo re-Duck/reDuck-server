@@ -27,4 +27,7 @@ public class Board extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private BoardType boardType;
 
+    @Column(columnDefinition = ("boolean default false"))
+    private Boolean temporary;
+
 }
