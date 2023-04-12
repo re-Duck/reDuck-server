@@ -9,6 +9,9 @@ import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.board.dto.BoardDto;
 import reduck.reduck.domain.board.service.BoardService;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 
 @RestController
@@ -16,9 +19,9 @@ import java.util.List;
 public class BoardController {
     private final BoardService boardService;
 
-    @PostMapping("/board")
-    public ResponseEntity<Void> createBoard(@RequestPart BoardDto boardDto, @RequestPart(required = false) List<MultipartFile> multipartFileList) {
-        boardService.createBoard(boardDto, multipartFileList);
+    @PostMapping("/board/{originId}")
+    public ResponseEntity<Void> createBoard(HttpServletRequest request, @RequestPart BoardDto boardDto, @RequestPart(required = false) List<MultipartFile> multipartFiles) {
+        boardService.createBoard(boardDto, multipartFiles);
         return ResponseEntity.ok().build();
     }
 

@@ -17,7 +17,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login") // -> /user
-    public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInDto signInDto){
+    public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInDto signInDto, HttpServletRequest request){
         return new ResponseEntity<>(authService.signIn(signInDto), HttpStatus.OK);
     }
     @GetMapping("/auth/{userId}/token")

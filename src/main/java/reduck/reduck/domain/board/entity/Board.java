@@ -4,10 +4,7 @@ import lombok.*;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 @Entity
 @Builder
@@ -25,5 +22,9 @@ public class Board extends BaseEntity {
     private String content;
 
     @Column(unique = true)
-    private String originId;
+    private String postOriginId;
+
+    @Enumerated(EnumType.STRING)
+    private BoardType boardType;
+
 }

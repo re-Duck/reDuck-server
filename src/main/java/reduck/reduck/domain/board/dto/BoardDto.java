@@ -2,14 +2,15 @@ package reduck.reduck.domain.board.dto;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
+import lombok.Setter;
+import reduck.reduck.domain.board.entity.BoardType;
 
 @Getter
-@RequiredArgsConstructor
+@Setter
 public class BoardDto {
     private String title;
+    private String userId;
     private String content;
-    private String originId;
-    private List<String> imagePathList;
+    private String postOriginId;
+    private BoardType boardType;
 }
