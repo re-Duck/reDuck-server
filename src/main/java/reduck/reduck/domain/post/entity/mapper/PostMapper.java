@@ -7,8 +7,8 @@ public class PostMapper {
     public static Post from(PostDto obj) {
         Post post = Post.builder()
                 .postOriginId(obj.getPostOriginId())
-                .content(obj.getContent())
-                .title(obj.getTitle())
+                .postContent(obj.getContent())
+                .postTitle(obj.getTitle())
                 .postType(obj.getPostType())
                 .build();
         return post;

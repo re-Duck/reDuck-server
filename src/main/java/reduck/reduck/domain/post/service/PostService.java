@@ -3,7 +3,10 @@ package reduck.reduck.domain.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import reduck.reduck.domain.post.dto.CommentResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
+import reduck.reduck.domain.post.dto.PostResponseDto;
+import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostImage;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
@@ -37,12 +40,13 @@ public class PostService {
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage";
 
     public Post createPost(PostDto postDto, List<MultipartFile> multipartFiles) {
+
         String userId = postDto.getUserId();
 
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
-
+        System.out.println("postDto = " + postDto.getPostOriginId());
         Post post = boardRepository.save(postEntity);
         saveImages(post, multipartFiles);
         return post;
@@ -53,7 +57,7 @@ public class PostService {
         System.out.println("multipartFiles = " + multipartFiles.get(0));
         System.out.println("multipartFiles = " + multipartFiles.get(0).getOriginalFilename());
         System.out.println("multipartFiles = " + multipartFiles.get(0).getResource());
-        if (multipartFiles.isEmpty()) {
+        if (multipartFiles.size() == 1) {
             System.out.println("null = " + null);
             return;
         }
@@ -93,9 +97,38 @@ public class PostService {
         }
     }
 
-    public Post findByPostOriginId(String postOriginId) {
+    public PostResponseDto findByPostOriginId(String postOriginId) {
         Post post = boardRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
-        return post;
+        List<CommentResponseDto> comments = new ArrayList<>();
+        for (Comment comm : post.getComments()) {
+            System.out.println("comm.toString() = " + comm.toString());
+
+            CommentResponseDto commentResponseDto = new CommentResponseDto();
+            commentResponseDto.setCommentAuthor(comm.getUser().getUserId());
+            commentResponseDto.setCommentAuthorName(comm.getUser().getName());
+            commentResponseDto.setCommentAuthorProfileImg(comm.getUser().getProfileImg());
+            commentResponseDto.setCommentContent(comm.getCommentContent());
+            commentResponseDto.setCommentOriginId(comm.getCommentOriginId());
+            commentResponseDto.setUpdatedAt(comm.getUpdatedAt());
+
+            comments.add(commentResponseDto);
+        }
+
+        PostResponseDto postResponseDto = PostResponseDto.builder()
+                .postAuthorId(post.getUser().getUserId())
+                .postAuthorProfileimg(post.getUser().getProfileImg())
+                .postAuthorName(post.getUser().getName())
+
+                .postTitle(post.getPostTitle())
+                .postContent(post.getPostContent())
+                .postOriginId(post.getPostOriginId())
+                .postType(post.getPostType())
+                .postCreatedAt(post.getCreatedAt())
+                .postUpdatedAt(post.getUpdatedAt())
+
+                .comments(comments)
+                .build();
+        return postResponseDto;
     }
     //paging의 경우.
     // DB에 post가 Long id순으로 삽임됨 => createdAt순

@@ -5,6 +5,8 @@ import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Builder
@@ -13,13 +15,13 @@ import javax.persistence.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Post extends BaseEntity {
-    private String title;
+    private String postTitle;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
     @Column(columnDefinition = "TEXT")
-    private String content;
+    private String postContent;
 
     @Column(unique = true)
     private String postOriginId;
@@ -29,5 +31,9 @@ public class Post extends BaseEntity {
 
     @Column(columnDefinition = ("boolean default false"))
     private Boolean temporary;
+
+    @OneToMany(mappedBy = "post")
+    List<Comment> comments= new ArrayList(); //양방향 매핑 순환참조 문제 발생.
+
 
 }
