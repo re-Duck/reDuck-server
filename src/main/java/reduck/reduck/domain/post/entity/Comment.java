@@ -17,7 +17,7 @@ import javax.persistence.ManyToOne;
 @AllArgsConstructor
 public class Comment extends BaseEntity {
     @Column(columnDefinition = "TEXT")
-    private String content;
+    private String commentContent;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
@@ -26,7 +26,7 @@ public class Comment extends BaseEntity {
     private Post post;
 
     @Column(unique = true)
-    private String originId;
+    private String commentOriginId;
 
     @Column(columnDefinition = "boolean default false")
     private Boolean pin;
@@ -34,5 +34,13 @@ public class Comment extends BaseEntity {
     @Column(columnDefinition = "integer default 0")
     private int likes;
 
+    @Override
+    public String toString() {
+        return "content : " + this.commentContent + " commentOriginId : " + this.commentOriginId;
+    }
 
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
 }
