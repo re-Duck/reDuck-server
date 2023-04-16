@@ -15,7 +15,6 @@ public class CommentController {
     private final CommentService commentService;
     @PostMapping("/post/comment/{postOriginId}/{commentOriginId}")
     public ResponseEntity<Void> createComment(@RequestBody CommentDto commentDto, @PathVariable String postOriginId, @PathVariable String commentOriginId) {
-        System.out.println("commentDto = " + commentDto.getUserId());
         commentService.createComment(commentDto, postOriginId, commentOriginId);
         return ResponseEntity.ok().build();
     }

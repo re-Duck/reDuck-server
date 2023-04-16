@@ -9,8 +9,8 @@ import reduck.reduck.domain.post.repository.CommentRepository;
 import reduck.reduck.domain.post.repository.PostRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
-
-import java.util.Optional;
+import reduck.reduck.global.exception.errorcode.PostErrorCode;
+import reduck.reduck.global.exception.exception.PostException;
 
 @Service
 @RequiredArgsConstructor
@@ -20,19 +20,14 @@ public class CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
     public void createComment(CommentDto commentDto, String postOriginId, String commentOriginId) {
-        User byUserId = userService.findByUserId(commentDto.getUserId());
-        Optional<Post> byPostOriginId = postRepository.findByPostOriginId(postOriginId);
-//        Post byPostOriginId = postService.findByPostOriginId(postOriginId);
-        Comment build = Comment.builder()
+        User user = userService.findByUserId(commentDto.getUserId());
+        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        Comment comment = Comment.builder()
                 .commentContent(commentDto.getContent())
-                .post(byPostOriginId.get())
+                .post(post)
                 .commentOriginId(commentOriginId)
-                .user(byUserId)
+                .user(user)
                 .build();
-        System.out.println("build = " + build.getUser());
-        System.out.println("build = " + build.getPost());
-        Comment save = commentRepository.save(build);
-        System.out.println("save.toString() = " + save.toString());
-
+        commentRepository.save(comment);
     }
 }

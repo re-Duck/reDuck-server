@@ -34,13 +34,4 @@ public class Comment extends BaseEntity {
     @Column(columnDefinition = "integer default 0")
     private int likes;
 
-    @Override
-    public String toString() {
-        return "content : " + this.commentContent + " commentOriginId : " + this.commentOriginId;
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
 }

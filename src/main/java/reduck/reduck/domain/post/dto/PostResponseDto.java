@@ -1,8 +1,6 @@
 package reduck.reduck.domain.post.dto;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.user.entity.User;
@@ -14,6 +12,8 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class PostResponseDto {
     //user
     private String postAuthorId;

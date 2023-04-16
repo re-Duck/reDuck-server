@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
-    @Query("select p from Post p join fetch p.user where p.postOriginId = :postOriginId")
+    @Query("select p from Post p join fetch p.user left outer join fetch p.comments where p.postOriginId = :postOriginId")
     Optional<Post> findByPostOriginId(@Param("postOriginId") String postOriginId);
 
 //    findAllByPostTypeWithPage();

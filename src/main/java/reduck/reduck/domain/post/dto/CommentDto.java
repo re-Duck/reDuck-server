@@ -7,5 +7,6 @@ public class CommentDto {
 
     private String userId;
     private String content;
-
+    private String commentOriginId;
+    private String postOriginId;
 }

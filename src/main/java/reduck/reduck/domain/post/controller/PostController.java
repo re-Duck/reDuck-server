@@ -20,7 +20,6 @@ public class PostController {
 
     @PostMapping("/post/{postOriginId}")
     public ResponseEntity<Void> createPost(HttpServletRequest request, @RequestPart PostDto postDto, @RequestPart(required = false) List<MultipartFile> multipartFiles) {
-        System.out.println(request.getServletPath());
         postService.createPost(postDto, multipartFiles);
         return ResponseEntity.ok().build();
     }

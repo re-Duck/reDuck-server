@@ -1,5 +1,6 @@
 package reduck.reduck.domain.post.dto;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import reduck.reduck.domain.user.entity.UserProfileImg;
@@ -7,15 +8,16 @@ import reduck.reduck.domain.user.entity.UserProfileImg;
 import java.time.LocalDateTime;
 
 @Getter
-@Setter
+@Builder
 public class CommentResponseDto {
-
-    private String commentAuthor;
+    //user
+    private String commentAuthorId;
     private String commentAuthorName;
     private UserProfileImg commentAuthorProfileImg;
-
+    //comment
     private String commentContent;
     private String commentOriginId;
-    private LocalDateTime updatedAt;
+    private LocalDateTime commentUpdatedAt;
+    private LocalDateTime commentCreatedAt;
 
 }
