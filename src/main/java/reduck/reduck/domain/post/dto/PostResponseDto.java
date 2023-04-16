@@ -17,7 +17,7 @@ import java.util.List;
 public class PostResponseDto {
     //user
     private String postAuthorId;
-    private UserProfileImg postAuthorProfileimg;
+    private UserProfileImg postAuthorProfileImg;
     private String postAuthorName;
 
     //post

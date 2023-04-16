@@ -15,7 +15,7 @@ import reduck.reduck.global.exception.exception.PostException;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-    private final PostService postService;
+
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;

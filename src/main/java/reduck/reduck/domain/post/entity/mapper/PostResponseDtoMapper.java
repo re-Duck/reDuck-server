@@ -19,7 +19,7 @@ public class PostResponseDtoMapper {
                 //user
                 .postAuthorId(post.getUser().getUserId())
                 .postAuthorName(post.getUser().getName())
-                .postAuthorProfileimg(post.getUser().getProfileImg())
+                .postAuthorProfileImg(post.getUser().getProfileImg())
                 //post
                 .postTitle(post.getPostTitle())
                 .postContent(post.getPostContent())

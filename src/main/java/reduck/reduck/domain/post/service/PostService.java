@@ -3,19 +3,15 @@ package reduck.reduck.domain.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import reduck.reduck.domain.post.dto.CommentResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
-import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostImage;
-import reduck.reduck.domain.post.entity.mapper.CommentResponseDtoMapper;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.entity.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.PostImageRepository;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
-
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
@@ -24,7 +20,6 @@ import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.PostException;
 import reduck.reduck.global.exception.exception.UserException;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,10 +51,6 @@ public class PostService {
             System.out.println("null = " + null);
             return;
         }
-//        multipartFiles.stream().map(multipartFile -> saveImage(board, multipartFile)).forEach(path -> {
-//            System.out.println("path = " + path);
-//        });
-//
         Stream<String> stream = multipartFiles.stream().map(multipartFile -> saveImage(post, multipartFile));
         stream.forEach(path -> {
             System.out.println("path = " + path);
@@ -68,7 +59,6 @@ public class PostService {
     }
 
     public String saveImage(Post post, MultipartFile multipartFile) {
-
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
@@ -94,12 +84,6 @@ public class PostService {
 
     public PostResponseDto findByPostOriginId(String postOriginId) {
         Post post = boardRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
-//        List<CommentResponseDto> comments = new ArrayList<>();
-//        for (Comment comm : post.getComments()) {
-//            System.out.println("comm.toString() = " + comm.toString());
-//            CommentResponseDto commentResponseDto = CommentResponseDtoMapper.of(post.getUser(), comm);
-//            comments.add(commentResponseDto);
-//        }
         PostResponseDto postResponseDto = PostResponseDtoMapper.from(post);
 
         return postResponseDto;
