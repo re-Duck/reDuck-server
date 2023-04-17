@@ -44,14 +44,4 @@ public class User extends BaseEntity {
         role.forEach(o -> o.setUser(this));
     }
 
-    @Override
-    public String toString() {
-
-        return this.getPassword() + "\n";
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
 }

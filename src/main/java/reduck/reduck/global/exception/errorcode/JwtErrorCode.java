@@ -9,7 +9,7 @@ import reduck.reduck.global.exception.errorcode.ErrorCode;
 @RequiredArgsConstructor
 public enum JwtErrorCode implements ErrorCode {
 
-    TOKEN_NOT_EXIST(HttpStatus.BAD_REQUEST, "Refresh token isn't exist"),
+    TOKEN_NOT_EXIST(HttpStatus.BAD_REQUEST, "Refresh Token Is Not Exist"),
 
 
     ;

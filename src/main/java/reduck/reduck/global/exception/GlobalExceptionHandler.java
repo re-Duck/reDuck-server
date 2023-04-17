@@ -1,6 +1,7 @@
 package reduck.reduck.global.exception;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.validation.BindException;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
+import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.UserException;
 
 import java.util.List;
@@ -27,12 +29,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
     }
+    @ExceptionHandler(CommonException.class)
+    public ResponseEntity<Object> handleCustomException(CommonException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        return handleExceptionInternal(errorCode);
+    }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
         log.warn("handleIllegalArgument", e);
         ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
-        return handleExceptionInternal(errorCode, e.getMessage());
+        return handleExceptionInternal(errorCode);
     }
 
     @Override
@@ -49,6 +56,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllException(Exception ex) {
         log.warn("handleAllException", ex);
+        if(ex instanceof DataIntegrityViolationException){
+            ErrorCode errorCode = CommonErrorCode.DATA_INTEGRITY_VIOLATION;
+            return handleExceptionInternal(errorCode);
+
+        }
         ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
         return handleExceptionInternal(errorCode);
     }

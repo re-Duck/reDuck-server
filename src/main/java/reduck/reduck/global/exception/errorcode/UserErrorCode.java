@@ -9,9 +9,9 @@ import reduck.reduck.global.exception.errorcode.ErrorCode;
 @RequiredArgsConstructor
 public enum UserErrorCode implements ErrorCode {
 
-    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "Invalid password"),
-    DUPLICATE_USER_ID(HttpStatus.BAD_REQUEST, "Duplicated user id"),
-    USER_NOT_EXIST(HttpStatus.BAD_REQUEST, "User isn't exist"),
+    INVALID_PASSWORD(HttpStatus.BAD_REQUEST, "Invalid Password"),
+    DUPLICATE_USER_ID(HttpStatus.BAD_REQUEST, "Duplicated User Id"),
+    USER_NOT_EXIST(HttpStatus.BAD_REQUEST, "User Is Not Exist"),
 
 
     ;

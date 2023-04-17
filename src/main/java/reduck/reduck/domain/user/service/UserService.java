@@ -3,6 +3,8 @@ package reduck.reduck.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,16 +39,16 @@ public class UserService {
     @Transactional
     public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
-            UserProfileImg userProfileImg = saveProfileImage(multipartFile);
             encodePasswordOf(signUpDto);
             User user = UserMapper.from(signUpDto);
-            user.setProfileImg(userProfileImg);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
+            if (!multipartFile.isEmpty()) {
+                UserProfileImg userProfileImg = saveProfileImage(multipartFile);
+                user.setProfileImg(userProfileImg);
+            }
             userRepository.save(user);
-        } catch (Exception e) {
-            UserException userException = new UserException(UserErrorCode.DUPLICATE_USER_ID);
-            log.error("회원가입 실패. user id 중복.", userException);
-            throw userException;
+        } catch (CommonException | DataIntegrityViolationException e) {
+            throw e;
         }
     }
 
@@ -64,8 +66,8 @@ public class UserService {
         String storageFileName = UUID.randomUUID() + "." + extension;
         long size = multipartFile.getSize();
 
-//        Path imagePath = Paths.get(PATH, storageFileName); //local용
-        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
+        Path imagePath = Paths.get(PATH, storageFileName); //local용
+//        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
                     .storageFileName(storageFileName)
@@ -74,7 +76,6 @@ public class UserService {
                     .extension(extension)
                     .size(size)
                     .build();
-            System.out.println("userProfileImg = " + userProfileImg);
             Files.write(imagePath, multipartFile.getBytes());
             return userProfileImg;
 
