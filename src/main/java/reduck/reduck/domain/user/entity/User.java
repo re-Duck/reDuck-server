@@ -1,6 +1,7 @@
 package reduck.reduck.domain.user.entity;
 
 
+import com.sun.istack.NotNull;
 import lombok.*;
 import reduck.reduck.global.entity.BaseEntity;
 
@@ -17,7 +18,6 @@ import java.util.List;
 @Builder
 @Table(indexes = @Index(name = "idx_userId", columnList = "userId", unique = true))
 public class User extends BaseEntity {
-
 
     private String password;
     @Column(length = 20, unique = true)

@@ -11,13 +11,16 @@ import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
 
     @PostMapping("/user/{userId}") // -> /user/{userId}
-        public ResponseEntity<Void> signUp(@RequestPart SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
+        public ResponseEntity<User> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
+        System.out.println("signUpDto = " + signUpDto.getPassword());
         userService.signUp(signUpDto, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

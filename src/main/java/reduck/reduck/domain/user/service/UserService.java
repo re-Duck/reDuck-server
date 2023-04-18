@@ -3,7 +3,6 @@ package reduck.reduck.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
+    public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
             encodePasswordOf(signUpDto);
             User user = UserMapper.from(signUpDto);
@@ -46,7 +45,8 @@ public class UserService {
                 UserProfileImg userProfileImg = saveProfileImage(multipartFile);
                 user.setProfileImg(userProfileImg);
             }
-            userRepository.save(user);
+            User userEntity = userRepository.save(user);
+            return userEntity;
         } catch (CommonException | DataIntegrityViolationException e) {
             throw e;
         }
