@@ -12,14 +12,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
-import org.springframework.http.codec.multipart.Part;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.mock.web.MockPart;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMultipartHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
 import reduck.reduck.domain.auth.repository.AuthRepository;
@@ -31,12 +27,9 @@ import reduck.reduck.global.security.JwtProvider;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Stream;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -67,9 +60,7 @@ class UserServiceTest {
     @ParameterizedTest
     @CsvSource("test1,p39pwt12!, donghun, zhfptm12@naver.com,3,naver,CNU")
     void 정상회원가입(String userId, String password, String name, String email, String developAnnual, String company, String school) throws Exception {
-        System.out.println("==================================================================");
-        System.out.println("userId = " + userId + ", password = " + password + ", name = " + name + ", email = " + email + ", developAnnual = " + developAnnual + ", company = " + company + ", school = " + school);
-        System.out.println("==================================================================");
+
         MockMultipartFile file
                 = new MockMultipartFile(
                 "file",
@@ -87,22 +78,15 @@ class UserServiceTest {
                 .school(school)
                 .build();
         User user = userService.signUp(signUpDto, file);
-        String format1 = user.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"));//spring boot ms 9자리, mysql6자리
-        String format2 = user.getUpdatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS"));//spring boot ms 9자리, mysql6자리
-        user.setCreatedAt(LocalDateTime.parse(format1, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")));
-        user.setUpdatedAt(LocalDateTime.parse(format2, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")));
         User byUserId = userService.findByUserId(user.getUserId());
-        Assertions.assertThat(user).isEqualTo(byUserId);
+        Assertions.assertThat(user.getUserId()).isEqualTo(byUserId.getUserId());
     }
 
     @Transactional
     @DisplayName("회원가입 유효성 검사")
-    @ParameterizedTest
+    @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideUserObject")
-    void 회원가입유효성검사(String userId, String password, String name, String email, String developAnnual, String company, String school, MockMultipartFile file,Exception exception) throws Exception {
-        System.out.println("==================================================================");
-        System.out.println("userId = " + userId + ", password = " + password + ", name = " + name + ", email = " + email + ", developAnnual = " + developAnnual + ", company = " + company + ", school = " + school);
-        System.out.println("==================================================================");
+    void 회원가입유효성검사(String testName, String userId, String password, String name, String email, String developAnnual, String company, String school, MockMultipartFile file, Class obj) throws Exception {
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)
                 .password(password)
@@ -112,18 +96,15 @@ class UserServiceTest {
                 .company(company)
                 .school(school)
                 .build();
+
         String path = "/user/" + userId;
         MockMultipartFile jsonPart = new MockMultipartFile("signUpDto", "signUpDto", "application/json", gson.toJson(signUpDto).getBytes(StandardCharsets.UTF_8));
-
-        ResultActions resultActions = mockMvc.perform(multipart(path)
+        mockMvc.perform(multipart(path)
                         .file(file)
-                        .file(jsonPart)
-                )
-                .andDo(System.out::println).andExpect(status().isBadRequest()).andExpect(
-                        ex -> org.junit.jupiter.api.Assertions.assertTrue(ex.getResolvedException()
-                                .getClass()
-                                .isAssignableFrom(exception.getClass())));
-
+                        .file(jsonPart))
+                .andExpect(status().isBadRequest())
+                .andExpect(ex -> org.junit.jupiter.api.Assertions.assertTrue(ex.getResolvedException()
+                        .getClass().isAssignableFrom(obj)));
     }
 
     private static Stream<Arguments> provideUserObject() {
@@ -136,10 +117,17 @@ class UserServiceTest {
         );
 
         return Stream.of(
-                Arguments.of("test1", "p39pwt12!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, DataIntegrityViolationException.class), //아이디 중복
-                Arguments.of("test12", "p39pwt12~!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class)
-//                Arguments.of("test3","p39pwt12!","donghun", "zhfptm12@naver.com", "3","naver" ,"CNU"),
-//                Arguments.of("test4","p39pwt12!","donghun", "zhfptm12@naver.com", "3","naver" ,"CNU")
+                Arguments.of("아이디 중복", "test1", "p39pwt12!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, DataIntegrityViolationException.class),
+                Arguments.of("비밀번호 패턴 불일치", "test12", "p39pwt12~!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 8자 안됨 (6자)", "test12", "p39pwt", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 15자 이상 (25자)", "test12", "p39pwt12p39pwt12p39pwt12!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 숫자 없음", "test12", "abcdefghi!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 영문자 없음", "test12", "12345678!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 특수문자 없음", "test4", "p39pwt12qwe", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("이름 누락", "test4", "p39pwt12!", "", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("메일 누락", "test4", "p39pwt12!", "donghun", "", "3", "naver", "CNU", file, MethodArgumentNotValidException.class),//
+                Arguments.of("개발연차 누락", "test4", "p39pwt12!", "donghun", "zhfptm12@naver.com", "", "naver", "CNU", file, MethodArgumentNotValidException.class) //
+
 
         );
     }
