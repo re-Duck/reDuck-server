@@ -3,6 +3,7 @@ package reduck.reduck.domain.user.entity;
 
 import com.sun.istack.NotNull;
 import lombok.*;
+import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.global.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -44,4 +45,14 @@ public class User extends BaseEntity {
         role.forEach(o -> o.setUser(this));
     }
 
+    public void updateProfileImg(UserProfileImg userProfileImg) {
+        this.profileImg = userProfileImg;
+    }
+    public void updateFrom(ModifyUserDto modifyUserDto) {
+        this.name = modifyUserDto.getName();
+        this.email = modifyUserDto.getEmail();
+        this.company = modifyUserDto.getCompany();
+        this.school = modifyUserDto.getSchool();
+        this.developAnnual = DevelopAnnual.getAnnual(modifyUserDto.getDevelopAnnual());
+    }
 }
