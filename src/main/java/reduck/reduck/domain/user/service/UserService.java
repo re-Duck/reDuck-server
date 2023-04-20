@@ -64,8 +64,8 @@ public class UserService {
         String storageFileName = UUID.randomUUID() + "." + extension;
         long size = multipartFile.getSize();
 
-//        Path imagePath = Paths.get(PATH, storageFileName); //local용
-        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
+        Path imagePath = Paths.get(PATH, storageFileName); //local용
+//        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
                     .storageFileName(storageFileName)
