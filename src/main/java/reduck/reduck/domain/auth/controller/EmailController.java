@@ -2,6 +2,7 @@ package reduck.reduck.domain.auth.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,7 +17,9 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import reduck.reduck.domain.auth.dto.EmailDtoReq;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 
 @Controller
 @RequiredArgsConstructor
@@ -24,14 +27,18 @@ public class EmailController {
 
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
+
+    @Value("${spring.mail.username}")
+    private String reduck;
+
     @PostMapping("/auth/email")
-    public ResponseEntity<Object> send(@RequestBody EmailDtoReq emailDtoReq) throws MessagingException {
+    public ResponseEntity<Object> send(@RequestBody EmailDtoReq emailDtoReq) throws MessagingException, UnsupportedEncodingException {
         // 이메일 발신될 데이터 적재
         MimeMessage message = javaMailSender.createMimeMessage();
         message.addRecipients(MimeMessage.RecipientType.TO,emailDtoReq.getEmail());
         message.setSubject("reDuck");
         message.setText(html(), "utf-8","html");
-
+        message.setFrom(new InternetAddress(reduck, "reDuck"));
         // 이메일 발신
         javaMailSender.send(message);
         System.out.println("message = " + message);
