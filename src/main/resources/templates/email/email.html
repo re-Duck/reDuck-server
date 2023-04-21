@@ -1,22 +1,28 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<meta charset="UTF-8">
-
-<body>
-<div style="margin:100px;">
-    <h1> 안녕하세요.</h1>
-    <h1> 알고리즘 관리 서비스 REDUCK 입니다.</h1>
-    <br>
-    <p> 아래 코드를 회원가입 창으로 돌아가 입력해주세요.</p>
-    <br>
-
-    <div align="center" style="border:1px solid black; font-family:verdana;">
-        <h3 style="color:blue"> 회원가입 인증 코드 입니다. </h3>
-        <div style="font-size:130%" th:text="${code}"> </div>
+  <meta charset="UTF-8" />
+  <head>
+    <title>reDuck-email-certification</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>reDuck🐥</h1>
+      <div class="contentContainer">
+        <h1>reDuck 이메일 인증번호 안내</h1>
+        <pre class="lineText">
+본 메일은 개발자를 위한 커뮤니티 reDuck 회원가입을 위한 이메일 입니다.
+아래의 [이메일 인증번호]를 입력하여 본인인증을 해주시기 바랍니다.
+        </pre>
+        <div class="numberBox">
+          <h3 id="certificationNumber">회원가입 인증 코드 입니다.</h3>
+        </div>
+        <pre class="lineText">
+올바르게 입력해서 회원가입을 마쳐주시면 감사하겠습니다.
+감사합니다.
+reDuck 담당자 드림
+        </pre>
+      </div>
     </div>
-    <br/>
-</div>
-
-
-</body>
+  </body>
 </html>
