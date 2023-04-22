@@ -19,7 +19,7 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/post/{postOriginId}")
-    public ResponseEntity<Void> createPost(HttpServletRequest request, @RequestPart PostDto postDto, @RequestPart(required = false) List<MultipartFile> multipartFiles) {
+    public ResponseEntity<Void> createPost( @RequestPart PostDto postDto, @RequestPart(required = false) List<MultipartFile> multipartFiles) {
         postService.createPost(postDto, multipartFiles);
         return ResponseEntity.ok().build();
     }
@@ -32,9 +32,9 @@ public class PostController {
 
     // 게시글 type에 해당하는 최신의 page갯수 만큼 => 첫 메인에 보여질 피드들
     @GetMapping("/post/{postType}/{page}")
-    public ResponseEntity<Void> getPosts(@PathVariable String postType, @PathVariable int page) {
-        postService.findAllByPostTypeWithPage(postType);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postType, @PathVariable int page) {
+        List<PostResponseDto> postAllByPostTypeWithPage = postService.findPostAllByPostTypeWithPage(postType, page);
+        return new ResponseEntity<>(postAllByPostTypeWithPage, HttpStatus.OK);
     }
 
     // 게시글 type에 해당하는 게시글 기준으로 page갯수 만큼 => 각 게시판의 스크롤 한 경우.
