@@ -1,7 +1,9 @@
 package reduck.reduck.domain.user.entity;
 
 
+import com.sun.istack.NotNull;
 import lombok.*;
+import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.global.entity.BaseEntity;
 
 import javax.persistence.*;
@@ -17,7 +19,6 @@ import java.util.List;
 @Builder
 @Table(indexes = @Index(name = "idx_userId", columnList = "userId", unique = true))
 public class User extends BaseEntity {
-
 
     private String password;
     @Column(length = 20, unique = true)
@@ -44,14 +45,14 @@ public class User extends BaseEntity {
         role.forEach(o -> o.setUser(this));
     }
 
-    @Override
-    public String toString() {
-
-        return this.getPassword() + "\n";
+    public void updateProfileImg(UserProfileImg userProfileImg) {
+        this.profileImg = userProfileImg;
     }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
+    public void updateFrom(ModifyUserDto modifyUserDto) {
+        this.name = modifyUserDto.getName();
+        this.email = modifyUserDto.getEmail();
+        this.company = modifyUserDto.getCompany();
+        this.school = modifyUserDto.getSchool();
+        this.developAnnual = DevelopAnnual.getAnnual(modifyUserDto.getDevelopAnnual());
     }
 }

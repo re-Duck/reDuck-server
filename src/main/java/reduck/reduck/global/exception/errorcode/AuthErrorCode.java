@@ -8,7 +8,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum AuthErrorCode implements ErrorCode {
 
-    TOKEN_NOT_EXIST(HttpStatus.BAD_REQUEST, "Refresh token isn't exist"),
+    TOKEN_NOT_EXIST(HttpStatus.BAD_REQUEST, "Refresh Token Is Not Exist"),
 
     ;
     private final HttpStatus httpStatus;

@@ -21,6 +21,7 @@ public class BaseEntity {
     protected Long id;
 
     @CreatedDate
+    @Column()
     private LocalDateTime createdAt;
 
     @LastModifiedDate
