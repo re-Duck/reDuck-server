@@ -28,8 +28,6 @@ import java.io.UnsupportedEncodingException;
 @RequiredArgsConstructor
 public class EmailController {
 
-    private final JavaMailSender javaMailSender;
-    private final SpringTemplateEngine templateEngine;
     private final EmailService emailService;
 
 

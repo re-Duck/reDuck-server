@@ -53,7 +53,7 @@ public class EmailService {
         javaMailSender.send(message);
 
     }
-
+    @Transactional
     public void authenticateNumber(int number, EmailDtoReq emailDtoReq) {
 
         Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(emailDtoReq.getEmail());
@@ -61,7 +61,6 @@ public class EmailService {
         if (emailAuthentication.get().getAuthenticationNumber()!= number) {
             throw new CommonException(CommonErrorCode.IS_NOT_MATCH);
         }
-
     }
 
     private String emailHtml(int emailCertificatedNumber) {

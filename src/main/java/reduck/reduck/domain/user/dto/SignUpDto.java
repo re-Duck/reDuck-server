@@ -25,8 +25,10 @@ public class SignUpDto {
 //    private String profileImg;
 
     private String company;
+    private String companyEmail;
 
     private String school;
+    private String schoolEmail;
     @NotBlank
     private String developAnnual;
 

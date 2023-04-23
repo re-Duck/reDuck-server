@@ -21,8 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/{userId}") // -> /user/{userId}
-        public ResponseEntity<User> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
-        System.out.println("signUpDto = " + signUpDto.getPassword());
+    public ResponseEntity<User> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
         userService.signUp(signUpDto, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -38,17 +37,26 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
+
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUser(@PathVariable("userId") String userId) {
-        return new ResponseEntity<>( userService.findByUserId(userId), HttpStatus.OK);
+        return new ResponseEntity<>(userService.findByUserId(userId), HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
     public ResponseEntity<User> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile multipartFile) {
-
-
         return new ResponseEntity<>(userService.modifyUserInfo(modifyUserDto, multipartFile), HttpStatus.CREATED);
     }
 
+    @PostMapping("/{userId}/company/{companyEmail}/{number}")
+    public ResponseEntity<Void> authenticateCompanyEmail(@PathVariable("userId") String userId, @PathVariable("companyEmail") String companyEmail, @PathVariable("number") int number) {
+        userService.authenticateCompanyEmail(userId, companyEmail, number);
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/{userId}/school/{schoolEmail}/{number}")
+    public ResponseEntity<Void> authenticateSchoolEmail(@PathVariable("userId") String userId, @PathVariable("schoolEmail") String schoolEmail, @PathVariable("number") int number) {
+        userService.authenticateSchoolEmail(userId, schoolEmail, number);
+        return ResponseEntity.ok().build();
+    }
 
 }

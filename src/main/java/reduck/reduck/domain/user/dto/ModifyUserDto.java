@@ -23,7 +23,11 @@ public class ModifyUserDto {
     private String email;
 
     private String company;
+    private String companyEmail;
+
     private String school;
+    private String schoolEmail;
+
     @NotBlank
     private String developAnnual;
 }

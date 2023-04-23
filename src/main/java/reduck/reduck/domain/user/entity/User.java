@@ -28,7 +28,14 @@ public class User extends BaseEntity {
 
     private String email;
     private String company;
+    private String companyEmail;
+    @Column(columnDefinition = ("boolean default false"))
+    private boolean companyEmailAuthentication;
+
     private String school;
+    private String schoolEmail;
+    @Column(columnDefinition = ("boolean default false"))
+    private boolean schoolEmailAuthentication;
 
     @Enumerated(EnumType.STRING)
     private DevelopAnnual developAnnual;
@@ -52,7 +59,17 @@ public class User extends BaseEntity {
         this.name = modifyUserDto.getName();
         this.email = modifyUserDto.getEmail();
         this.company = modifyUserDto.getCompany();
+        this.companyEmail = modifyUserDto.getCompanyEmail();
         this.school = modifyUserDto.getSchool();
+        this.schoolEmail = modifyUserDto.getSchoolEmail();
         this.developAnnual = DevelopAnnual.getAnnual(modifyUserDto.getDevelopAnnual());
+    }
+
+    public void authenticatedCompanyEmail() {
+        this.companyEmailAuthentication = true;
+    }
+
+    public void authenticatedSchoolEmail() {
+        this.schoolEmailAuthentication = true;
     }
 }
