@@ -61,11 +61,6 @@ public class PostService {
         Stream<String> stream = multipartFiles
                 .stream()
                 .map(multipartFile -> saveImage(post, multipartFile));
-
-        stream.forEach(path -> {
-            System.out.println("path = " + path);
-        });
-
     }
 
     @Transactional

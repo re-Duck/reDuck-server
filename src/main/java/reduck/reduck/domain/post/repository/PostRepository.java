@@ -20,7 +20,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("select p from Post p join fetch p.user where p.postType =:postType order by p.id desc")
     List<Post> findAllByPostTypeOrderByIdDescLimitPage(@Param("postType") PostType postType, Pageable pageable);
 
-    @Query("select p from Post p join fetch p.user where p.postType =:postType and  (select post.id from Post post where post.postOriginId = :postOriginId) < p.id order by p.id desc")
+    @Query("select p from Post p join fetch p.user where p.postType =:postType and  (select post.id from Post post where post.postOriginId = :postOriginId) > p.id order by p.id desc")
     List<Post> findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(@Param("postType") PostType postType,
                                                                       @Param("postOriginId") String postOriginId,
                                                                       Pageable pageable);
