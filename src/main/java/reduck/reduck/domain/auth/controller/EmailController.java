@@ -10,6 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.thymeleaf.ITemplateEngine;
@@ -38,5 +39,9 @@ public class EmailController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-
+    @PostMapping("/auth/email/{number}")
+    public ResponseEntity<Void> authenticateNumber(@PathVariable int number, @RequestBody EmailDtoReq emailDtoReq ) {
+        emailService.authenticateNumber(number, emailDtoReq);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
 }

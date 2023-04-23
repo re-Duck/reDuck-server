@@ -10,14 +10,14 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import reduck.reduck.domain.auth.dto.EmailDtoReq;
 import reduck.reduck.domain.auth.entity.EmailAuthentication;
 import reduck.reduck.domain.auth.repository.EmailAuthenticationRepository;
+import reduck.reduck.global.exception.errorcode.CommonErrorCode;
+import reduck.reduck.global.exception.exception.CommonException;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -54,6 +54,16 @@ public class EmailService {
 
     }
 
+    public void authenticateNumber(int number, EmailDtoReq emailDtoReq) {
+
+        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(emailDtoReq.getEmail());
+
+        if (emailAuthentication.get().getAuthenticationNumber()!= number) {
+            throw new CommonException(CommonErrorCode.IS_NOT_MATCH);
+        }
+
+    }
+
     private String emailHtml(int emailCertificatedNumber) {
         Context context = new Context();
         context.setVariable("code", emailCertificatedNumber);
@@ -65,4 +75,5 @@ public class EmailService {
         return random.nextInt(888888) + 111111;
 
     }
+
 }
