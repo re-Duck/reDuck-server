@@ -14,9 +14,9 @@ import reduck.reduck.domain.auth.dto.mapper.SignInResponseDtoMapper;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.domain.user.service.UserService;
-import reduck.reduck.global.exception.errorcode.JwtErrorCode;
+import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
-import reduck.reduck.global.exception.exception.JwtException;
+import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 import javax.servlet.http.HttpServletRequest;
@@ -67,7 +67,7 @@ public class AuthService {
             String newAccessToken = jwtProvider.createToken(user.getUserId(), user.getRoles());
             return AccessTokenDto.builder().accessToken(newAccessToken).build();
         }
-        throw new JwtException(JwtErrorCode.TOKEN_NOT_EXIST);
+        throw new AuthException(AuthErrorCode.TOKEN_NOT_EXIST);
 
     }
 
