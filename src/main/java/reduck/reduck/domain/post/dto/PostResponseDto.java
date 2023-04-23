@@ -30,4 +30,20 @@ public class PostResponseDto {
 
     //comment
     private List<CommentResponseDto> comments;
+
+    @Override
+    public String toString() {
+        return "PostResponseDto{" +
+                "postAuthorId='" + postAuthorId + '\'' +
+                ", postAuthorProfileImg=" + postAuthorProfileImg +
+                ", postAuthorName='" + postAuthorName + '\'' +
+                ", postTitle='" + postTitle + '\'' +
+                ", postContent='" + postContent + '\'' +
+                ", postOriginId='" + postOriginId + '\'' +
+                ", postType=" + postType +
+                ", postCreatedAt=" + postCreatedAt +
+                ", postUpdatedAt=" + postUpdatedAt +
+                 +
+                '}';
+    }
 }
