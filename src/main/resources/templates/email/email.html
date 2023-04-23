@@ -12,31 +12,37 @@
   padding: 2rem;
   border: 8px solid #d3d3d3;">
         <h1>reDuck 이메일 인증번호 안내</h1>
+
         <pre class="lineText" style='font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: keep-all;'>
-본 메일은 개발자를 위한 커뮤니티 reDuck 회원가입을 위한 이메일 입니다.
-아래의 [이메일 인증번호]를 입력하여 본인인증을 해주시기 바랍니다.
+안녕하세요. reDuck입니다.
+고객님께서 요청하신 아래 인증번호를 진행 중인 화면에 입력하여 이메일 인증을 완료해주세요.
+만약, 이메일 인증 요청을 하지 않은 경우 help@reduck.com으로 알려주시기 바랍니다.
+
         </pre>
-        <div class="numberBox" style="display: flex;flex-direction: column;
+        <h5>인증번호</h5>
+        <div class="numberBox" style="  display: flex;
   justify-content: center;
+  align-items: center;
   background-color: rgba(220, 220, 220, 0.5);
   border: 2px solid #dcdcdc;
   padding: 2rem;
   text-decoration: solid;">
-            <h3 id="certificationNumber" style="color: blue;">회원가입 인증 코드 입니다.</h3>
             <div style="font-size:130%" th:text="${code}">12321</div>
 
         </div>
+
+        <p  style="color:#e5781f; font-size: smaller">인증번호는 발송된 시점부터 <b>5분동안 유효</b>하며, 유효시간 내 인증을 완료하지 않을 경우 재요청이 필요합니다.</p>
 
         <pre class="lineText" style='font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: keep-all;'>
-올바르게 입력해서 회원가입을 마쳐주시면 감사하겠습니다.
+reDuck은 앞으로도 더 나은 서비스와 혜택을 드리기 위해 최선을 다하겠습니다.
+
 감사합니다.
-reDuck 담당자 드림
         </pre>
     </div>
 </div>
