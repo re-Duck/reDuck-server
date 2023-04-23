@@ -18,9 +18,6 @@ public enum PostType {
     }
 
     public static PostType getType(String postType) {
-        System.out.println("=========================================================");
-        System.out.println("postType = " + postType);
-
         PostType type = Arrays.stream(values())
                 .filter(value -> value.type.equals(postType))
                 .findAny()

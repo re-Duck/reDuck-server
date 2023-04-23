@@ -33,15 +33,15 @@ public class PostController {
     // 게시글 type에 해당하는 최신의 page갯수 만큼 => 첫 메인에 보여질 피드들
     @GetMapping("/post/{postType}/{page}")
     public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postType, @PathVariable int page) {
-        List<PostResponseDto> postAllByPostTypeWithPage = postService.findPostAllByPostTypeWithPage(postType, page);
-        return new ResponseEntity<>(postAllByPostTypeWithPage, HttpStatus.OK);
+        List<PostResponseDto> postResponseDtos = postService.findPostAllByPostTypeWithPage(postType, page);
+        return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
 
     // 게시글 type에 해당하는 게시글 기준으로 page갯수 만큼 => 각 게시판의 스크롤 한 경우.
     @GetMapping("/post/{postType}/{postOriginId}/{page}")
-    public ResponseEntity<Void> getPosts(@PathVariable String postType, @PathVariable String postOriginId, @PathVariable int page) {
-        postService.findAllByPostTypeWithOriginIdAndPage(postOriginId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postType, @PathVariable String postOriginId, @PathVariable int page) {
+        List<PostResponseDto> postResponseDtos = postService.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postType, postOriginId, page);
+        return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
 
 }
