@@ -3,6 +3,7 @@ package reduck.reduck.domain.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -15,6 +16,7 @@ import org.thymeleaf.ITemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import reduck.reduck.domain.auth.dto.EmailDtoReq;
+import reduck.reduck.domain.auth.service.EmailService;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
@@ -27,30 +29,14 @@ public class EmailController {
 
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
+    private final EmailService emailService;
 
-    @Value("${spring.mail.username}")
-    private String reduck;
 
     @PostMapping("/auth/email")
-    public ResponseEntity<Object> send(@RequestBody EmailDtoReq emailDtoReq) throws MessagingException, UnsupportedEncodingException {
-        // 이메일 발신될 데이터 적재
-        MimeMessage message = javaMailSender.createMimeMessage();
-        message.addRecipients(MimeMessage.RecipientType.TO,emailDtoReq.getEmail());
-        message.setSubject("reDuck");
-        message.setText(html(), "utf-8","html");
-        message.setFrom(new InternetAddress(reduck, "reDuck"));
-        // 이메일 발신
-        javaMailSender.send(message);
-        System.out.println("message = " + message);
-        // 결과 반환
-        return ResponseEntity.ok(true);
+    public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody EmailDtoReq emailDtoReq) throws MessagingException, UnsupportedEncodingException {
+        emailService.sendEmail(emailDtoReq);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @GetMapping("/auth/html")
-    public String html() {
-        Context context = new Context();
-        context.setVariable("code", 123153);
-//        model.addAttribute("code", 123456);
 
-        return templateEngine.process("email/email", context); //mail.html
-    }
+
 }

@@ -1,28 +1,44 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-  <meta charset="UTF-8" />
-  <head>
+<head>
+    <meta charset="UTF-8">
     <title>reDuck-email-certification</title>
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
-    <div class="container">
-      <h1>reDuck🐥</h1>
-      <div class="contentContainer">
+</head>
+<body>
+<div class="container" style="display: block;
+  margin: 2rem;">
+    <h1>reDuck🐥</h1>
+    <div class="contentContainer" style="position: relative;
+  padding: 2rem;
+  border: 8px solid #d3d3d3;">
         <h1>reDuck 이메일 인증번호 안내</h1>
-        <pre class="lineText">
+        <pre class="lineText" style='font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: keep-all;'>
 본 메일은 개발자를 위한 커뮤니티 reDuck 회원가입을 위한 이메일 입니다.
 아래의 [이메일 인증번호]를 입력하여 본인인증을 해주시기 바랍니다.
         </pre>
-        <div class="numberBox">
-          <h3 id="certificationNumber">회원가입 인증 코드 입니다.</h3>
+        <div class="numberBox" style="display: flex;flex-direction: column;
+  justify-content: center;
+  background-color: rgba(220, 220, 220, 0.5);
+  border: 2px solid #dcdcdc;
+  padding: 2rem;
+  text-decoration: solid;">
+            <h3 id="certificationNumber" style="color: blue;">회원가입 인증 코드 입니다.</h3>
+            <div style="font-size:130%" th:text="${code}">12321</div>
+
         </div>
-        <pre class="lineText">
+
+        <pre class="lineText" style='font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: keep-all;'>
 올바르게 입력해서 회원가입을 마쳐주시면 감사하겠습니다.
 감사합니다.
 reDuck 담당자 드림
         </pre>
-      </div>
     </div>
-  </body>
+</div>
+</body>
 </html>
