@@ -8,8 +8,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import reduck.reduck.domain.auth.entity.EmailAuthentication;
-import reduck.reduck.domain.auth.repository.EmailAuthenticationRepository;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.Authority;
@@ -26,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.UUID;
 
 
@@ -38,7 +35,6 @@ public class UserService {
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage";
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EmailAuthenticationRepository emailAuthenticationRepository;
 
     @Transactional
     public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
@@ -75,32 +71,7 @@ public class UserService {
         }
 
     }
-    @Transactional
-    public void authenticateCompanyEmail(String userId, String companyEmail, int number) {
-        User user = findByUserId(userId);
-        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(companyEmail);
-        if (emailAuthentication.get().getAuthenticationNumber() == number) {
-            user.authenticatedCompanyEmail();
-            User save = userRepository.save(user);
 
-            return;
-        }
-        throw new CommonException(CommonErrorCode.IS_NOT_MATCH);
-
-    }
-    @Transactional
-    public void authenticateSchoolEmail(String userId, String schoolEmail, int number) {
-        User user = findByUserId(userId);
-        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(schoolEmail);
-        if (emailAuthentication.get().getAuthenticationNumber() == number) {
-            user.authenticatedSchoolEmail();
-            User save = userRepository.save(user);
-
-            return;
-        }
-        throw new CommonException(CommonErrorCode.IS_NOT_MATCH);
-
-    }
     @Transactional
     public User findByUserId(String userId) {
         return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
