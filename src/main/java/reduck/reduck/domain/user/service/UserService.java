@@ -73,6 +73,17 @@ public class UserService {
     }
 
     @Transactional
+    public void withdraw(String userId) {
+        User user = findByUserId(userId);
+        try {
+            userRepository.delete(user);
+        } catch (Exception e) {
+            System.out.println("e = " + e);
+            throw e;
+        }
+    }
+
+    @Transactional
     public User findByUserId(String userId) {
         return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }

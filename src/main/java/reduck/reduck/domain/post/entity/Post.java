@@ -32,7 +32,8 @@ public class Post extends BaseEntity {
     @Column(columnDefinition = ("boolean default false"))
     private Boolean temporary;
 
-    @OneToMany(mappedBy = "post")
+    @Builder.Default
+    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Comment> comments= new ArrayList(); //양방향 매핑 순환참조 문제 발생.
 
 

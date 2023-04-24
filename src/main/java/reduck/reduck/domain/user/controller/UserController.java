@@ -31,12 +31,13 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/admin/{userID}")
+    @DeleteMapping("/{userId}")
     public ResponseEntity<Void> withdraw(@PathVariable("userId") String userId) {
-
+        userService.withdraw(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
 
     }
+
     @GetMapping("/{userId}")
     public ResponseEntity<User> getUser(@PathVariable("userId") String userId) {
         return new ResponseEntity<>(userService.findByUserId(userId), HttpStatus.OK);
