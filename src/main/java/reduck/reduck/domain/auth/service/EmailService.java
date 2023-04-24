@@ -10,13 +10,18 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import reduck.reduck.domain.auth.dto.EmailDtoReq;
 import reduck.reduck.domain.auth.entity.EmailAuthentication;
 import reduck.reduck.domain.auth.repository.EmailAuthenticationRepository;
-import reduck.reduck.global.exception.errorcode.CommonErrorCode;
-import reduck.reduck.global.exception.exception.CommonException;
-
+import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.AuthErrorCode;
+import reduck.reduck.global.exception.errorcode.UserErrorCode;
+import reduck.reduck.global.exception.exception.AuthException;
+import reduck.reduck.global.exception.exception.UserException;
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.UnsupportedEncodingException;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
 
@@ -24,6 +29,7 @@ import java.util.Random;
 @RequiredArgsConstructor
 public class EmailService {
     private final EmailAuthenticationRepository emailAuthenticationRepository;
+    private final UserRepository userRepository;
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
     @Value("${spring.mail.username}")
@@ -32,14 +38,7 @@ public class EmailService {
     @Transactional
     public void sendEmail(EmailDtoReq emailDtoReq) throws MessagingException, UnsupportedEncodingException {
         int emailCertificatedNumber = createEmailCertificatedNumber(); //인증번호.
-        // 이메일 발신될 데이터 적재
-
-        MimeMessage message = javaMailSender.createMimeMessage();
-        message.addRecipients(MimeMessage.RecipientType.TO, emailDtoReq.getEmail());
-        message.setSubject("[reDuck] 환영합니다. 이메일 인증을 완료해주세요.");
-        message.setText(emailHtml(emailCertificatedNumber), "utf-8", "html");
-        message.setFrom(new InternetAddress(reduck, "reDuck"));
-        // 이메일 발신
+        MimeMessage message = craeteEmailTemplate(emailDtoReq, emailCertificatedNumber);
         EmailAuthentication emailAuthentication = EmailAuthentication.builder()
                 .email(emailDtoReq.getEmail())
                 .authenticationNumber(emailCertificatedNumber)
@@ -47,20 +46,53 @@ public class EmailService {
         try {
             emailAuthenticationRepository.save(emailAuthentication);
 
+            // 이메일 발신
+            javaMailSender.send(message);
+
         } catch (Exception e) {
             System.out.println("e = " + e);
+            throw e;
         }
-        javaMailSender.send(message);
-
     }
+
     @Transactional
     public void authenticateNumber(int number, EmailDtoReq emailDtoReq) {
 
         Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(emailDtoReq.getEmail());
+        validateEmailAuthenticationNumber(emailAuthentication, number);
 
-        if (emailAuthentication.get().getAuthenticationNumber()!= number) {
-            throw new CommonException(CommonErrorCode.IS_NOT_MATCH);
+    }
+
+    @Transactional
+    public void authenticateCompanyEmail(String userId, String companyEmail, int number) {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(companyEmail);
+        if (validateEmailAuthenticationNumber(emailAuthentication, number)) {
+            user.authenticatedCompanyEmail();
+            userRepository.save(user);
+            return;
         }
+    }
+
+    @Transactional
+    public void authenticateSchoolEmail(String userId, String schoolEmail, int number) {
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(schoolEmail);
+        if (validateEmailAuthenticationNumber(emailAuthentication, number)) {
+            user.authenticatedSchoolEmail();
+            userRepository.save(user);
+            return;
+        }
+    }
+
+
+    private MimeMessage craeteEmailTemplate(EmailDtoReq emailDtoReq, int emailCertificatedNumber) throws MessagingException, UnsupportedEncodingException {
+        MimeMessage message = javaMailSender.createMimeMessage();
+        message.addRecipients(MimeMessage.RecipientType.TO, emailDtoReq.getEmail());
+        message.setSubject("[reDuck] 환영합니다. 이메일 인증을 완료해주세요.");
+        message.setText(emailHtml(emailCertificatedNumber), "utf-8", "html");
+        message.setFrom(new InternetAddress(reduck, "reDuck"));
+        return message;
     }
 
     private String emailHtml(int emailCertificatedNumber) {
@@ -72,7 +104,21 @@ public class EmailService {
     private int createEmailCertificatedNumber() {
         Random random = new Random();
         return random.nextInt(888888) + 111111;
+    }
 
+    private boolean validateEmailAuthenticationNumber(Optional<EmailAuthentication> emailAuthentication, int number) {
+        Date date = new Date(new Date().getTime() + 1000);
+        LocalDateTime expire = LocalDateTime.now();
+
+        if (emailAuthentication.get().getAuthenticationNumber() == number) {
+            if (emailAuthentication.get().getCreatedAt().plusMinutes(5).isAfter(expire)) {
+                return true;
+            }
+            //일치하지만 시간 만료
+            throw new AuthException(AuthErrorCode.EXPIRED_AUTHENTICATION_NUMBER);
+        }
+        //일치하지 않음.
+        throw new AuthException((AuthErrorCode.AUTHENTICATON_NUMBER_NOT_MATCH));
     }
 
 }
