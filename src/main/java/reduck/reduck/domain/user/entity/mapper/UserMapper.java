@@ -8,15 +8,17 @@ import reduck.reduck.domain.user.entity.User;
 public class UserMapper {
 
     public static User from(SignUpDto obj) {
-       return User.builder()
+        return User.builder()
                 .userId(obj.getUserId())
                 .password(obj.getPassword())
                 .name(obj.getName())
                 .email(obj.getEmail())
-//                    .profileImg(signUpDto.getProfileImg())
                 .company(obj.getCompany())
+                .companyEmail(obj.getCompanyEmail())
                 .school(obj.getSchool())
-                .developAnnual(DevelopAnnual.getAnnual(obj.getDevelopAnnual()))
+                .schoolEmail(obj.getSchoolEmail())
+                .developYear(obj.getDevelopYear())
+//                .developAnnual(DevelopAnnual.getAnnual(obj.getDevelopAnnual()))
                 .build();
     }
 

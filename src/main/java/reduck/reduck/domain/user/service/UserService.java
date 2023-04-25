@@ -3,11 +3,15 @@ package reduck.reduck.domain.user.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
+import reduck.reduck.domain.user.dto.UserInfoDtoRes;
+import reduck.reduck.domain.user.dto.mapper.UserInfoDtoResMapper;
 import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
@@ -35,30 +39,62 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public void signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
+    public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
-            UserProfileImg userProfileImg = saveProfileImage(multipartFile);
             encodePasswordOf(signUpDto);
             User user = UserMapper.from(signUpDto);
-            user.setProfileImg(userProfileImg);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
-            userRepository.save(user);
-        } catch (Exception e) {
-            UserException userException = new UserException(UserErrorCode.DUPLICATE_USER_ID);
-            log.error("회원가입 실패. user id 중복.", userException);
-            throw userException;
+            if (!multipartFile.isEmpty()) {
+                UserProfileImg userProfileImg = saveProfileImage(multipartFile);
+                user.setProfileImg(userProfileImg);
+            }
+            User userEntity = userRepository.save(user);
+            return userEntity;
+        } catch (CommonException | DataIntegrityViolationException e) {
+            throw e;
         }
     }
 
-    private void encodePasswordOf(SignUpDto signUpDto) {
-        String password = signUpDto.getPassword();
-        String encode = passwordEncoder.encode(password);
-        signUpDto.setPassword(encode);
+    @Transactional
+    public User modifyUserInfo(ModifyUserDto modifyUserDto, MultipartFile multipartFile) {
+        String userId = modifyUserDto.getUserId();
+        User userByUserId = findByUserId(userId);
+        try {
+            if (!multipartFile.isEmpty()) {
+                UserProfileImg userProfileImg = saveProfileImage(multipartFile);
+                userByUserId.updateProfileImg(userProfileImg);
+            }
+            userByUserId.updateFrom(modifyUserDto);
+            User save = userRepository.save(userByUserId);
+            return save;
+        } catch (CommonException | DataIntegrityViolationException e) {
+            throw e;
+        }
 
     }
 
     @Transactional
-    public UserProfileImg saveProfileImage(MultipartFile multipartFile) {
+    public void withdraw(String userId) {
+        User user = findByUserId(userId);
+        try {
+            userRepository.delete(user);
+        } catch (Exception e) {
+            System.out.println("e = " + e);
+            throw e;
+        }
+    }
+    public UserInfoDtoRes getUser(String userId){
+        User user = findByUserId(userId);
+        UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
+        return userInfoDtoRes;
+    }
+    @Transactional
+    public User findByUserId(String userId) {
+       return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+    }
+
+
+    private UserProfileImg saveProfileImage(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
@@ -68,13 +104,12 @@ public class UserService {
 //        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
-                    .storageFileName(storageFileName)
-                    .uploadeFiledName(originalFilename)
+                    .storagedFileName(storageFileName)
+                    .uploadedFileName(originalFilename)
                     .path(String.valueOf(imagePath))
                     .extension(extension)
                     .size(size)
                     .build();
-            System.out.println("userProfileImg = " + userProfileImg);
             Files.write(imagePath, multipartFile.getBytes());
             return userProfileImg;
 
@@ -84,11 +119,11 @@ public class UserService {
         }
     }
 
+    private void encodePasswordOf(SignUpDto signUpDto) {
+        String password = signUpDto.getPassword();
+        String encode = passwordEncoder.encode(password);
+        signUpDto.setPassword(encode);
 
-    @Transactional
-    public User findByUserId(String userId) {
-        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
-
 
 }

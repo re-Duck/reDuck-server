@@ -24,4 +24,5 @@ public class AuthController {
     public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request, @PathVariable("userId") String userId) throws Exception {
         return new ResponseEntity<>(authService.reissuanceAccessToken(request, userId), HttpStatus.OK);
     }
+
 }
