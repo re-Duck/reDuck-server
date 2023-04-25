@@ -15,6 +15,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.validation.BindException;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
+import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.UserException;
@@ -38,7 +39,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
     }
-
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<Object> handleCustomException(AuthException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        return handleExceptionInternal(errorCode);
+    }
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
         log.warn("handleIllegalArgument", e);
