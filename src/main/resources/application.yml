@@ -1,4 +1,20 @@
 spring:
+  mail:
+    # Google smtp server 사용
+    host: smtp.gmail.com
+    port: 587
+    username: donghunkim1101@gmail.com #앱 비밀번호 발급받은 google 계정
+    password: utgoumexcfqezlfd #발급받은 앱 비밀번호
+    properties:
+      mail:
+        smtp:
+          starttls:
+            enable: true
+          auth: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -20,8 +36,36 @@ spring:
           time_zone: Asia/Seoul
     hibernate:
       ddl-auto: update
-
-
+jwt:
+  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
 ## local
 ip: localhost
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+  datasource:
+    url: jdbc:mysql://localhost:3306/reduck_test?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&characterSetResults=UTF-8&characterEncoding=UTF-8
+    username: root
+    password: p39pwt12!
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
 
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    generate-ddl: true
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        jdbc:
+          time_zone: Asia/Seoul
+    hibernate:
+      ddl-auto: update
+
+jwt:
+  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
