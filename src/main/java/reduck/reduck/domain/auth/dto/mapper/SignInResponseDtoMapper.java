@@ -9,7 +9,6 @@ public class SignInResponseDtoMapper {
                 .userId(obj.getUserId())
                 .name(obj.getName())
                 .email(obj.getEmail())
-                .roles(obj.getRoles())
                 .userProfileImg(obj.getProfileImg())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)

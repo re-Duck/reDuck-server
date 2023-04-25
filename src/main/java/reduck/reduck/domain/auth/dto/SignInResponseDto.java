@@ -21,7 +21,6 @@ public class SignInResponseDto {
 
     private String email;
 
-    private List<Authority> roles = new ArrayList<>();
     private UserProfileImg userProfileImg;
 
     private String accessToken;

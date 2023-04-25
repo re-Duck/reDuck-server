@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 @Builder
@@ -28,6 +29,6 @@ public class ModifyUserDto {
     private String school;
     private String schoolEmail;
 
-    @NotBlank
-    private String developAnnual;
+    @NotNull
+    private int developYear;
 }

@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignOutDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
+import reduck.reduck.domain.user.dto.UserInfoDtoRes;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 
@@ -21,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/{userId}") // -> /user/{userId}
-    public ResponseEntity<User> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
+    public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
         userService.signUp(signUpDto, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -39,13 +40,14 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<User> getUser(@PathVariable("userId") String userId) {
-        return new ResponseEntity<>(userService.findByUserId(userId), HttpStatus.OK);
+    public ResponseEntity<UserInfoDtoRes> getUser(@PathVariable("userId") String userId) {
+        return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<User> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile multipartFile) {
-        return new ResponseEntity<>(userService.modifyUserInfo(modifyUserDto, multipartFile), HttpStatus.CREATED);
+    public ResponseEntity<Void> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile multipartFile) {
+        userService.modifyUserInfo(modifyUserDto, multipartFile);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }

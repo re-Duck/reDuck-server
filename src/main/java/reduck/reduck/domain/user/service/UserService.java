@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
+import reduck.reduck.domain.user.dto.UserInfoDtoRes;
+import reduck.reduck.domain.user.dto.mapper.UserInfoDtoResMapper;
 import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
@@ -61,7 +63,6 @@ public class UserService {
             if (!multipartFile.isEmpty()) {
                 UserProfileImg userProfileImg = saveProfileImage(multipartFile);
                 userByUserId.updateProfileImg(userProfileImg);
-
             }
             userByUserId.updateFrom(modifyUserDto);
             User save = userRepository.save(userByUserId);
@@ -82,10 +83,14 @@ public class UserService {
             throw e;
         }
     }
-
+    public UserInfoDtoRes getUser(String userId){
+        User user = findByUserId(userId);
+        UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
+        return userInfoDtoRes;
+    }
     @Transactional
     public User findByUserId(String userId) {
-        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+       return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
 
 
@@ -99,8 +104,8 @@ public class UserService {
 //        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
-                    .storageFileName(storageFileName)
-                    .uploadeFiledName(originalFilename)
+                    .storagedFileName(storageFileName)
+                    .uploadedFileName(originalFilename)
                     .path(String.valueOf(imagePath))
                     .extension(extension)
                     .size(size)

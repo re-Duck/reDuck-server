@@ -41,8 +41,7 @@ public class User extends BaseEntity {
     @Column(columnDefinition = ("boolean default false"))
     private boolean schoolEmailAuthentication;
 
-    @Enumerated(EnumType.STRING)
-    private DevelopAnnual developAnnual;
+    private int developYear;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -74,8 +73,10 @@ public class User extends BaseEntity {
         this.companyEmail = modifyUserDto.getCompanyEmail();
         this.school = modifyUserDto.getSchool();
         this.schoolEmail = modifyUserDto.getSchoolEmail();
-        this.developAnnual = DevelopAnnual.getAnnual(modifyUserDto.getDevelopAnnual());
+        this.developYear = modifyUserDto.getDevelopYear();
+
     }
+
 
     public void authenticatedCompanyEmail() {
         this.companyEmailAuthentication = true;

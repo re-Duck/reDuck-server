@@ -14,24 +14,28 @@ import javax.validation.constraints.*;
 @NoArgsConstructor
 public class SignUpDto {
 
+
     @NotBlank
     private String userId;
-    @NotBlank @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,15}$", message = "비밀번호 사이의 숫자,영문자,특수문자의 조합인 8~15의 글자로 이루어져야합니다")
+    @NotBlank
+    @Pattern(regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,15}$", message = "비밀번호 사이의 숫자,영문자,특수문자의 조합인 8~15의 글자로 이루어져야합니다")
     private String password;
     @NotBlank
     private String name;
-    @NotBlank @Email
+    @NotBlank
+    @Email
     private String email;
 //    private String profileImg;
 
     private String company;
+    @Email
     private String companyEmail;
 
     private String school;
+    @Email
     private String schoolEmail;
-    @NotBlank
-    private String developAnnual;
-
+    @NotNull
+    private int developYear;
 
 
 }

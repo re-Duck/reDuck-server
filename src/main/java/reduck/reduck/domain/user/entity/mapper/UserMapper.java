@@ -17,7 +17,8 @@ public class UserMapper {
                 .companyEmail(obj.getCompanyEmail())
                 .school(obj.getSchool())
                 .schoolEmail(obj.getSchoolEmail())
-                .developAnnual(DevelopAnnual.getAnnual(obj.getDevelopAnnual()))
+                .developYear(obj.getDevelopYear())
+//                .developAnnual(DevelopAnnual.getAnnual(obj.getDevelopAnnual()))
                 .build();
     }
 

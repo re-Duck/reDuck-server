@@ -12,8 +12,8 @@ import javax.persistence.*;
 @Embeddable
 @Data
 public class UserProfileImg {
-    private String uploadeFiledName;
-    private String storageFileName;
+    private String uploadedFileName;
+    private String storagedFileName;
     private String extension;
     private Long size;
     private String path;
