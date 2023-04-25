@@ -19,6 +19,7 @@ public class PostResponseDto {
     private String postAuthorId;
     private UserProfileImg postAuthorProfileImg;
     private String postAuthorName;
+    private String postAuthorDevelopAnnual;
 
     //post
     private String postTitle;

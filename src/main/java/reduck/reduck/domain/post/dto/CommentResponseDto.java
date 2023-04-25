@@ -14,6 +14,8 @@ public class CommentResponseDto {
     private String commentAuthorId;
     private String commentAuthorName;
     private UserProfileImg commentAuthorProfileImg;
+    private String commentAuthorDevelopAnnual;
+
     //comment
     private String commentContent;
     private String commentOriginId;
