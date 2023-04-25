@@ -15,10 +15,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.validation.BindException;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
-import reduck.reduck.global.exception.exception.AuthException;
-import reduck.reduck.global.exception.exception.CommonException;
+import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
-import reduck.reduck.global.exception.exception.UserException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,19 +26,24 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private List<FieldError> fieldErrors;
-
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity<Object> handleCustomException(UserException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        return handleExceptionInternal(errorCode);
-    }
-    @ExceptionHandler(CommonException.class)
-    public ResponseEntity<Object> handleCustomException(CommonException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        return handleExceptionInternal(errorCode);
-    }
-    @ExceptionHandler(AuthException.class)
-    public ResponseEntity<Object> handleCustomException(AuthException e) {
+//
+//    @ExceptionHandler(UserException.class)
+//    public ResponseEntity<Object> handleCustomException(UserException e) {
+//        ErrorCode errorCode = e.getErrorCode();
+//        return handleExceptionInternal(errorCode);
+//    }
+//    @ExceptionHandler(CommonException.class)
+//    public ResponseEntity<Object> handleCustomException(CommonException e) {
+//        ErrorCode errorCode = e.getErrorCode();
+//        return handleExceptionInternal(errorCode);
+//    }
+//    @ExceptionHandler(AuthException.class)
+//    public ResponseEntity<Object> handleCustomException(AuthException e) {
+//        ErrorCode errorCode = e.getErrorCode();
+//        return handleExceptionInternal(errorCode);
+//    }
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<Object> handleCustomException(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
     }

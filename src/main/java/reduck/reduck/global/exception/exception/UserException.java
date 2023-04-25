@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
 
 @Getter
-@RequiredArgsConstructor
-public class UserException extends RuntimeException{
+public class UserException extends CustomException{
 
-    private final ErrorCode errorCode;
-
+    public UserException(ErrorCode errorCode) {
+        super(errorCode);
+    }
 }

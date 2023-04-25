@@ -5,8 +5,9 @@ import lombok.RequiredArgsConstructor;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
 
 @Getter
-@RequiredArgsConstructor
-public class PostException extends RuntimeException {
-    private final ErrorCode errorCode;
+public class PostException extends CustomException {
+    public PostException(ErrorCode errorCode) {
+        super(errorCode);
+    }
 
 }
