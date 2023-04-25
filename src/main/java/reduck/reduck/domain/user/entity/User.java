@@ -4,6 +4,7 @@ package reduck.reduck.domain.user.entity;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.global.entity.BaseEntity;
@@ -57,6 +58,9 @@ public class User extends BaseEntity {
     @Builder.Default
     private List<Post> posts = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user",  cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @Builder.Default
+    private List<Comment> comments = new ArrayList<>();
 
     public void setRoles(List<Authority> role) {
         this.roles = role;
