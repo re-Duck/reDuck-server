@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.auth.dto.EmailDtoReq;
 import reduck.reduck.domain.auth.service.EmailService;
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 
 @Controller
@@ -18,7 +19,6 @@ public class EmailController {
 
     private final EmailService emailService;
 
-
     @PostMapping("/email")
     public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody EmailDtoReq emailDtoReq) throws MessagingException, UnsupportedEncodingException {
         emailService.sendEmail(emailDtoReq);
@@ -26,8 +26,8 @@ public class EmailController {
     }
 
     @PostMapping("/email/{number}")
-    public ResponseEntity<Void> authenticateNumber(@PathVariable int number, @RequestBody EmailDtoReq emailDtoReq ) {
-        emailService.authenticateNumber(number, emailDtoReq);
+    public ResponseEntity<Void> authenticateEmail(@PathVariable int number, @RequestBody @Valid EmailDtoReq emailDtoReq ) {
+        emailService.authenticateEmail(number, emailDtoReq);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

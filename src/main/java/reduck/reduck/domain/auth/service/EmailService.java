@@ -56,7 +56,7 @@ public class EmailService {
     }
 
     @Transactional
-    public void authenticateNumber(int number, EmailDtoReq emailDtoReq) {
+    public void authenticateEmail(int number, EmailDtoReq emailDtoReq) {
 
         Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(emailDtoReq.getEmail());
         validateEmailAuthenticationNumber(emailAuthentication, number);
