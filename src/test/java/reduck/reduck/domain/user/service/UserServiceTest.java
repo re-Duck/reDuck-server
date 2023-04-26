@@ -35,7 +35,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 class UserServiceTest {
     @Autowired
     UserRepository userRepository;
@@ -58,8 +57,8 @@ class UserServiceTest {
     @Transactional
     @DisplayName("정상 회원가입")
     @ParameterizedTest
-    @CsvSource("test1,p39pwt12!, donghun, zhfptm12@naver.com,3,naver,CNU")
-    void 정상회원가입(String userId, String password, String name, String email, String developAnnual, String company, String school) throws Exception {
+    @CsvSource("test2, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
+    void 정상회원가입(String userId, String password, String name, String email, int developYear, String company, String school) throws Exception {
 
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -73,7 +72,7 @@ class UserServiceTest {
                 .password(password)
                 .name(name)
                 .email(email)
-                .developAnnual(developAnnual)
+                .developYear(developYear)
                 .company(company)
                 .school(school)
                 .build();
@@ -86,13 +85,13 @@ class UserServiceTest {
     @DisplayName("회원가입 유효성 검사")
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideUserObject")
-    void 회원가입유효성검사(String testName, String userId, String password, String name, String email, String developAnnual, String company, String school, MockMultipartFile file, Class obj) throws Exception {
+    void 회원가입유효성검사(String testName, String userId, String password, String name, String email, int developYear, String company, String school, MockMultipartFile file, Class obj) throws Exception {
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)
                 .password(password)
                 .name(name)
                 .email(email)
-                .developAnnual(developAnnual)
+                .developYear(developYear)
                 .company(company)
                 .school(school)
                 .build();
@@ -117,16 +116,15 @@ class UserServiceTest {
         );
 
         return Stream.of(
-                Arguments.of("아이디 중복", "test1", "p39pwt12!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, DataIntegrityViolationException.class),
-                Arguments.of("비밀번호 패턴 불일치", "test12", "p39pwt12~!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 8자 안됨 (6자)", "test12", "p39pwt", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 15자 이상 (25자)", "test12", "p39pwt12p39pwt12p39pwt12!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 숫자 없음", "test12", "abcdefghi!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 영문자 없음", "test12", "12345678!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 특수문자 없음", "test4", "p39pwt12qwe", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("이름 누락", "test4", "p39pwt12!", "", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("메일 누락", "test4", "p39pwt12!", "donghun", "", "3", "naver", "CNU", file, MethodArgumentNotValidException.class),//
-                Arguments.of("개발연차 누락", "test4", "p39pwt12!", "donghun", "zhfptm12@naver.com", "", "naver", "CNU", file, MethodArgumentNotValidException.class) //
+                Arguments.of("아이디 중복", "test1", "p39pwt12!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, DataIntegrityViolationException.class),
+                Arguments.of("비밀번호 패턴 불일치", "test12", "p39pwt12~!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 8자 안됨 (6자)", "test12", "p39pwt", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 15자 이상 (25자)", "test12", "p39pwt12p39pwt12p39pwt12!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 숫자 없음", "test12", "abcdefghi!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 영문자 없음", "test12", "12345678!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 특수문자 없음", "test4", "p39pwt12qwe", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("이름 누락", "test4", "p39pwt12!", "", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("메일 누락", "test4", "p39pwt12!", "donghun", "", 0, "naver", "CNU", file, MethodArgumentNotValidException.class)
 
 
         );
