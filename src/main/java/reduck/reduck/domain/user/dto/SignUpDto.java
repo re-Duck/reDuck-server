@@ -25,7 +25,6 @@ public class SignUpDto {
     @NotBlank
     @Email
     private String email;
-//    private String profileImg;
 
     private String company;
     @Email
@@ -36,6 +35,5 @@ public class SignUpDto {
     private String schoolEmail;
     @NotNull
     private int developYear;
-
 
 }

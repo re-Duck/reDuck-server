@@ -46,7 +46,7 @@ public class UserService {
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
             if (!multipartFile.isEmpty()) {
                 UserProfileImg userProfileImg = saveProfileImage(multipartFile);
-                user.setProfileImg(userProfileImg);
+                user.updateProfileImg(userProfileImg);
             }
             User userEntity = userRepository.save(user);
             return userEntity;
@@ -79,7 +79,7 @@ public class UserService {
         try {
             userRepository.delete(user);
         } catch (Exception e) {
-            System.out.println("e = " + e);
+            log.error("회원탈퇴 에러 : ",e);
             throw e;
         }
     }

@@ -16,7 +16,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -78,14 +77,10 @@ public class User extends BaseEntity {
         this.school = modifyUserDto.getSchool();
         this.schoolEmail = modifyUserDto.getSchoolEmail();
         this.developYear = modifyUserDto.getDevelopYear();
-
     }
-
-
     public void authenticatedCompanyEmail() {
         this.companyEmailAuthentication = true;
     }
-
     public void authenticatedSchoolEmail() {
         this.schoolEmailAuthentication = true;
     }

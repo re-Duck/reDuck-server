@@ -11,7 +11,6 @@ import javax.persistence.ManyToOne;
 @Entity
 @SuperBuilder
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommentImage  extends ImageEntity {
