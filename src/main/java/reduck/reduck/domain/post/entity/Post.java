@@ -11,7 +11,6 @@ import java.util.List;
 @Entity
 @Builder
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Post extends BaseEntity {
@@ -36,5 +35,8 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Comment> comments= new ArrayList(); //양방향 매핑 순환참조 문제 발생.
 
+    public void setUser(User user) {
+        this.user = user;
+    }
 
 }

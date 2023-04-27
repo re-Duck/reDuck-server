@@ -10,7 +10,6 @@ import javax.persistence.ManyToOne;
 @Entity
 @SuperBuilder
 @Getter
-@Setter
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class PostImage extends ImageEntity {

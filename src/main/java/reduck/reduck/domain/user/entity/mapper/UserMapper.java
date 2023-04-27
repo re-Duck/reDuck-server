@@ -1,8 +1,6 @@
 package reduck.reduck.domain.user.entity.mapper;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
 import reduck.reduck.domain.user.dto.SignUpDto;
-import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.User;
 
 public class UserMapper {
@@ -18,7 +16,6 @@ public class UserMapper {
                 .school(obj.getSchool())
                 .schoolEmail(obj.getSchoolEmail())
                 .developYear(obj.getDevelopYear())
-//                .developAnnual(DevelopAnnual.getAnnual(obj.getDevelopAnnual()))
                 .build();
     }
 

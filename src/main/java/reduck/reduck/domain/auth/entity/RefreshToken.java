@@ -11,7 +11,6 @@ import javax.persistence.OneToOne;
 
 @Entity
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

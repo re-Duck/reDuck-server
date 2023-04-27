@@ -107,7 +107,6 @@ public class EmailService {
     }
 
     private boolean validateEmailAuthenticationNumber(Optional<EmailAuthentication> emailAuthentication, int number) {
-        Date date = new Date(new Date().getTime() + 1000);
         LocalDateTime expire = LocalDateTime.now();
 
         if (emailAuthentication.get().getAuthenticationNumber() == number) {
