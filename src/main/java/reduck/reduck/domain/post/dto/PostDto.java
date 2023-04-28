@@ -1,11 +1,13 @@
 package reduck.reduck.domain.post.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import reduck.reduck.domain.post.entity.PostType;
 
 @Getter
 @Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PostDto {
     private String content;
     private String title;
