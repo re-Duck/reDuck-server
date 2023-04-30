@@ -54,8 +54,7 @@ public class PostService {
     }
 
     public void saveImages(Post post, List<MultipartFile> multipartFiles) {
-        if (multipartFiles.isEmpty()) {
-            System.out.println("null = " + null);
+        if (multipartFiles.get(0).isEmpty()) {
             return;
         }
         Stream<String> stream = multipartFiles

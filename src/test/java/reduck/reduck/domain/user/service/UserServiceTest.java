@@ -99,7 +99,7 @@ class UserServiceTest {
         String path = "/user/" + userId;
         MockMultipartFile jsonPart = new MockMultipartFile("signUpDto", "signUpDto", "application/json", gson.toJson(signUpDto).getBytes(StandardCharsets.UTF_8));
         mockMvc.perform(multipart(path)
-                        .file(file)
+//                        .file(file)
                         .file(jsonPart))
                 .andExpect(status().isBadRequest())
                 .andExpect(ex -> org.junit.jupiter.api.Assertions.assertTrue(ex.getResolvedException()

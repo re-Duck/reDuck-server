@@ -20,8 +20,7 @@ public class PostController {
 
     @PostMapping("/post/{postOriginId}")
     public ResponseEntity<Void> createPost( @RequestPart PostDto postDto, @RequestPart(required = false) List<MultipartFile> multipartFiles) {
-        boolean empty = multipartFiles.isEmpty();
-        System.out.println("empty = " + empty);
+        System.out.println("multipartFiles = " + multipartFiles);
         postService.createPost(postDto, multipartFiles);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
