@@ -14,9 +14,9 @@ import reduck.reduck.domain.post.service.CommentService;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
-    @PostMapping("/post/comment/{postOriginId}/{commentOriginId}")
-    public ResponseEntity<Void> createComment(@RequestBody CommentDto commentDto, @PathVariable String postOriginId, @PathVariable String commentOriginId) {
-        commentService.createComment(commentDto, postOriginId, commentOriginId);
+    @PostMapping("/post/comment")
+    public ResponseEntity<Void> createComment(@RequestBody CommentDto commentDto) {
+        commentService.createComment(commentDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

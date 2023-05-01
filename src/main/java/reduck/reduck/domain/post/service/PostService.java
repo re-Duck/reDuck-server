@@ -57,9 +57,14 @@ public class PostService {
         if (multipartFiles.get(0).isEmpty()) {
             return;
         }
-        Stream<String> stream = multipartFiles
-                .stream()
-                .map(multipartFile -> saveImage(post, multipartFile));
+        for (MultipartFile file : multipartFiles) {
+            saveImage(post, file);
+        }
+//        Stream<String> stream = multipartFiles
+//                .stream()
+//                .map(multipartFile -> this.saveImage(post, multipartFile))
+//                ;
+//        stream.forEach(s -> System.out.println("s = " + s));
     }
 
     @Transactional

@@ -18,13 +18,12 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-    @PostMapping("/post/{postOriginId}")
+    @PostMapping("/post")
     public ResponseEntity<Void> createPost( @RequestPart PostDto postDto, @RequestPart(required = false) List<MultipartFile> multipartFiles) {
         System.out.println("multipartFiles = " + multipartFiles);
         postService.createPost(postDto, multipartFiles);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
     // 게시글 하나
     @GetMapping("/post/{postOriginId}")
     public ResponseEntity<PostResponseDto> getPost(@PathVariable String postOriginId) {

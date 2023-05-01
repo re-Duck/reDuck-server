@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/{userId}") // -> /user/{userId}
+    @PostMapping() // -> /user/{userId}
     public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
         userService.signUp(signUpDto, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).build();

@@ -6,7 +6,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import reduck.reduck.domain.auth.dto.EmailDtoReq;
+import reduck.reduck.domain.auth.dto.CompanyEmailRequestDto;
+import reduck.reduck.domain.auth.dto.EmailRequestDto;
+import reduck.reduck.domain.auth.dto.SchoolEmailRequestDto;
 import reduck.reduck.domain.auth.service.EmailService;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -20,25 +22,25 @@ public class EmailController {
     private final EmailService emailService;
 
     @PostMapping("/email")
-    public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody EmailDtoReq emailDtoReq) throws MessagingException, UnsupportedEncodingException {
-        emailService.sendEmail(emailDtoReq);
+    public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
+        emailService.sendEmail(emailRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/email/{number}")
-    public ResponseEntity<Void> authenticateEmail(@PathVariable int number, @RequestBody @Valid EmailDtoReq emailDtoReq ) {
-        emailService.authenticateEmail(number, emailDtoReq);
+    @PostMapping("/email")
+    public ResponseEntity<Void> authenticateEmail( @RequestBody @Valid EmailRequestDto emailRequestDto) {
+        emailService.authenticateEmail(emailRequestDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
-    @PostMapping("/email/{userId}/company/{companyEmail}/{number}")
-    public ResponseEntity<Void> authenticateCompanyEmail(@PathVariable("userId") String userId, @PathVariable("companyEmail") String companyEmail, @PathVariable("number") int number) {
-        emailService.authenticateCompanyEmail(userId, companyEmail, number);
+    @PostMapping("/email/company")
+    public ResponseEntity<Void> authenticateCompanyEmail(@RequestBody @Valid CompanyEmailRequestDto companyEmailRequestDto) {
+        emailService.authenticateCompanyEmail(companyEmailRequestDto);
         return ResponseEntity.ok().build();
     }
-    @PostMapping("/email/{userId}/school/{schoolEmail}/{number}")
-    public ResponseEntity<Void> authenticateSchoolEmail(@PathVariable("userId") String userId, @PathVariable("schoolEmail") String schoolEmail, @PathVariable("number") int number) {
-        emailService.authenticateSchoolEmail(userId, schoolEmail, number);
+    @PostMapping("/email/school")
+    public ResponseEntity<Void> authenticateSchoolEmail(@RequestBody @Valid SchoolEmailRequestDto schoolEmailRequestDto) {
+        emailService.authenticateSchoolEmail(schoolEmailRequestDto);
         return ResponseEntity.ok().build();
     }
 
