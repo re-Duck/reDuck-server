@@ -13,9 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
 import reduck.reduck.domain.auth.repository.AuthRepository;
@@ -96,10 +94,10 @@ class UserServiceTest {
                 .school(school)
                 .build();
 
-        String path = "/user/" + userId;
+        String path = "/user";
         MockMultipartFile jsonPart = new MockMultipartFile("signUpDto", "signUpDto", "application/json", gson.toJson(signUpDto).getBytes(StandardCharsets.UTF_8));
         mockMvc.perform(multipart(path)
-//                        .file(file)
+                        .file(file)
                         .file(jsonPart))
                 .andExpect(status().isBadRequest())
                 .andExpect(ex -> org.junit.jupiter.api.Assertions.assertTrue(ex.getResolvedException()

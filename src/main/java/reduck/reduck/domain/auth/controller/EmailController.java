@@ -27,7 +27,7 @@ public class EmailController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/email")
+    @PostMapping("/email/user")
     public ResponseEntity<Void> authenticateEmail( @RequestBody @Valid EmailRequestDto emailRequestDto) {
         emailService.authenticateEmail(emailRequestDto);
         return ResponseEntity.status(HttpStatus.OK).build();

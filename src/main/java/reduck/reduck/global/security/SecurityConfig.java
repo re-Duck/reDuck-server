@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 // 회원가입과 로그인은 모두 승인 => 만약 method type + uri로 분기 하고 싶다면 mvcMatchers 쓰면 될듯함.
 //                .regexMatchers(HttpMethod.POST, "/user")
-                .mvcMatchers(HttpMethod.POST, "/login", "/user/{userId}").permitAll()
+                .mvcMatchers(HttpMethod.POST, "/login", "/user").permitAll()
 //                .antMatchers("/register").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasRole("ADMIN")

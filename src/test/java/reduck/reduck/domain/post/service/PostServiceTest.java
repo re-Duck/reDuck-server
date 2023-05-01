@@ -61,7 +61,7 @@ class PostServiceTest {
     @MethodSource("providePostObject")
     void createBoard(String testName, MockMultipartFile file, PostDto postDto) {
 
-        String path = "/post/" + postDto.getPostOriginId();
+        String path = "/post";
         Optional<User> test1 = userRepository.findByUserId(postDto.getUserId());
         List<Authority> objects = new ArrayList<>();
         objects.add(Authority.builder().id(10L).name("ROLE_USER").user(test1.get()).build());
