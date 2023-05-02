@@ -27,6 +27,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @GetMapping("/duplicate/{userId}")
+    public ResponseEntity<Boolean> isDuplicateUserId(@PathVariable String userId) throws Exception {
+        return new ResponseEntity<>(userService.isDuplicatedUserId(userId), HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<Void> signOut(@RequestBody SignOutDto signOutDto) {
         return ResponseEntity.ok().build();

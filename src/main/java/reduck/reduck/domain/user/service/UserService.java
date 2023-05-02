@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -54,7 +55,11 @@ public class UserService {
             throw e;
         }
     }
-
+    @Transactional
+    public boolean isDuplicatedUserId(String userId) {
+        Optional<User> byUserId = userRepository.findByUserId(userId);
+        return byUserId.isPresent();
+    }
     @Transactional
     public User modifyUserInfo(ModifyUserDto modifyUserDto, MultipartFile multipartFile) {
         String userId = modifyUserDto.getUserId();
