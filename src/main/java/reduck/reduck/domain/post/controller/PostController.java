@@ -19,10 +19,13 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/post")
-    public ResponseEntity<Void> createPost( @RequestPart PostDto postDto, @RequestPart(required = false) List<MultipartFile> multipartFiles) {
-        System.out.println("multipartFiles = " + multipartFiles);
-        postService.createPost(postDto, multipartFiles);
+    public ResponseEntity<Void> createPost( @RequestPart PostDto postDto, @RequestPart(required = false) MultipartFile file) {
+        postService.createPost(postDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @PostMapping("/post/image")
+    public ResponseEntity<String> saveImage(@RequestPart(required = false) MultipartFile multipartFile ){
+        return new ResponseEntity<>(postService.saveMultipartFile(multipartFile), HttpStatus.CREATED);
     }
     // 게시글 하나
     @GetMapping("/post/{postOriginId}")

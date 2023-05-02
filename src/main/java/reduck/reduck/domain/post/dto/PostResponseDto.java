@@ -23,7 +23,7 @@ public class PostResponseDto {
 
     //post
     private String postTitle;
-    private String postContent;
+    private String postContentPath;
     private String postOriginId;
     private PostType postType;
     private LocalDateTime postCreatedAt;
@@ -39,7 +39,7 @@ public class PostResponseDto {
                 ", postAuthorProfileImg=" + postAuthorProfileImg +
                 ", postAuthorName='" + postAuthorName + '\'' +
                 ", postTitle='" + postTitle + '\'' +
-                ", postContent='" + postContent + '\'' +
+                ", postContent='" + postContentPath + '\'' +
                 ", postOriginId='" + postOriginId + '\'' +
                 ", postType=" + postType +
                 ", postCreatedAt=" + postCreatedAt +

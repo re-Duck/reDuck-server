@@ -21,7 +21,7 @@ public class PostResponseDtoMapper {
                 .postAuthorDevelopAnnual(developAnnual)
                 //post
                 .postTitle(post.getPostTitle())
-                .postContent(post.getPostContent())
+                .postContentPath(post.getContentPath())
                 .postOriginId(post.getPostOriginId())
                 .postType(post.getPostType())
                 .postCreatedAt(post.getCreatedAt())
@@ -46,7 +46,7 @@ public class PostResponseDtoMapper {
                 .postAuthorDevelopAnnual(developAnnual)
                 //post
                 .postTitle(post.getPostTitle())
-                .postContent(post.getPostContent())
+                .postContentPath(post.getContentPath())
                 .postOriginId(post.getPostOriginId())
                 .postType(post.getPostType())
                 .postCreatedAt(post.getCreatedAt())

@@ -19,8 +19,10 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @Column(columnDefinition = "TEXT")
-    private String postContent;
+//    @Column(columnDefinition = "TEXT")
+//    private String postContent;
+
+    private String contentPath;
 
     @Column(unique = true)
     private String postOriginId;

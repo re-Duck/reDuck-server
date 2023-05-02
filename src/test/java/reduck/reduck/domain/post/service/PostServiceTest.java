@@ -81,17 +81,16 @@ class PostServiceTest {
     private static Stream<Arguments> providePostObject() {
         MockMultipartFile file
                 = new MockMultipartFile(
-                "multipartFiles",
+                "file",
                 "hello.txt",
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
-        MockMultipartFile emptyFile = new MockMultipartFile("multipartFiles", (byte[]) null);
+        MockMultipartFile emptyFile = new MockMultipartFile("file", (byte[]) null);
         PostDto postDto = PostDto.builder()
                 .userId("test1")
                 .postType(PostType.valueOf("stack"))
                 .postOriginId("post1")
-                .content("test post content")
                 .title("test title")
                 .build();
         return Stream.of(

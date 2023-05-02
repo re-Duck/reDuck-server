@@ -4,12 +4,12 @@ import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.entity.Post;
 
 public class PostMapper {
-    public static Post from(PostDto obj) {
+    public static Post of(PostDto obj, String path) {
         Post post = Post.builder()
                 .postOriginId(obj.getPostOriginId())
-                .postContent(obj.getContent())
                 .postTitle(obj.getTitle())
                 .postType(obj.getPostType())
+                .contentPath(path)
                 .build();
         return post;
 
