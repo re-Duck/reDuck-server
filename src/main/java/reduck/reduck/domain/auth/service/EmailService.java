@@ -10,6 +10,7 @@ import org.thymeleaf.spring5.SpringTemplateEngine;
 import reduck.reduck.domain.auth.dto.CompanyEmailRequestDto;
 import reduck.reduck.domain.auth.dto.EmailRequestDto;
 import reduck.reduck.domain.auth.dto.SchoolEmailRequestDto;
+import reduck.reduck.domain.auth.dto.UserEmailRequestDto;
 import reduck.reduck.domain.auth.entity.EmailAuthentication;
 import reduck.reduck.domain.auth.repository.EmailAuthenticationRepository;
 import reduck.reduck.domain.user.entity.User;
@@ -51,13 +52,12 @@ public class EmailService {
             javaMailSender.send(message);
 
         } catch (Exception e) {
-            System.out.println("e = " + e);
             throw e;
         }
     }
 
     @Transactional
-    public void authenticateEmail( EmailRequestDto emailRequestDto) {
+    public void authenticateUserEmail( UserEmailRequestDto emailRequestDto) {
         int number = emailRequestDto.getNumber();
         Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(emailRequestDto.getEmail());
         validateEmailAuthenticationNumber(emailAuthentication, number);
@@ -115,7 +115,7 @@ public class EmailService {
 
     private boolean validateEmailAuthenticationNumber(Optional<EmailAuthentication> emailAuthentication, int number) {
         LocalDateTime expire = LocalDateTime.now();
-
+        System.out.println(number);
         if (emailAuthentication.get().getAuthenticationNumber() == number) {
             if (emailAuthentication.get().getCreatedAt().plusMinutes(5).isAfter(expire)) {
                 return true;

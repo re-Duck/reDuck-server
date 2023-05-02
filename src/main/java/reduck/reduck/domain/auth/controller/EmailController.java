@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.auth.dto.CompanyEmailRequestDto;
 import reduck.reduck.domain.auth.dto.EmailRequestDto;
 import reduck.reduck.domain.auth.dto.SchoolEmailRequestDto;
+import reduck.reduck.domain.auth.dto.UserEmailRequestDto;
 import reduck.reduck.domain.auth.service.EmailService;
 import javax.mail.MessagingException;
 import javax.validation.Valid;
@@ -22,14 +23,15 @@ public class EmailController {
     private final EmailService emailService;
 
     @PostMapping("/email")
-    public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
         emailService.sendEmail(emailRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/email/user")
-    public ResponseEntity<Void> authenticateEmail( @RequestBody @Valid EmailRequestDto emailRequestDto) {
-        emailService.authenticateEmail(emailRequestDto);
+    public ResponseEntity<Void> authenticateUserEmail( @RequestBody @Valid UserEmailRequestDto userEmailRequestDto) {
+        System.out.println("userEmailRequestDto = " + userEmailRequestDto.getNumber());
+        emailService.authenticateUserEmail(userEmailRequestDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
