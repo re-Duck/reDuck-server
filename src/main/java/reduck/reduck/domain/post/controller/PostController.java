@@ -24,8 +24,8 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
     @PostMapping("/post/image")
-    public ResponseEntity<String> saveImage(@RequestPart(required = false) MultipartFile multipartFile ){
-        return new ResponseEntity<>(postService.saveMultipartFile(multipartFile), HttpStatus.CREATED);
+    public ResponseEntity<String> saveImage(@RequestPart(required = false) MultipartFile file ){
+        return new ResponseEntity<>(postService.saveMultipartFile(file), HttpStatus.CREATED);
     }
     // 게시글 하나
     @GetMapping("/post/{postOriginId}")

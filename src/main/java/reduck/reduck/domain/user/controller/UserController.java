@@ -22,8 +22,8 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping() // -> /user/{userId}
-    public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
-        userService.signUp(signUpDto, multipartFile);
+    public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile file) throws Exception {
+        userService.signUp(signUpDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
