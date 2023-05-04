@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping() // -> /user/{userId}
+    @PostMapping()
     public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile file) throws Exception {
         userService.signUp(signUpDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -32,16 +32,10 @@ public class UserController {
         return new ResponseEntity<>(userService.isDuplicatedUserId(userId), HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<Void> signOut(@RequestBody SignOutDto signOutDto) {
-        return ResponseEntity.ok().build();
-    }
-
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> withdraw(@PathVariable("userId") String userId) {
         userService.withdraw(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
     }
 
     @GetMapping("/{userId}")

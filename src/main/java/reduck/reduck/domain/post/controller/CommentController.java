@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import reduck.reduck.domain.post.dto.CommentDto;
 import reduck.reduck.domain.post.service.CommentService;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
     @PostMapping("/post/comment")
-    public ResponseEntity<Void> createComment(@RequestBody CommentDto commentDto) {
+    public ResponseEntity<Void> createComment(@RequestBody @Valid  CommentDto commentDto) {
         commentService.createComment(commentDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }

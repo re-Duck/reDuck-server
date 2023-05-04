@@ -35,11 +35,8 @@ public class AuthService {
     @Transactional
     public SignInResponseDto signIn(SignInDto dto){
 
-        User user = userRepository.findByUserId(dto.getUserId()).orElseThrow(() ->
-                new UserException(UserErrorCode.USER_NOT_EXIST));
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            throw new UserException(UserErrorCode.INVALID_PASSWORD);
-        }
+        User user = userService.findByUserId(dto.getUserId());
+        validatePassword(user.getPassword(), dto.getPassword());
         String refreshToken = jwtProvider.createRefreshToken(user.getUserId(), user.getRoles());
         saveRefreshToken(refreshToken, user);
         String accessToken = jwtProvider.createToken(user.getUserId(), user.getRoles());
@@ -51,13 +48,11 @@ public class AuthService {
     public void saveRefreshToken(String token, User user) {
         RefreshToken refreshToken = RefreshToken.builder().refreshToken(token).user(user).build();
         authRepository.save(refreshToken);
-
     }
 
     @Transactional
     public AccessTokenDto reissuanceAccessToken(HttpServletRequest request, String userId) throws Exception {
 
-//        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
         User user = userService.findByUserId(userId);
         String findRefreshToken = findAllByUserPk(user.getId());
         String requestRefreshToken = jwtProvider.resolveToken(request);
@@ -72,7 +67,7 @@ public class AuthService {
     }
 
     @Transactional
-    public String findAllByUserPk(Long userPKId) throws Exception {
+    public String findAllByUserPk(Long userPKId){
         List<RefreshToken> allByUserPKId = authRepository.findAllByUser_Id(userPKId);
         return allByUserPKId.get(allByUserPKId.size() - 1).getRefreshToken();
     }
@@ -80,5 +75,12 @@ public class AuthService {
     private boolean isSameRefreshToken(String findRefreshToken, String requestRefreshToken) {
         String refreshToken = requestRefreshToken.split(" ")[1].trim();
         return findRefreshToken.equals(refreshToken);
+    }
+
+    private boolean validatePassword(String originPassword, String targetPassword) {
+        if (!passwordEncoder.matches(originPassword, targetPassword)) {
+            throw new UserException(UserErrorCode.INVALID_PASSWORD);
+        }
+        return true;
     }
 }

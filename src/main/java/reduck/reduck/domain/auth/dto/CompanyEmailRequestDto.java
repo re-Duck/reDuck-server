@@ -2,9 +2,7 @@ package reduck.reduck.domain.auth.dto;
 
 import lombok.Getter;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 
 @Getter
 public class CompanyEmailRequestDto {
@@ -12,6 +10,6 @@ public class CompanyEmailRequestDto {
     private String companyEmail;
     @NotBlank
     private String userId;
-    @NotNull
+    @NotNull @Max(999999) @Min(100000)
     int number;
 }

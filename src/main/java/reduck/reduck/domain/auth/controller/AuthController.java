@@ -10,6 +10,7 @@ import reduck.reduck.domain.auth.dto.SignInDto;
 import reduck.reduck.domain.auth.dto.SignInResponseDto;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login") // -> /user
-    public ResponseEntity<SignInResponseDto> signIn(@RequestBody SignInDto signInDto, HttpServletRequest request){
+    public ResponseEntity<SignInResponseDto> signIn(@RequestBody @Valid  SignInDto signInDto){
         return new ResponseEntity<>(authService.signIn(signInDto), HttpStatus.OK);
     }
     @GetMapping("/auth/{userId}/token")
