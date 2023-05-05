@@ -40,7 +40,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final PostImageRepository postImageRepository;
-    private final String PATH = "C:\\reduckStorage\\board";
+    private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage";
 
     @Transactional
