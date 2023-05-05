@@ -83,8 +83,8 @@ public class UserService {
     }
 
     @Transactional
-    public void withdraw(String userId) {
-        User user = findByUserId(userId);
+    public void withdraw() {
+        User user = findByUserId(AuthenticationToken.getUserId());
         try {
             userRepository.delete(user);
         } catch (Exception e) {
@@ -95,6 +95,7 @@ public class UserService {
     @Transactional
     public UserInfoDtoRes getMyInfo() {
         String userId = AuthenticationToken.getUserId();
+        System.out.println("userId = " + userId);
         User user = findByUserId(userId);
         UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
         return userInfoDtoRes;

@@ -31,9 +31,9 @@ public class UserController {
         return new ResponseEntity<>(userService.isDuplicatedUserId(userId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> withdraw(@PathVariable("userId") String userId) {
-        userService.withdraw(userId);
+    @DeleteMapping("")
+    public ResponseEntity<Void> withdraw() {
+        userService.withdraw();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
     @GetMapping("/me")
