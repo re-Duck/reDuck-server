@@ -1,5 +1,6 @@
 package reduck.reduck.domain.user.dto.mapper;
 
+import reduck.reduck.domain.post.dto.mapper.PostOfUserResponseDtoMapper;
 import reduck.reduck.domain.user.dto.UserInfoDtoRes;
 import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.User;
@@ -22,6 +23,7 @@ public class UserInfoDtoResMapper {
                 .schoolEmailAuthentication(user.isSchoolEmailAuthentication())
                 .developAnnual(developAnnual)
                 .userProfileImg(user.getProfileImg())
+                .posts(PostOfUserResponseDtoMapper.from(user.getPosts()))
                 .build();
         return userInfoDtoRes;
     }

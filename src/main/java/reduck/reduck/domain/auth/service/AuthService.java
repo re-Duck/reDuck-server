@@ -19,6 +19,8 @@ import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
+import reduck.reduck.util.AuthenticationToken;
+
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -51,8 +53,8 @@ public class AuthService {
     }
 
     @Transactional
-    public AccessTokenDto reissuanceAccessToken(HttpServletRequest request, String userId) throws Exception {
-
+    public AccessTokenDto reissuanceAccessToken(HttpServletRequest request) throws Exception {
+        String userId = AuthenticationToken.getUserId();
         User user = userService.findByUserId(userId);
         String findRefreshToken = findAllByUserPk(user.getId());
         String requestRefreshToken = jwtProvider.resolveToken(request);

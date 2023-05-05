@@ -23,6 +23,7 @@ import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.UserException;
+import reduck.reduck.util.AuthenticationToken;
 
 import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Files;
@@ -93,8 +94,7 @@ public class UserService {
     }
     @Transactional
     public UserInfoDtoRes getMyInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userId = authentication.getName();
+        String userId = AuthenticationToken.getUserId();
         User user = findByUserId(userId);
         UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
         return userInfoDtoRes;

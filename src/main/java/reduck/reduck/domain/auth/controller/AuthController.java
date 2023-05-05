@@ -21,9 +21,9 @@ public class AuthController {
     public ResponseEntity<SignInResponseDto> signIn(@RequestBody @Valid  SignInDto signInDto){
         return new ResponseEntity<>(authService.signIn(signInDto), HttpStatus.OK);
     }
-    @GetMapping("/auth/{userId}/token")
-    public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request, @PathVariable("userId") String userId) throws Exception {
-        return new ResponseEntity<>(authService.reissuanceAccessToken(request, userId), HttpStatus.OK);
+    @GetMapping("/auth/token")
+    public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request) throws Exception {
+        return new ResponseEntity<>(authService.reissuanceAccessToken(request), HttpStatus.OK);
     }
 
 }

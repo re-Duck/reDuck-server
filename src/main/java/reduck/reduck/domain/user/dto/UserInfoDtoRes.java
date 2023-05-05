@@ -1,8 +1,12 @@
 package reduck.reduck.domain.user.dto;
 
 import lombok.*;
+import reduck.reduck.domain.post.dto.PostOfUserResponseDto;
+import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.UserProfileImg;
+
+import java.util.List;
 
 
 @Data
@@ -23,5 +27,6 @@ public class UserInfoDtoRes {
     private boolean schoolEmailAuthentication;
     private String developAnnual;
     private UserProfileImg userProfileImg;
+    private List<PostOfUserResponseDto> posts;
 
 }

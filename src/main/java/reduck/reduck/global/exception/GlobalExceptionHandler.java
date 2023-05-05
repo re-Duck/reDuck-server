@@ -74,9 +74,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAllException(Exception ex) {
         log.warn("handleAllException", ex);
         if(ex instanceof DataIntegrityViolationException){
-            ErrorCode errorCode = UserErrorCode.DUPLICATE_USER_ID;
+            ErrorCode errorCode = CommonErrorCode.DATA_INTEGRITY_VIOLATION;
             return handleExceptionInternal(errorCode);
-
         }
         if (ex instanceof MailSendException) {
             ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;

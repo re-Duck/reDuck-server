@@ -6,8 +6,7 @@ import javax.validation.constraints.NotBlank;
 
 @Getter
 public class CommentDto {
-    @NotBlank
-    private String userId;
+
     @NotBlank
     private String content;
     @NotBlank

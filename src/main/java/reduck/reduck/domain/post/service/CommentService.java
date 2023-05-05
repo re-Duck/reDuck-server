@@ -11,6 +11,7 @@ import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 import reduck.reduck.global.exception.errorcode.PostErrorCode;
 import reduck.reduck.global.exception.exception.PostException;
+import reduck.reduck.util.AuthenticationToken;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class CommentService {
     public void createComment(CommentDto commentDto) {
         String postOriginId = commentDto.getPostOriginId();
         String commentOriginId = commentDto.getCommentOriginId();
-        User user = userService.findByUserId(commentDto.getUserId());
+        User user = userService.findByUserId(AuthenticationToken.getUserId());
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
         Comment comment = Comment.builder()
                 .commentContent(commentDto.getContent())

@@ -24,6 +24,7 @@ import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.PostException;
 import reduck.reduck.global.exception.exception.UserException;
+import reduck.reduck.util.AuthenticationToken;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,7 +45,7 @@ public class PostService {
 
     @Transactional
     public void createPost(PostDto postDto, MultipartFile file) {
-        String userId = postDto.getUserId();
+        String userId = AuthenticationToken.getUserId();
         String contentPath = saveMultipartFile(file);
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
         Post postEntity = PostMapper.of(postDto, contentPath);
