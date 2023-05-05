@@ -36,7 +36,7 @@ public class AuthService {
     public SignInResponseDto signIn(SignInDto dto){
 
         User user = userService.findByUserId(dto.getUserId());
-        validatePassword(user.getPassword(), dto.getPassword());
+        validatePassword(dto.getPassword(),user.getPassword());
         String refreshToken = jwtProvider.createRefreshToken(user.getUserId(), user.getRoles());
         saveRefreshToken(refreshToken, user);
         String accessToken = jwtProvider.createToken(user.getUserId(), user.getRoles());
@@ -78,7 +78,9 @@ public class AuthService {
     }
 
     private boolean validatePassword(String originPassword, String targetPassword) {
-        if (!passwordEncoder.matches(originPassword, targetPassword)) {
+        System.out.println("originPassword = " + originPassword);
+        System.out.println("targetPassword = " + targetPassword);
+        if (!passwordEncoder.matches(originPassword,targetPassword)) {
             throw new UserException(UserErrorCode.INVALID_PASSWORD);
         }
         return true;

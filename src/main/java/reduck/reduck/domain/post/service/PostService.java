@@ -59,8 +59,9 @@ public class PostService {
             return null;
         }
         String originalFilename = multipartFile.getOriginalFilename();
-        String extension = originalFilename.split("\\.")[1];
-        String storageFileName = UUID.randomUUID() + "." + extension;
+//        String extension = originalFilename.split("\\.")[1];
+//        String storageFileName = UUID.randomUUID() + "." + extension;
+        String storageFileName = String.valueOf(UUID.randomUUID());
 //        long size = multipartFile.getSize();
         Path imagePath = Paths.get(PATH, storageFileName);
 //        PostImage postImage = (PostImage) PostImage.builder()

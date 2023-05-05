@@ -4,6 +4,7 @@ import lombok.*;
 import reduck.reduck.domain.post.entity.PostType;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Setter
@@ -17,6 +18,6 @@ public class PostDto {
     private String userId;
     @NotBlank
     private String postOriginId;
-    @NotBlank
+
     private PostType postType;
 }

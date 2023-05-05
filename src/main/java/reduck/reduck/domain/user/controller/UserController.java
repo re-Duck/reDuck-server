@@ -7,12 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
-import reduck.reduck.domain.user.dto.SignOutDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.dto.UserInfoDtoRes;
-import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -37,7 +36,10 @@ public class UserController {
         userService.withdraw(userId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-
+    @GetMapping("/me")
+    public ResponseEntity<UserInfoDtoRes> getMyInfo() {
+        return new ResponseEntity(userService.getMyInfo(), HttpStatus.OK);
+    }
     @GetMapping("/{userId}")
     public ResponseEntity<UserInfoDtoRes> getUser(@PathVariable("userId") String userId) {
         return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);

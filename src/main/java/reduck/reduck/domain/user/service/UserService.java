@@ -4,6 +4,8 @@ package reduck.reduck.domain.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.UserException;
 
+import javax.servlet.http.HttpServletRequest;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -87,6 +90,14 @@ public class UserService {
             log.error("회원탈퇴 에러 : ",e);
             throw e;
         }
+    }
+    @Transactional
+    public UserInfoDtoRes getMyInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userId = authentication.getName();
+        User user = findByUserId(userId);
+        UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
+        return userInfoDtoRes;
     }
     public UserInfoDtoRes getUser(String userId){
         User user = findByUserId(userId);

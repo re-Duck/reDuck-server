@@ -91,6 +91,7 @@ class PostServiceTest {
                 .userId("test1")
                 .postType(PostType.valueOf("stack"))
                 .postOriginId("post1")
+                .postType(PostType.qna)
                 .title("test title")
                 .build();
         return Stream.of(
