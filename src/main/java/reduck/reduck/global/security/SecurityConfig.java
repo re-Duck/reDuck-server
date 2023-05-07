@@ -17,6 +17,8 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import reduck.reduck.global.security.JwtAuthenticationFilter;
+import reduck.reduck.global.security.JwtProvider;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
