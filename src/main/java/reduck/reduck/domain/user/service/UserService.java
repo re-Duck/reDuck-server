@@ -56,6 +56,7 @@ public class UserService {
             User userEntity = userRepository.save(user);
             return userEntity;
         } catch (CommonException | DataIntegrityViolationException e) {
+            log.error("회원가입 에러", e);
             throw e;
         }
     }
@@ -95,21 +96,16 @@ public class UserService {
     @Transactional
     public UserInfoDtoRes getMyInfo() {
         String userId = AuthenticationToken.getUserId();
-        System.out.println("userId = " + userId);
-        User user = findByUserId(userId);
-        UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
-        return userInfoDtoRes;
+        return getUserInfo(userId);
+
     }
     public UserInfoDtoRes getUser(String userId){
-        User user = findByUserId(userId);
-        UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
-        return userInfoDtoRes;
+        return getUserInfo(userId);
     }
     @Transactional
     public User findByUserId(String userId) {
        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
-
 
     private UserProfileImg saveProfileImage(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
@@ -140,7 +136,10 @@ public class UserService {
         String password = signUpDto.getPassword();
         String encode = passwordEncoder.encode(password);
         signUpDto.setPassword(encode);
-
     }
-
+    private UserInfoDtoRes getUserInfo(String userId){
+        User user = findByUserId(userId);
+        UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
+        return userInfoDtoRes;
+    }
 }
