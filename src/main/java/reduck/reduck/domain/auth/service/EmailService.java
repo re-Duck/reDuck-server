@@ -115,7 +115,6 @@ public class EmailService {
 
     private boolean validateEmailAuthenticationNumber(Optional<EmailAuthentication> emailAuthentication, int number) {
         LocalDateTime expire = LocalDateTime.now();
-        System.out.println(number);
         if (emailAuthentication.get().getAuthenticationNumber() == number) {
             if (emailAuthentication.get().getCreatedAt().plusMinutes(5).isAfter(expire)) {
                 return true;

@@ -51,7 +51,6 @@ public class PostService {
         Post postEntity = PostMapper.of(postDto, contentPath);
         postEntity.setUser(user);
         postRepository.save(postEntity);
-
     }
 
     @Transactional
@@ -59,54 +58,16 @@ public class PostService {
         if (multipartFile.isEmpty()) {
             return null;
         }
-        String originalFilename = multipartFile.getOriginalFilename();
-//        String extension = originalFilename.split("\\.")[1];
-//        String storageFileName = UUID.randomUUID() + "." + extension;
         String storageFileName = String.valueOf(UUID.randomUUID());
-//        long size = multipartFile.getSize();
         Path imagePath = Paths.get(PATH, storageFileName);
-//        PostImage postImage = (PostImage) PostImage.builder()
-//                .post(post)
-//                .storageFileName(storageFileName)
-//                .uploadeFiledName(originalFilename)
-//                .path(String.valueOf(imagePath))
-//                .extension(extension)
-//                .size(size)
-//                .build();
         try {
             Files.write(imagePath, multipartFile.getBytes());
-//            PostImage save = postImageRepository.save(postImage);
             return String.valueOf(imagePath);
         } catch (Exception e) {
             log.error("이미지 저장 실패", e);
             throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
-
-//    @Transactional
-//    public String saveImage(Post post, MultipartFile multipartFile) {
-//        String originalFilename = multipartFile.getOriginalFilename();
-//        String extension = originalFilename.split("\\.")[1];
-//        String storageFileName = UUID.randomUUID() + "." + extension;
-//        long size = multipartFile.getSize();
-//        Path imagePath = Paths.get(PATH, storageFileName);
-//        PostImage postImage = (PostImage) PostImage.builder()
-//                .post(post)
-//                .storageFileName(storageFileName)
-//                .uploadeFiledName(originalFilename)
-//                .path(String.valueOf(imagePath))
-//                .extension(extension)
-//                .size(size)
-//                .build();
-//        try {
-//            Files.write(imagePath, multipartFile.getBytes());
-//            PostImage save = postImageRepository.save(postImage);
-//            return save.getPath();
-//        } catch (Exception e) {
-//            log.error("이미지 저장 실패", e);
-//            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 
     @Transactional
     public PostResponseDto findByPostOriginId(String postOriginId) {

@@ -80,8 +80,6 @@ public class AuthService {
     }
 
     private boolean validatePassword(String originPassword, String targetPassword) {
-        System.out.println("originPassword = " + originPassword);
-        System.out.println("targetPassword = " + targetPassword);
         if (!passwordEncoder.matches(originPassword,targetPassword)) {
             throw new UserException(UserErrorCode.INVALID_PASSWORD);
         }
