@@ -30,21 +30,21 @@ public class PostController {
         return new ResponseEntity<>(postService.saveMultipartFile(file), HttpStatus.CREATED);
     }
     // 게시글 하나
-    @GetMapping("/{postOriginId}")
+    @GetMapping("/detail/{postOriginId}")
     public ResponseEntity<PostResponseDto> getPost(@PathVariable String postOriginId) {
         return new ResponseEntity(postService.findByPostOriginId(postOriginId), HttpStatus.OK);
     }
 
     // 게시글 type에 해당하는 최신의 page갯수 만큼 => 첫 메인에 보여질 피드들
-    @GetMapping("/{postType}/{page}")
-    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postType, @PathVariable int page) {
+    @GetMapping()
+    public ResponseEntity<List<PostResponseDto>> getPosts(@RequestParam String postType, @RequestParam int page) {
         List<PostResponseDto> postResponseDtos = postService.findPostAllByPostTypeWithPage(postType, page);
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
 
     // 게시글 type에 해당하는 게시글 기준으로 page갯수 만큼 => 각 게시판의 스크롤 한 경우.
-    @GetMapping("/{postType}/{postOriginId}/{page}")
-    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postType, @PathVariable String postOriginId, @PathVariable int page) {
+    @GetMapping("/{postOriginId}")
+    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postOriginId,@RequestParam String postType, @RequestParam int page) {
         List<PostResponseDto> postResponseDtos = postService.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postType, postOriginId, page);
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
