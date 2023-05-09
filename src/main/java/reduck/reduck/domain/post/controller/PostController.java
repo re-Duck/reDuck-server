@@ -37,7 +37,7 @@ public class PostController {
 
     // 게시글 type에 해당하는 최신의 page갯수 만큼 => 첫 메인에 보여질 피드들
     @GetMapping()
-    public ResponseEntity<List<PostResponseDto>> getPosts(@RequestParam String postType, @RequestParam int page) {
+    public ResponseEntity<List<PostResponseDto>> getPosts(@RequestParam List<String> postType, @RequestParam int page) {
         List<PostResponseDto> postResponseDtos = postService.findPostAllByPostTypeWithPage(postType, page);
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }

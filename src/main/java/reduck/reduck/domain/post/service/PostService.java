@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
+import reduck.reduck.domain.post.dto.mapper.PostOfUserResponseDtoMapper;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostImage;
 import reduck.reduck.domain.post.entity.PostType;
@@ -30,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -81,13 +83,14 @@ public class PostService {
     // paging의 경우.
     // DB에 post가 Long id순으로 삽임됨 == createdAt순
     // 단순 page만 있으면 최신순으로 page갯수만큼 조회
-    public List<PostResponseDto> findPostAllByPostTypeWithPage(String postType, int page) {
+    public List<PostResponseDto> findPostAllByPostTypeWithPage(List<String> types, int page) {
+        List<PostType> postTypes = types.stream().map(type -> PostType.getType(type)).collect(Collectors.toList());
         Pageable pageable = PageRequest.of(0, page);
-        List<Post> posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(PostType.getType(postType), pageable);
-        List<PostResponseDto> postResponseDtos = new ArrayList<>();
-        posts.forEach(post -> {
-            postResponseDtos.add(PostResponseDtoMapper.excludeCommentsFrom(post));
-        });
+        List<Post> posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(postTypes, pageable);
+        List<PostResponseDto> postResponseDtos = posts
+                .stream()
+                .map(post -> PostResponseDtoMapper.excludeCommentsFrom(post))
+                .collect(Collectors.toList());
         return postResponseDtos;
     }
 
