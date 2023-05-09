@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.mapper.PostOfUserResponseDtoMapper;
+import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostImage;
 import reduck.reduck.domain.post.entity.PostType;
@@ -19,9 +20,11 @@ import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.PostErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
+import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.PostException;
 import reduck.reduck.global.exception.exception.UserException;
@@ -108,5 +111,18 @@ public class PostService {
         });
         return postResponseDtos;
 
+    }
+
+    public void removePost(String postOriginId) {
+        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        validateAuthentication(post);
+        postRepository.delete(post);
+    }
+
+    private void validateAuthentication(Post post) {
+        String userId = AuthenticationToken.getUserId();
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
+        }
     }
 }

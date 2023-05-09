@@ -49,4 +49,9 @@ public class PostController {
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
 
+    @DeleteMapping("/{postOriginId}")
+    public ResponseEntity<Void> removePost(@PathVariable String postOriginId) {
+        postService.removePost(postOriginId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
 }
