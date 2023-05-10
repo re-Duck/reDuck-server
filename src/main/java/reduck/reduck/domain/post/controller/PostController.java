@@ -1,17 +1,20 @@
 package reduck.reduck.domain.post.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
-import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.post.dto.pathDto;
 import reduck.reduck.domain.post.service.PostService;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -25,10 +28,12 @@ public class PostController {
         postService.createPost(postDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
     @PostMapping("/image")
-    public ResponseEntity<String> saveImage(@RequestPart(required = false) MultipartFile file ){
+    public ResponseEntity<String> saveImage(@RequestPart(required = false) MultipartFile file) {
         return new ResponseEntity<>(postService.saveMultipartFile(file), HttpStatus.CREATED);
     }
+
     // 게시글 하나
     @GetMapping("/detail/{postOriginId}")
     public ResponseEntity<PostResponseDto> getPost(@PathVariable String postOriginId) {
@@ -42,9 +47,21 @@ public class PostController {
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
 
+    @GetMapping("/content")
+    public ResponseEntity<InputStreamResource> getPostContent(@RequestBody pathDto dto) throws FileNotFoundException {
+
+        Path filePath = Paths.get(dto.getPostContentPath());
+        InputStreamResource resource = new InputStreamResource(new FileInputStream(filePath.toString()));
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(resource);
+
+    }
+
+
     // 게시글 type에 해당하는 게시글 기준으로 page갯수 만큼 => 각 게시판의 스크롤 한 경우.
     @GetMapping("/{postOriginId}")
-    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postOriginId,@RequestParam String postType, @RequestParam int page) {
+    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postOriginId, @RequestParam String postType, @RequestParam int page) {
         List<PostResponseDto> postResponseDtos = postService.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postType, postOriginId, page);
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }

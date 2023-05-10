@@ -64,7 +64,9 @@ public class PostService {
             return null;
         }
         String storageFileName = String.valueOf(UUID.randomUUID());
+        System.out.println("storageFileName = " + storageFileName);
         Path imagePath = Paths.get(PATH, storageFileName);
+        System.out.println("imagePath = " + imagePath);
         try {
             Files.write(imagePath, multipartFile.getBytes());
             return String.valueOf(imagePath);
