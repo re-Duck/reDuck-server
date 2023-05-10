@@ -107,7 +107,7 @@ class UserServiceTest {
     private static Stream<Arguments> provideUserObject() {
         MockMultipartFile file
                 = new MockMultipartFile(
-                "multipartFile",
+                "file",
                 "hello.txt",
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()

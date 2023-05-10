@@ -28,6 +28,7 @@ import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.security.JwtProvider;
+import reduck.reduck.util.AuthenticationToken;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -62,7 +63,7 @@ class PostServiceTest {
     void createBoard(String testName, MockMultipartFile file, PostDto postDto) {
 
         String path = "/post";
-        Optional<User> test1 = userRepository.findByUserId(postDto.getUserId());
+        Optional<User> test1 = userRepository.findByUserId(AuthenticationToken.getUserId());
         List<Authority> objects = new ArrayList<>();
         objects.add(Authority.builder().id(10L).name("ROLE_USER").user(test1.get()).build());
         String accToken = "Bearer " + jwtProvider.createToken("test1", objects);
@@ -88,7 +89,6 @@ class PostServiceTest {
         );
         MockMultipartFile emptyFile = new MockMultipartFile("file", (byte[]) null);
         PostDto postDto = PostDto.builder()
-                .userId("test1")
                 .postType(PostType.valueOf("stack"))
                 .postOriginId("post1")
                 .postType(PostType.qna)
