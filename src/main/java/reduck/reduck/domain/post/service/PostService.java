@@ -8,6 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
+import reduck.reduck.domain.post.dto.mapper.PostOfUserResponseDtoMapper;
+import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostImage;
 import reduck.reduck.domain.post.entity.PostType;
@@ -18,9 +20,11 @@ import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.PostErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
+import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.PostException;
 import reduck.reduck.global.exception.exception.UserException;
@@ -30,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
@@ -81,13 +86,14 @@ public class PostService {
     // paging의 경우.
     // DB에 post가 Long id순으로 삽임됨 == createdAt순
     // 단순 page만 있으면 최신순으로 page갯수만큼 조회
-    public List<PostResponseDto> findPostAllByPostTypeWithPage(String postType, int page) {
+    public List<PostResponseDto> findPostAllByPostTypeWithPage(List<String> types, int page) {
+        List<PostType> postTypes = types.stream().map(type -> PostType.getType(type)).collect(Collectors.toList());
         Pageable pageable = PageRequest.of(0, page);
-        List<Post> posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(PostType.getType(postType), pageable);
-        List<PostResponseDto> postResponseDtos = new ArrayList<>();
-        posts.forEach(post -> {
-            postResponseDtos.add(PostResponseDtoMapper.excludeCommentsFrom(post));
-        });
+        List<Post> posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(postTypes, pageable);
+        List<PostResponseDto> postResponseDtos = posts
+                .stream()
+                .map(post -> PostResponseDtoMapper.excludeCommentsFrom(post))
+                .collect(Collectors.toList());
         return postResponseDtos;
     }
 
@@ -105,5 +111,18 @@ public class PostService {
         });
         return postResponseDtos;
 
+    }
+
+    public void removePost(String postOriginId) {
+        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        validateAuthentication(post);
+        postRepository.delete(post);
+    }
+
+    private void validateAuthentication(Post post) {
+        String userId = AuthenticationToken.getUserId();
+        if (!post.getUser().getUserId().equals(userId)) {
+            throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
+        }
     }
 }

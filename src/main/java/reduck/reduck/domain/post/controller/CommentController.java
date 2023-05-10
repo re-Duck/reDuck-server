@@ -3,10 +3,7 @@ package reduck.reduck.domain.post.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.post.dto.CommentDto;
 import reduck.reduck.domain.post.service.CommentService;
 
@@ -20,5 +17,10 @@ public class CommentController {
     public ResponseEntity<Void> createComment(@RequestBody @Valid  CommentDto commentDto) {
         commentService.createComment(commentDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @DeleteMapping("/post/comment/{commentOriginId}")
+    public ResponseEntity<Void> createComment(@PathVariable String commentOriginId) {
+        commentService.removeComment(commentOriginId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

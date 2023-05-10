@@ -31,13 +31,9 @@ public class PostResponseDtoMapper {
     }
 
     public static PostResponseDto from(Post post) {
-        List<CommentResponseDto> comments = new ArrayList<>();
         String developAnnual = DevelopAnnualCalculation.calculate(post.getUser().getDevelopYear());
+        List<CommentResponseDto> comments = CommentResponseDtoMapper.from(post);
 
-        for (Comment comm : post.getComments()) {
-            CommentResponseDto commentResponseDto = CommentResponseDtoMapper.of(comm.getUser(), comm);
-            comments.add(commentResponseDto);
-        }
         PostResponseDto postResponseDto = PostResponseDto.builder()
                 //user
                 .postAuthorId(post.getUser().getUserId())
