@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,8 +40,8 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    private static final String PATH = "C:\\reduckStorage";
-    private static final String DEV_PATH = "/home/nuhgnod/develup/storage";
+    private static final String PATH = "C:\\reduckStorage\\profile";
+    private static final String DEV_PATH = "/home/nuhgnod/develup/storage/profile";
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -50,7 +52,7 @@ public class UserService {
             User user = UserMapper.from(signUpDto);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
             if (!multipartFile.isEmpty()) {
-                UserProfileImg userProfileImg = saveProfileImage(multipartFile);
+                UserProfileImg userProfileImg = saveProfileImage(multipartFile, signUpDto.getUserId());
                 user.updateProfileImg(userProfileImg);
             }
             User userEntity = userRepository.save(user);
@@ -71,7 +73,7 @@ public class UserService {
         User userByUserId = findByUserId(userId);
         try {
             if (!multipartFile.isEmpty()) {
-                UserProfileImg userProfileImg = saveProfileImage(multipartFile);
+                UserProfileImg userProfileImg = saveProfileImage(multipartFile,userId);
                 userByUserId.updateProfileImg(userProfileImg);
             }
             userByUserId.updateFrom(modifyUserDto);
@@ -99,6 +101,7 @@ public class UserService {
         return getUserInfo(userId);
 
     }
+    @Transactional
     public UserInfoDtoRes getUser(String userId){
         return getUserInfo(userId);
     }
@@ -107,13 +110,26 @@ public class UserService {
        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
 
-    private UserProfileImg saveProfileImage(MultipartFile multipartFile) {
+    private UserProfileImg saveProfileImage(MultipartFile multipartFile, String userId) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
         long size = multipartFile.getSize();
-
-        Path imagePath = Paths.get(PATH, storageFileName); //local용
+        String path = PATH + "/" + userId; //폴더 경로
+        File Folder = new File(path);
+        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+        if (!Folder.exists()) {
+            try{
+                Folder.mkdir(); //폴더 생성합니다.
+                System.out.println("폴더가 생성되었습니다.");
+            }
+            catch(Exception e){
+                e.getStackTrace();
+            }
+        }else {
+            System.out.println("이미 폴더가 생성되어 있습니다.");
+        }
+        Path imagePath = Paths.get(path, storageFileName); //local용
 //        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
