@@ -24,8 +24,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping()
-    public ResponseEntity<Void> createPost(@RequestPart @Valid PostDto postDto, @RequestPart(required = false) MultipartFile file) {
-        postService.createPost(postDto, file);
+    public ResponseEntity<Void> createPost(@RequestBody @Valid PostDto postDto) {
+        postService.createPost(postDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

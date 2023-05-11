@@ -13,7 +13,7 @@ public class PostOfUserResponseDtoMapper {
         for (Post post : posts) {
             PostOfUserResponseDto build = PostOfUserResponseDto.builder()
                     .postTitle(post.getPostTitle())
-                    .postContentPath(post.getContentPath())
+                    .postContent(post.getContent())
                     .postOriginId(post.getPostOriginId())
                     .postType(post.getPostType())
                     .postCreatedAt(post.getCreatedAt())

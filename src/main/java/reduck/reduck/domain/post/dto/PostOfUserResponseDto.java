@@ -12,7 +12,7 @@ public class PostOfUserResponseDto {
 
     //post
     private String postTitle;
-    private String postContentPath;
+    private String postContent;
     private String postOriginId;
     private PostType postType;
     private LocalDateTime postCreatedAt;

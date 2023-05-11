@@ -14,7 +14,8 @@ import javax.validation.constraints.NotEmpty;
 public class PostDto {
     @NotBlank
     private String title;
-
+    @NotBlank
+    private String content;
     @NotBlank
     private String postOriginId;
 
