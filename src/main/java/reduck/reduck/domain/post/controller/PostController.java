@@ -3,6 +3,7 @@ package reduck.reduck.domain.post.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.post.dto.PostDto;
@@ -49,19 +50,16 @@ public class PostController {
 
     @GetMapping("/content")
     public ResponseEntity<InputStreamResource> getPostContent(@RequestBody pathDto dto) throws FileNotFoundException {
-
         Path filePath = Paths.get(dto.getPostContentPath());
         InputStreamResource resource = new InputStreamResource(new FileInputStream(filePath.toString()));
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body(resource);
-
     }
-
 
     // 게시글 type에 해당하는 게시글 기준으로 page갯수 만큼 => 각 게시판의 스크롤 한 경우.
     @GetMapping("/{postOriginId}")
-    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postOriginId, @RequestParam String postType, @RequestParam int page) {
+    public ResponseEntity<List<PostResponseDto>> getPosts(@PathVariable String postOriginId, @RequestParam List<String> postType, @RequestParam int page) {
         List<PostResponseDto> postResponseDtos = postService.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postType, postOriginId, page);
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
@@ -70,5 +68,11 @@ public class PostController {
     public ResponseEntity<Void> removePost(@PathVariable String postOriginId) {
         postService.removePost(postOriginId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/{postOriginId}")
+    public ResponseEntity<Void> updatePost(@PathVariable String postOriginId,@RequestBody @Valid PostDto postDto ) {
+        postService.updatePost(postOriginId, postDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

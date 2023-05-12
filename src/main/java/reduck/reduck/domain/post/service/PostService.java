@@ -113,10 +113,12 @@ public class PostService {
     // postOriginId 기준으로 page갯수 만큼 조회하는 경우.
     // postOriginId 게시글의 id값을 조회 후, -> select * from post where id > {postId} limit {page} 의 형식으로 구현.
     // => select * from post where ( select id from post where postOriginId = {postOriginId} ) > {postId} limit page
-    public List<PostResponseDto> findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(String postType, String postOriginId, int page) {
+    public List<PostResponseDto> findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(List<String> types, String postOriginId, int page) {
+        List<PostType> postTypes = types.stream().map(type -> PostType.getType(type)).collect(Collectors.toList());
+
         Pageable pageable = PageRequest.of(0, page);
 
-        List<Post> posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(PostType.getType(postType), postOriginId, pageable)
+        List<Post> posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
                 .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
 
         List<PostResponseDto> postResponseDtos = new ArrayList<>();
@@ -134,10 +136,17 @@ public class PostService {
         postRepository.delete(post);
     }
 
+    public void updatePost(String postOriginId, PostDto postDto) {
+        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        validateAuthentication(post);
+        post.updateFrom(postDto);
+        postRepository.save(post);
+    }
     private void validateAuthentication(Post post) {
         String userId = AuthenticationToken.getUserId();
         if (!post.getUser().getUserId().equals(userId)) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
     }
+
 }
