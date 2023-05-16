@@ -13,14 +13,22 @@ import javax.validation.Valid;
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
+
     @PostMapping("/post/comment")
-    public ResponseEntity<Void> createComment(@RequestBody @Valid  CommentDto commentDto) {
+    public ResponseEntity<Void> createComment(@RequestBody @Valid CommentDto commentDto) {
         commentService.createComment(commentDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
     @DeleteMapping("/post/comment/{commentOriginId}")
     public ResponseEntity<Void> createComment(@PathVariable String commentOriginId) {
         commentService.removeComment(commentOriginId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    @PutMapping("/post/comment/{commentOriginId}")
+    public ResponseEntity<Void> updateComment(@PathVariable String commentOriginId, @RequestBody @Valid CommentDto commentDto) {
+        commentService.updateComment(commentOriginId, commentDto);
+        return ResponseEntity.ok().build();
     }
 }

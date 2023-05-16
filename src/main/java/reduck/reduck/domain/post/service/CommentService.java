@@ -51,10 +51,16 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
+    public void updateComment(String commentOriginId, CommentDto commentDto) {
+        Comment comment = commentRepository.findByCommentOriginId(commentOriginId).orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_EXIST));
+        validateAuthentication(comment);
+        commentRepository.save(comment);
+    }
     private void validateAuthentication(Comment comment) {
         String userId = AuthenticationToken.getUserId();
         if (!comment.getUser().getUserId().equals(userId)) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
     }
+
 }

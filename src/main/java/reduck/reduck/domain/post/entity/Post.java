@@ -1,6 +1,7 @@
 package reduck.reduck.domain.post.entity;
 
 import lombok.*;
+import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
@@ -39,4 +40,8 @@ public class Post extends BaseEntity {
         this.user = user;
     }
 
+    public void updateFrom(PostDto dto) {
+        this.postTitle = dto.getTitle();
+        this.content = dto.getContent();
+    }
 }
