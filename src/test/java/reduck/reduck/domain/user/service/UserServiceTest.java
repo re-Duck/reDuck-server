@@ -3,6 +3,7 @@ package reduck.reduck.domain.user.service;
 import com.google.gson.Gson;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,13 +12,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
+import reduck.reduck.domain.auth.dto.SignInDto;
+import reduck.reduck.domain.auth.dto.SignInResponseDto;
 import reduck.reduck.domain.auth.repository.AuthRepository;
 import reduck.reduck.domain.auth.service.AuthService;
+import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
@@ -27,7 +34,8 @@ import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -51,6 +59,77 @@ class UserServiceTest {
 
     @Autowired
     private Gson gson;
+
+    @Transactional
+    @DisplayName("회원 탈퇴")
+    @Test
+    void 회원탈퇴(){
+
+    }
+
+    @Transactional
+    @DisplayName("본인 정보 확인")
+    @Test
+    void 본인정보(){
+
+    }
+
+    @Transactional
+    @DisplayName("다른 유저 정보 확인")
+    @Test
+    void 유저정보(){
+
+    }
+
+    @Transactional
+    @DisplayName("유저 정보 변경")
+    @Test
+    void 유저정보변경() throws Exception {
+        SignInDto dto = new SignInDto();
+        dto.setPassword("p39pwt12!");
+        dto.setUserId("test1");
+        //로그인 먼저
+        SignInResponseDto signInResponseDto = authService
+                .signIn(dto);
+        String accessToken = "Bearer " + signInResponseDto.getAccessToken();
+        ModifyUserDto build = ModifyUserDto.builder()
+                .userId("test1")
+                .name("new name")
+                .email("zhfptm12@o.cnu.ac.kr")
+                .company("no")
+                .companyEmail("")
+                .school("")
+                .schoolEmail("")
+                .developYear(2018)
+                .build();
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "file",
+                "hello.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "Hello, World!".getBytes()
+        );
+        String path = "/user/test1";
+        MockMultipartFile jsonPart = new MockMultipartFile("modifyUserDto", "modifyUserDto", "application/json", gson.toJson(build).getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart(HttpMethod.PUT, path)
+                        .file(file)
+                        .file(jsonPart)
+                        .header("Authorization", accessToken)
+                )
+                .andExpect(status().isCreated())
+        ;
+
+    }
+
+    @Transactional
+    @DisplayName("아이디 중복 확인")
+    @ParameterizedTest
+    @CsvSource("test2")
+    void 아이디중복확인(String userId) throws Exception {
+        mockMvc.perform(get("/user/duplicate/" + userId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
 
     @Transactional
     @DisplayName("정상 회원가입")
@@ -127,45 +206,5 @@ class UserServiceTest {
 
         );
     }
-//
-//    @Test @Transactional
-//    void signIn() throws Exception {
-//        try {
-//            //정상 작동
-//            SignInDto signInDto = new SignInDto();
-//            signInDto.setUserId("test1");
-//            signInDto.setPassword("1234");
-//            authService.signIn(signInDto);
-//
-//            //아이디 일치 에러
-//            SignInDto signInDto2 = new SignInDto();
-//            signInDto2.setUserId("test2");
-//            signInDto2.setPassword("1234");
-//            Assertions.assertThatThrownBy(() -> {
-//                authService.signIn(signInDto2);
-//            }).isInstanceOf(UserException.class);
-//
-//            //비밀번호 일치 에러
-//            SignInDto signInDto3 = new SignInDto();
-//            signInDto3.setUserId("test1");
-//            signInDto3.setPassword("test1@@@");
-//            Assertions.assertThatThrownBy(() -> {
-//                authService.signIn(signInDto3);
-//            }).isInstanceOf(UserException.class);
-//        } catch (UserException e) {
-//            Assertions.assertThat(e.getClass().toString()).isEqualTo("class org.springframework.security.authentication.BadCredentialsException");
-//
-//        }
-//
-//
-//    }
-//
-//    @Test
-//    @Transactional
-//    void getUser() throws Exception {
-//        User user = userService.findByUserId("test1");
-//        Optional<User> findUser = userRepository.findByUserId("test1");
-//        Assertions.assertThat(user).isEqualTo(findUser.get());
-//
-//    }
+
 }

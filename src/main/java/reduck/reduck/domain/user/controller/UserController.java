@@ -46,8 +46,8 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile multipartFile) {
-        userService.modifyUserInfo(modifyUserDto, multipartFile);
+    public ResponseEntity<Void> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile file) {
+        userService.modifyUserInfo(modifyUserDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
