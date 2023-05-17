@@ -18,6 +18,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
 import reduck.reduck.domain.auth.dto.SignInDto;
@@ -34,9 +35,10 @@ import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -63,35 +65,42 @@ class UserServiceTest {
     @Transactional
     @DisplayName("회원 탈퇴")
     @Test
-    void 회원탈퇴(){
-
+    void 회원탈퇴() throws Exception {
+        String accessToken = getAccessToken();
+        mockMvc.perform(delete("/user").header("Authorization", accessToken))
+                .andExpect(status().isNoContent());
     }
 
     @Transactional
     @DisplayName("본인 정보 확인")
     @Test
-    void 본인정보(){
+    void 본인정보() throws Exception {
+        String accessToken = getAccessToken();
+        mockMvc.perform(get("/user/me")
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name", is("donghun")))
+                .andExpect(jsonPath("company", is("naver")))
+                .andReturn();
 
     }
 
     @Transactional
     @DisplayName("다른 유저 정보 확인")
     @Test
-    void 유저정보(){
-
+    void 유저정보() throws Exception {
+        mockMvc.perform(get("/user/test1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name", is("donghun")))
+                .andExpect(jsonPath("company", is("naver")))
+                .andReturn();
     }
 
     @Transactional
     @DisplayName("유저 정보 변경")
     @Test
     void 유저정보변경() throws Exception {
-        SignInDto dto = new SignInDto();
-        dto.setPassword("p39pwt12!");
-        dto.setUserId("test1");
-        //로그인 먼저
-        SignInResponseDto signInResponseDto = authService
-                .signIn(dto);
-        String accessToken = "Bearer " + signInResponseDto.getAccessToken();
+        String accessToken = getAccessToken();
         ModifyUserDto build = ModifyUserDto.builder()
                 .userId("test1")
                 .name("new name")
@@ -207,4 +216,14 @@ class UserServiceTest {
         );
     }
 
+    private String getAccessToken() {
+        SignInDto dto = new SignInDto();
+        dto.setPassword("p39pwt12!");
+        dto.setUserId("test1");
+        //로그인 먼저
+        SignInResponseDto signInResponseDto = authService
+                .signIn(dto);
+        String accessToken = "Bearer " + signInResponseDto.getAccessToken();
+        return accessToken;
+    }
 }
