@@ -20,7 +20,7 @@ public class SignInResponseDto {
 
     private String email;
 
-    private UserProfileImg userProfileImg;
+    private String userProfileImgPath="";
     private String accessToken;
     private String refreshToken;
 

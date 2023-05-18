@@ -105,6 +105,7 @@ public class UserService {
     public UserInfoDtoRes getUser(String userId){
         return getUserInfo(userId);
     }
+
     @Transactional
     public User findByUserId(String userId) {
        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
