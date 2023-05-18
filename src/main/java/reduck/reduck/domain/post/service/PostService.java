@@ -3,7 +3,6 @@ package reduck.reduck.domain.post.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -99,35 +98,24 @@ public class PostService {
     // paging의 경우.
     // DB에 post가 Long id순으로 삽임됨 == createdAt순
     // 단순 page만 있으면 최신순으로 page갯수만큼 조회
-    public List<PostResponseDto> findPostAllByPostTypeWithPage(List<String> types, int page) {
-        List<PostType> postTypes = types.stream().map(type -> PostType.getType(type)).collect(Collectors.toList());
+    public List<PostResponseDto> getPosts(String postOriginId, List<String> types, int page) {
+        List<PostType> postTypes = types
+                .stream()
+                .map(type -> PostType.getType(type))
+                .collect(Collectors.toList());
         Pageable pageable = PageRequest.of(0, page);
-        List<Post> posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(postTypes, pageable).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
-        List<PostResponseDto> postResponseDtos = posts
+        List<Post> posts;
+        if (postOriginId == "") {
+           posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(postTypes, pageable)
+                   .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        }else{
+           posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
+                    .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        }
+        return posts
                 .stream()
                 .map(post -> PostResponseDtoMapper.excludeCommentsFrom(post))
                 .collect(Collectors.toList());
-        return postResponseDtos;
-    }
-
-    // postOriginId 기준으로 page갯수 만큼 조회하는 경우.
-    // postOriginId 게시글의 id값을 조회 후, -> select * from post where id > {postId} limit {page} 의 형식으로 구현.
-    // => select * from post where ( select id from post where postOriginId = {postOriginId} ) > {postId} limit page
-    public List<PostResponseDto> findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(List<String> types, String postOriginId, int page) {
-        List<PostType> postTypes = types.stream().map(type -> PostType.getType(type)).collect(Collectors.toList());
-
-        Pageable pageable = PageRequest.of(0, page);
-
-        List<Post> posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
-                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
-
-        List<PostResponseDto> postResponseDtos = new ArrayList<>();
-        posts.forEach(post -> {
-            postResponseDtos.add(PostResponseDtoMapper.excludeCommentsFrom(post));
-
-        });
-        return postResponseDtos;
-
     }
 
     public void removePost(String postOriginId) {
