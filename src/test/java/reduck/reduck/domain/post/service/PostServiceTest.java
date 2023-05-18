@@ -1,6 +1,7 @@
 package reduck.reduck.domain.post.service;
 
 import com.google.gson.Gson;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -20,6 +21,9 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import reduck.reduck.domain.auth.dto.SignInDto;
+import reduck.reduck.domain.auth.dto.SignInResponseDto;
+import reduck.reduck.domain.auth.service.AuthService;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostType;
@@ -36,7 +40,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
@@ -45,6 +51,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class PostServiceTest {
     @Autowired
     PostService boardService;
+    @Autowired
+    AuthService authService;
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -60,26 +68,22 @@ class PostServiceTest {
     @DisplayName("게시글 작성")
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("providePostObject")
-    void createBoard(String testName, MockMultipartFile file, PostDto postDto) {
-
+    void createBoard(String testName, PostDto postDto) throws Exception {
+        String accessToken = getAccessToken();
         String path = "/post";
-        Optional<User> test1 = userRepository.findByUserId(AuthenticationToken.getUserId());
-        List<Authority> objects = new ArrayList<>();
-        objects.add(Authority.builder().id(10L).name("ROLE_USER").user(test1.get()).build());
-        String accToken = "Bearer " + jwtProvider.createToken("test1", objects);
-        MockMultipartFile jsonPart = new MockMultipartFile("postDto", "postDto", "application/json", gson.toJson(postDto).getBytes(StandardCharsets.UTF_8));
-        try {
-            mockMvc.perform(multipart(path)
-                            .file(jsonPart)
-                            .file(file)
-                            .header("Authorization", accToken))
-                    .andExpect(status().isCreated());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        String s = gson.toJson(postDto);
+        mockMvc.perform(post(path)
+                        .content(s)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", accessToken)
+                )
+                .andExpect(status().isCreated());
     }
 
-    private static Stream<Arguments> providePostObject() {
+    @Test
+    @Transactional
+    void saveImage() throws Exception {
+        String accessToken = getAccessToken();
         MockMultipartFile file
                 = new MockMultipartFile(
                 "file",
@@ -87,18 +91,105 @@ class PostServiceTest {
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
-        MockMultipartFile emptyFile = new MockMultipartFile("file", (byte[]) null);
+        String path = "/post/image";
+        mockMvc.perform(multipart(path)
+                        .file(file)
+                        .header("Authorization", accessToken)
+                )
+                .andExpect(status().isCreated());
+    }
+
+    @Test
+    @Transactional
+    void getPost() throws Exception {
+        String path = "/post/detail/post1";
+        mockMvc.perform(get(path))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("postContent", Matchers.is("<p>hello</p>")));
+    }
+
+    @Transactional
+    @ParameterizedTest(name = "{index}:{0}")
+    @MethodSource("providePostOriginId")
+    void getPosts(String testName, String id) throws Exception {
+        String path = "/post?postType=qna&page=3&postOriginId=" + id;
+        mockMvc.perform(get(path))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].postOriginId", Matchers.is(id==""?"post2":"post22")))
+                .andExpect(jsonPath("$[1].postOriginId", Matchers.is(id==""?"post22":"post11")))
+                .andExpect(jsonPath("$[2].postOriginId", Matchers.is(id==""?"post11":"post1")));
+
+    }
+
+    @Test
+    @Transactional
+    void removePost() throws Exception {
+        String path = "/post/post22";
+        String accessToken = getAccessToken();
+
+        mockMvc.perform(delete(path)
+                        .header("Authorization", accessToken))
+                .andExpect(status().isNoContent());
+
+    }
+
+    @Test
+    @Transactional
+    void updatePost() throws Exception {
+        String path = "/post/post22";
+        String accessToken = getAccessToken();
+        PostDto update = PostDto.builder()
+                .content("<p>updated@@@@@@@@@@@@@</p>")
+                .postOriginId("post22")
+                .postType(PostType.stack)
+                .title("test title")
+                .build();
+        String s = gson.toJson(update);
+        mockMvc.perform(put(path)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(s)
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk());
+    }
+
+
+    private static Stream<Arguments> providePostObject() {
         PostDto postDto = PostDto.builder()
-                .postType(PostType.valueOf("stack"))
-                .postOriginId("post1")
+                .content("<p>hello</p>")
+                .postOriginId("post123123")
+                .postType(PostType.qna)
+                .title("test title")
+                .build();
+        PostDto empty = PostDto.builder()
+                .content("<p>hello</p>")
+                .postOriginId("post55")
                 .postType(PostType.qna)
                 .title("test title")
                 .build();
         return Stream.of(
-                Arguments.of("이미지 포함된 게시글 작성", file, postDto),
-                Arguments.of("이미지 없는 게시글 작성", emptyFile, postDto)
+                Arguments.of("content 있는 게시글 작성", postDto),
+                Arguments.of("content 없는 게시글 작성", empty)
 
         );
     }
 
+    private static Stream<Arguments> providePostOriginId() {
+        String main = "";
+        String scroll = "post2";
+        return Stream.of(
+                Arguments.of("메인 페이지 조회", main),
+                Arguments.of("스크롤 조회", scroll)
+        );
+    }
+
+    private String getAccessToken() {
+        SignInDto dto = new SignInDto();
+        dto.setPassword("p39pwt12!");
+        dto.setUserId("test1");
+        //로그인 먼저
+        SignInResponseDto signInResponseDto = authService
+                .signIn(dto);
+        String accessToken = "Bearer " + signInResponseDto.getAccessToken();
+        return accessToken;
+    }
 }

@@ -3,7 +3,6 @@ package reduck.reduck.domain.post.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.post.dto.PostDto;
@@ -50,14 +49,6 @@ public class PostController {
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
 
-    @GetMapping("/content")
-    public ResponseEntity<InputStreamResource> getPostContent(@RequestBody pathDto dto) throws FileNotFoundException {
-        Path filePath = Paths.get(dto.getPostContentPath());
-        InputStreamResource resource = new InputStreamResource(new FileInputStream(filePath.toString()));
-        return ResponseEntity.ok()
-                .contentType(MediaType.TEXT_HTML)
-                .body(resource);
-    }
 
     @DeleteMapping("/{postOriginId}")
     public ResponseEntity<Void> removePost(@PathVariable String postOriginId) {
