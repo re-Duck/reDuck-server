@@ -57,6 +57,17 @@ public class PostService {
         if (multipartFile.isEmpty()) {
             return null;
         }
+        Path imagePath = makeStorageFilePath(multipartFile);
+        try {
+            Files.write(imagePath, multipartFile.getBytes());
+            return String.valueOf(imagePath);
+        } catch (Exception e) {
+            log.error("이미지 저장 실패", e);
+            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Path makeStorageFilePath(MultipartFile multipartFile) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
@@ -69,17 +80,11 @@ public class PostService {
             }
             catch(Exception e){
                 e.getStackTrace();
+                throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
             }
         }
-        Path imagePath = Paths.get(path, storageFileName); //local용
+        return Paths.get(path, storageFileName); //local용
 
-        try {
-            Files.write(imagePath, multipartFile.getBytes());
-            return String.valueOf(imagePath);
-        } catch (Exception e) {
-            log.error("이미지 저장 실패", e);
-            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @Transactional
