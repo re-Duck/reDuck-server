@@ -32,11 +32,13 @@ public class User extends BaseEntity {
 
     private String email;
     private String company;
+    @Column(columnDefinition = "varchar(255) default ''")
     private String companyEmail;
     @Column(columnDefinition = ("boolean default false"))
     private boolean companyEmailAuthentication;
 
     private String school;
+    @Column(columnDefinition = "varchar(255) default ''")
     private String schoolEmail;
     @Column(columnDefinition = ("boolean default false"))
     private boolean schoolEmailAuthentication;
