@@ -31,9 +31,13 @@ public class User extends BaseEntity {
     private String name;
 
     private String email;
+    @Getter
+    private boolean emailAuthentication;
+
     private String company;
     @Column(columnDefinition = "varchar(255) default ''")
     private String companyEmail;
+
     @Column(columnDefinition = ("boolean default false"))
     private boolean companyEmailAuthentication;
 
@@ -80,10 +84,10 @@ public class User extends BaseEntity {
         this.schoolEmail = modifyUserDto.getSchoolEmail();
         this.developYear = modifyUserDto.getDevelopYear();
     }
-    public void authenticatedCompanyEmail() {
+    public void authenticateCompanyEmail() {
         this.companyEmailAuthentication = true;
     }
-    public void authenticatedSchoolEmail() {
+    public void authenticateSchoolEmail() {
         this.schoolEmailAuthentication = true;
     }
 }

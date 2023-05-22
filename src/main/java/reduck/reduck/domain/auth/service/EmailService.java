@@ -7,18 +7,16 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
-import reduck.reduck.domain.auth.dto.CompanyEmailRequestDto;
+import reduck.reduck.domain.auth.dto.EmailAuthenticateRequestDto;
 import reduck.reduck.domain.auth.dto.EmailRequestDto;
-import reduck.reduck.domain.auth.dto.SchoolEmailRequestDto;
-import reduck.reduck.domain.auth.dto.UserEmailRequestDto;
 import reduck.reduck.domain.auth.entity.EmailAuthentication;
+import reduck.reduck.domain.auth.entity.EmailType;
 import reduck.reduck.domain.auth.repository.EmailAuthenticationRepository;
-import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
-import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.AuthException;
-import reduck.reduck.global.exception.exception.UserException;
+import reduck.reduck.global.security.JwtProvider;
+
 import javax.mail.MessagingException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
@@ -32,6 +30,7 @@ import java.util.Random;
 public class EmailService {
     private final EmailAuthenticationRepository emailAuthenticationRepository;
     private final UserRepository userRepository;
+    private final JwtProvider jwtProvider;
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
     @Value("${spring.mail.username}")
@@ -57,41 +56,14 @@ public class EmailService {
     }
 
     @Transactional
-    public void authenticateUserEmail( UserEmailRequestDto emailRequestDto) {
+    public String authenticateEmail(EmailAuthenticateRequestDto emailRequestDto) {
         int number = emailRequestDto.getNumber();
-        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(emailRequestDto.getEmail());
+        String type = emailRequestDto.getType();
+        String email = emailRequestDto.getEmail();
+        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(email);
         validateEmailAuthenticationNumber(emailAuthentication, number);
-
+        return jwtProvider.createEmailToken(email, EmailType.valueOf(type), number);
     }
-
-    @Transactional
-    public void authenticateCompanyEmail(CompanyEmailRequestDto companyEmailRequestDto) {
-        String userId = companyEmailRequestDto.getUserId();
-        String companyEmail = companyEmailRequestDto.getCompanyEmail();
-        int number = companyEmailRequestDto.getNumber();
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
-        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(companyEmail);
-        if (validateEmailAuthenticationNumber(emailAuthentication, number)) {
-            user.authenticatedCompanyEmail();
-            userRepository.save(user);
-            return;
-        }
-    }
-
-    @Transactional
-    public void authenticateSchoolEmail(SchoolEmailRequestDto schoolEmailRequestDto) {
-        String userId = schoolEmailRequestDto.getUserId();
-        String schoolEmail = schoolEmailRequestDto.getSchoolEmail();
-        int number = schoolEmailRequestDto.getNumber();
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
-        Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(schoolEmail);
-        if (validateEmailAuthenticationNumber(emailAuthentication, number)) {
-            user.authenticatedSchoolEmail();
-            userRepository.save(user);
-            return;
-        }
-    }
-
 
     private MimeMessage craeteEmailTemplate(EmailRequestDto emailRequestDto, int emailCertificatedNumber) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = javaMailSender.createMimeMessage();

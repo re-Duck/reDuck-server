@@ -14,6 +14,7 @@ public class UserMapper {
                 .company(obj.getCompany())
                 .school(obj.getSchool())
                 .developYear(obj.getDevelopYear())
+                .emailAuthentication(true)
                 .build();
     }
 

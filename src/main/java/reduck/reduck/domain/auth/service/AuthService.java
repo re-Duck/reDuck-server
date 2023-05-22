@@ -28,7 +28,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthService {
     private final AuthRepository authRepository;
-    private final UserRepository userRepository;
     private final UserService userService;
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
@@ -53,7 +52,7 @@ public class AuthService {
     }
 
     @Transactional
-    public AccessTokenDto reissuanceAccessToken(HttpServletRequest request) throws Exception {
+    public AccessTokenDto reissuanceAccessToken(HttpServletRequest request) {
         String userId = AuthenticationToken.getUserId();
         User user = userService.findByUserId(userId);
         String findRefreshToken = findAllByUserPk(user.getId());

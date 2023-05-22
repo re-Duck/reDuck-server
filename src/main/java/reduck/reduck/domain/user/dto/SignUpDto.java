@@ -33,4 +33,7 @@ public class SignUpDto {
     @NotNull
     private int developYear;
 
+    @NotBlank
+    private String emailAuthToken;
+
 }
