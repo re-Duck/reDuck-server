@@ -8,7 +8,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Getter
-public class UserEmailRequestDto {
+public class EmailAuthenticateRequestDto {
     @Email
     private String email;
     @NotNull @Max(999999) @Min(100000)
