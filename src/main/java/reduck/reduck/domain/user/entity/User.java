@@ -16,7 +16,6 @@ import java.util.List;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
@@ -32,12 +31,18 @@ public class User extends BaseEntity {
     private String name;
 
     private String email;
+    @Getter
+    private boolean emailAuthentication;
+
     private String company;
+    @Column(columnDefinition = "varchar(255) default ''")
     private String companyEmail;
+
     @Column(columnDefinition = ("boolean default false"))
     private boolean companyEmailAuthentication;
 
     private String school;
+    @Column(columnDefinition = "varchar(255) default ''")
     private String schoolEmail;
     @Column(columnDefinition = ("boolean default false"))
     private boolean schoolEmailAuthentication;
@@ -78,15 +83,11 @@ public class User extends BaseEntity {
         this.school = modifyUserDto.getSchool();
         this.schoolEmail = modifyUserDto.getSchoolEmail();
         this.developYear = modifyUserDto.getDevelopYear();
-
     }
-
-
-    public void authenticatedCompanyEmail() {
+    public void authenticateCompanyEmail() {
         this.companyEmailAuthentication = true;
     }
-
-    public void authenticatedSchoolEmail() {
+    public void authenticateSchoolEmail() {
         this.schoolEmailAuthentication = true;
     }
 }

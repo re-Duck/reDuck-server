@@ -62,13 +62,17 @@ public class SecurityConfig {
                 .authorizeRequests()
                 // 회원가입과 로그인은 모두 승인 => 만약 method type + uri로 분기 하고 싶다면 mvcMatchers 쓰면 될듯함.
 //                .regexMatchers(HttpMethod.POST, "/user")
-                .mvcMatchers(HttpMethod.POST, "/login", "/user/{userId}").permitAll()
+                .mvcMatchers(HttpMethod.POST, "/login", "/user", "/auth/email/user/**").permitAll()
+                .mvcMatchers(HttpMethod.GET, "/**").permitAll()
 //                .antMatchers("/register").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasRole("ADMIN")
                 // /user 로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
                 .antMatchers("/user/**").hasRole("USER")
-                .anyRequest().authenticated()
+                .antMatchers("/post/**").authenticated()
+                .antMatchers("/chat/**").authenticated()
+                .antMatchers("/auth/**").authenticated()
+                .anyRequest().permitAll()
                 .and()
                 // JWT 인증 필터 적용
                 .addFilterBefore(new JwtAuthenticationFilter(jwtProvider), UsernamePasswordAuthenticationFilter.class)

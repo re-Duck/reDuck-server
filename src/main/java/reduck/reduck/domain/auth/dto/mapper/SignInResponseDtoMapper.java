@@ -9,10 +9,11 @@ public class SignInResponseDtoMapper {
                 .userId(obj.getUserId())
                 .name(obj.getName())
                 .email(obj.getEmail())
-                .userProfileImg(obj.getProfileImg())
+                .userProfileImgPath(obj.getProfileImg() == null ? "" : obj.getProfileImg().getPath())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+
         return signInResponseDto;
     }
 }

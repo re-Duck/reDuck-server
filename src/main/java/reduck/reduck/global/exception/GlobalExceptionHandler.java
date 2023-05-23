@@ -5,6 +5,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailSendException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -73,9 +74,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> handleAllException(Exception ex) {
         log.warn("handleAllException", ex);
         if(ex instanceof DataIntegrityViolationException){
-            ErrorCode errorCode = UserErrorCode.DUPLICATE_USER_ID;
+            ErrorCode errorCode = CommonErrorCode.DATA_INTEGRITY_VIOLATION;
             return handleExceptionInternal(errorCode);
-
+        }
+        if (ex instanceof MailSendException) {
+            ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+            return handleExceptionInternal(errorCode);
         }
         ErrorCode errorCode = CommonErrorCode.INTERNAL_SERVER_ERROR;
         return handleExceptionInternal(errorCode);

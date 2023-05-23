@@ -1,21 +1,28 @@
 package reduck.reduck.domain.auth.service;
 
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
+import com.google.gson.Gson;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
-import reduck.reduck.domain.auth.entity.RefreshToken;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import reduck.reduck.domain.auth.dto.SignInDto;
 import reduck.reduck.domain.auth.repository.AuthRepository;
-import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
+import javax.transaction.Transactional;
+import java.nio.charset.StandardCharsets;
 
-@SpringBootTest
-@ActiveProfiles("test")
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+@AutoConfigureMockMvc
 class AuthServiceTest {
 
     @Autowired
@@ -24,34 +31,25 @@ class AuthServiceTest {
     UserRepository userRepository;
     @Autowired
     AuthRepository authRepository;
-    @Test
-    @Transactional
-    void saveRefreshToken() {
-        //given
-//        Optional<User> user = userRepository.findByUserId("test1");
-//        authService.saveRefreshToken("refresh_token_save_test", user.get());
-//        //when
-//        Optional<RefreshToken> refreshToken = authRepository.findById(1L);
-//        //then
-//        Assertions.assertThat(refreshToken.get().getRefreshToken()).isEqualTo("refresh_token_save_test");
-//        Assertions.assertThat(refreshToken.get().getUser()).isEqualTo(user.get());
-    }
+    @Autowired
+    private MockMvc mockMvc;
+    @Autowired
+    private Gson gson;
 
-    @Test
     @Transactional
-    void reissuanceAccessToken() throws Exception {
-//        HttpServletRequest request = null;
-//        request.setAttribute("Authorization", "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0MSIsInJvbGVzIjpbeyJuYW1lIjoiUk9MRV9VU0VSIn1dLCJpYXQiOjE2ODAxMDAyNTgsImV4cCI6MTY4MTMwOTg1OH0.EvGXCdcrAG0LbhQwohWAqwq2fUEJrIgzGALFCBivsJA");
-//
-//        authService.reissuanceAccessToken(request, "test1");
-        //given
-        //when
-        //then
-    }
+    @DisplayName("정상 회원가입")
+    @ParameterizedTest
+    @CsvSource("test2, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
+    void signIn() throws Exception {
 
-    @Test
-    @Transactional
-    void getRefreshToken() {
+        SignInDto dto = new SignInDto();
+        dto.setPassword("p39pwt12!");
+        dto.setUserId("test1");
+        String s = gson.toJson(dto);
+        mockMvc.perform(post("/login")
+                        .content(s)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
 
     }
 }

@@ -3,6 +3,7 @@ package reduck.reduck.domain.user.service;
 import com.google.gson.Gson;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,15 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
+import reduck.reduck.domain.auth.dto.SignInDto;
+import reduck.reduck.domain.auth.dto.SignInResponseDto;
 import reduck.reduck.domain.auth.repository.AuthRepository;
 import reduck.reduck.domain.auth.service.AuthService;
+import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
@@ -29,13 +35,14 @@ import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
 @AutoConfigureMockMvc
-@ActiveProfiles("test")
 class UserServiceTest {
     @Autowired
     UserRepository userRepository;
@@ -56,10 +63,88 @@ class UserServiceTest {
     private Gson gson;
 
     @Transactional
+    @DisplayName("회원 탈퇴")
+    @Test
+    void 회원탈퇴() throws Exception {
+        String accessToken = getAccessToken();
+        mockMvc.perform(delete("/user").header("Authorization", accessToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Transactional
+    @DisplayName("본인 정보 확인")
+    @Test
+    void 본인정보() throws Exception {
+        String accessToken = getAccessToken();
+        mockMvc.perform(get("/user/me")
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name", is("donghun")))
+                .andExpect(jsonPath("company", is("naver")))
+                .andReturn();
+
+    }
+
+    @Transactional
+    @DisplayName("다른 유저 정보 확인")
+    @Test
+    void 유저정보() throws Exception {
+        mockMvc.perform(get("/user/test1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name", is("donghun")))
+                .andExpect(jsonPath("company", is("naver")))
+                .andReturn();
+    }
+
+    @Transactional
+    @DisplayName("유저 정보 변경")
+    @Test
+    void 유저정보변경() throws Exception {
+        String accessToken = getAccessToken();
+        ModifyUserDto build = ModifyUserDto.builder()
+                .userId("test1")
+                .name("new name")
+                .email("zhfptm12@o.cnu.ac.kr")
+                .company("no")
+                .companyEmail("")
+                .school("")
+                .schoolEmail("")
+                .developYear(2018)
+                .build();
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "file",
+                "hello.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "Hello, World!".getBytes()
+        );
+        String path = "/user/test1";
+        MockMultipartFile jsonPart = new MockMultipartFile("modifyUserDto", "modifyUserDto", "application/json", gson.toJson(build).getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart(HttpMethod.PUT, path)
+                        .file(file)
+                        .file(jsonPart)
+                        .header("Authorization", accessToken)
+                )
+                .andExpect(status().isCreated())
+        ;
+
+    }
+
+    @Transactional
+    @DisplayName("아이디 중복 확인")
+    @ParameterizedTest
+    @CsvSource("test2")
+    void 아이디중복확인(String userId) throws Exception {
+        mockMvc.perform(get("/user/duplicate/" + userId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Transactional
     @DisplayName("정상 회원가입")
     @ParameterizedTest
-    @CsvSource("test1,p39pwt12!, donghun, zhfptm12@naver.com,3,naver,CNU")
-    void 정상회원가입(String userId, String password, String name, String email, String developAnnual, String company, String school) throws Exception {
+    @CsvSource("test2, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
+    void 정상회원가입(String userId, String password, String name, String email, int developYear, String company, String school) throws Exception {
 
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -73,7 +158,7 @@ class UserServiceTest {
                 .password(password)
                 .name(name)
                 .email(email)
-                .developAnnual(developAnnual)
+                .developYear(developYear)
                 .company(company)
                 .school(school)
                 .build();
@@ -86,18 +171,18 @@ class UserServiceTest {
     @DisplayName("회원가입 유효성 검사")
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideUserObject")
-    void 회원가입유효성검사(String testName, String userId, String password, String name, String email, String developAnnual, String company, String school, MockMultipartFile file, Class obj) throws Exception {
+    void 회원가입유효성검사(String testName, String userId, String password, String name, String email, int developYear, String company, String school, MockMultipartFile file, Class obj) throws Exception {
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)
                 .password(password)
                 .name(name)
                 .email(email)
-                .developAnnual(developAnnual)
+                .developYear(developYear)
                 .company(company)
                 .school(school)
                 .build();
 
-        String path = "/user/" + userId;
+        String path = "/user";
         MockMultipartFile jsonPart = new MockMultipartFile("signUpDto", "signUpDto", "application/json", gson.toJson(signUpDto).getBytes(StandardCharsets.UTF_8));
         mockMvc.perform(multipart(path)
                         .file(file)
@@ -110,66 +195,35 @@ class UserServiceTest {
     private static Stream<Arguments> provideUserObject() {
         MockMultipartFile file
                 = new MockMultipartFile(
-                "multipartFile",
+                "file",
                 "hello.txt",
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
 
         return Stream.of(
-                Arguments.of("아이디 중복", "test1", "p39pwt12!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, DataIntegrityViolationException.class),
-                Arguments.of("비밀번호 패턴 불일치", "test12", "p39pwt12~!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 8자 안됨 (6자)", "test12", "p39pwt", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 15자 이상 (25자)", "test12", "p39pwt12p39pwt12p39pwt12!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 숫자 없음", "test12", "abcdefghi!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 영문자 없음", "test12", "12345678!", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("비밀번호 특수문자 없음", "test4", "p39pwt12qwe", "donghun", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("이름 누락", "test4", "p39pwt12!", "", "zhfptm12@naver.com", "3", "naver", "CNU", file, MethodArgumentNotValidException.class), //
-                Arguments.of("메일 누락", "test4", "p39pwt12!", "donghun", "", "3", "naver", "CNU", file, MethodArgumentNotValidException.class),//
-                Arguments.of("개발연차 누락", "test4", "p39pwt12!", "donghun", "zhfptm12@naver.com", "", "naver", "CNU", file, MethodArgumentNotValidException.class) //
+                Arguments.of("아이디 중복", "test1", "p39pwt12!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, DataIntegrityViolationException.class),
+                Arguments.of("비밀번호 패턴 불일치", "test12", "p39pwt12~!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 8자 안됨 (6자)", "test12", "p39pwt", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 15자 이상 (25자)", "test12", "p39pwt12p39pwt12p39pwt12!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 숫자 없음", "test12", "abcdefghi!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 영문자 없음", "test12", "12345678!", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("비밀번호 특수문자 없음", "test4", "p39pwt12qwe", "donghun", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("이름 누락", "test4", "p39pwt12!", "", "zhfptm12@naver.com", 0, "naver", "CNU", file, MethodArgumentNotValidException.class), //
+                Arguments.of("메일 누락", "test4", "p39pwt12!", "donghun", "", 0, "naver", "CNU", file, MethodArgumentNotValidException.class)
 
 
         );
     }
-//
-//    @Test @Transactional
-//    void signIn() throws Exception {
-//        try {
-//            //정상 작동
-//            SignInDto signInDto = new SignInDto();
-//            signInDto.setUserId("test1");
-//            signInDto.setPassword("1234");
-//            authService.signIn(signInDto);
-//
-//            //아이디 일치 에러
-//            SignInDto signInDto2 = new SignInDto();
-//            signInDto2.setUserId("test2");
-//            signInDto2.setPassword("1234");
-//            Assertions.assertThatThrownBy(() -> {
-//                authService.signIn(signInDto2);
-//            }).isInstanceOf(UserException.class);
-//
-//            //비밀번호 일치 에러
-//            SignInDto signInDto3 = new SignInDto();
-//            signInDto3.setUserId("test1");
-//            signInDto3.setPassword("test1@@@");
-//            Assertions.assertThatThrownBy(() -> {
-//                authService.signIn(signInDto3);
-//            }).isInstanceOf(UserException.class);
-//        } catch (UserException e) {
-//            Assertions.assertThat(e.getClass().toString()).isEqualTo("class org.springframework.security.authentication.BadCredentialsException");
-//
-//        }
-//
-//
-//    }
-//
-//    @Test
-//    @Transactional
-//    void getUser() throws Exception {
-//        User user = userService.findByUserId("test1");
-//        Optional<User> findUser = userRepository.findByUserId("test1");
-//        Assertions.assertThat(user).isEqualTo(findUser.get());
-//
-//    }
+
+    private String getAccessToken() {
+        SignInDto dto = new SignInDto();
+        dto.setPassword("p39pwt12!");
+        dto.setUserId("test1");
+        //로그인 먼저
+        SignInResponseDto signInResponseDto = authService
+                .signIn(dto);
+        String accessToken = "Bearer " + signInResponseDto.getAccessToken();
+        return accessToken;
+    }
 }

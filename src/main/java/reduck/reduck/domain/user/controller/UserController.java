@@ -7,12 +7,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
-import reduck.reduck.domain.user.dto.SignOutDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.dto.UserInfoDtoRes;
-import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -21,32 +20,34 @@ import javax.validation.Valid;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/{userId}") // -> /user/{userId}
-    public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile multipartFile) throws Exception {
-        userService.signUp(signUpDto, multipartFile);
+    @PostMapping()
+    public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile file) throws Exception {
+        userService.signUp(signUpDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping
-    public ResponseEntity<Void> signOut(@RequestBody SignOutDto signOutDto) {
-        return ResponseEntity.ok().build();
+    @GetMapping("/duplicate/{userId}")
+    public ResponseEntity<Boolean> isDuplicateUserId(@PathVariable String userId) throws Exception {
+        return new ResponseEntity<>(userService.isDuplicatedUserId(userId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> withdraw(@PathVariable("userId") String userId) {
-        userService.withdraw(userId);
+    @DeleteMapping("")
+    public ResponseEntity<Void> withdraw() {
+        userService.withdraw();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-
     }
-
+    @GetMapping("/me")
+    public ResponseEntity<UserInfoDtoRes> getMyInfo() {
+        return new ResponseEntity(userService.getMyInfo(), HttpStatus.OK);
+    }
     @GetMapping("/{userId}")
     public ResponseEntity<UserInfoDtoRes> getUser(@PathVariable("userId") String userId) {
         return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile multipartFile) {
-        userService.modifyUserInfo(modifyUserDto, multipartFile);
+    public ResponseEntity<Void> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile file) {
+        userService.modifyUserInfo(modifyUserDto, file);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

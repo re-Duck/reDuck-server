@@ -8,6 +8,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import reduck.reduck.domain.auth.entity.EmailType;
 import reduck.reduck.domain.user.entity.Authority;
 
 import javax.annotation.PostConstruct;
@@ -37,7 +38,7 @@ public class JwtProvider {
         secretKey = Keys.hmacShaKeyFor(salt.getBytes(StandardCharsets.UTF_8));
     }
 
-    // 토큰 생성
+    // access 토큰 생성
     public String createToken(String account, List<Authority> roles) {
         Claims claims = Jwts.claims().setSubject(account);
         claims.put("roles", roles);
@@ -49,7 +50,7 @@ public class JwtProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
-
+    // refresh 토큰 생성
     public String createRefreshToken(String account, List<Authority> roles) {
         Claims claims = Jwts.claims().setSubject(account);
         claims.put("roles", roles);
@@ -62,6 +63,19 @@ public class JwtProvider {
                 .compact();
     }
 
+    // 이메일 인증 토큰 생성
+    public String createEmailToken(String email, EmailType type , int number) {
+        Claims claims = Jwts.claims().setSubject("emailAuthenticationToken");
+        claims.put("number", number);
+        claims.put(String.valueOf(type), email);
+        Date now = new Date();
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(new Date(now.getTime() + exp))
+                .signWith(secretKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
     // 권한정보 획득
     // Spring Security 인증과정에서 권한확인을 위한 기능
     public Authentication getAuthentication(String token) {
@@ -71,9 +85,13 @@ public class JwtProvider {
 
     // 토큰에 담겨있는 유저 account 획득
     public String getAccount(String token) {
+
         return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody().getSubject();
     }
 
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+    }
     // Authorization Header를 통해 인증을 한다.
     public String resolveToken(HttpServletRequest request) {
         return request.getHeader("Authorization");

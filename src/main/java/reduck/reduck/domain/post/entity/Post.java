@@ -1,6 +1,7 @@
 package reduck.reduck.domain.post.entity;
 
 import lombok.*;
+import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
@@ -11,7 +12,6 @@ import java.util.List;
 @Entity
 @Builder
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Post extends BaseEntity {
@@ -20,8 +20,8 @@ public class Post extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    @Column(columnDefinition = "TEXT")
-    private String postContent;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String content;
 
     @Column(unique = true)
     private String postOriginId;
@@ -33,8 +33,15 @@ public class Post extends BaseEntity {
     private Boolean temporary;
 
     @Builder.Default
-    @OneToMany(mappedBy = "post", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Comment> comments= new ArrayList(); //양방향 매핑 순환참조 문제 발생.
 
+    public void setUser(User user) {
+        this.user = user;
+    }
 
+    public void updateFrom(PostDto dto) {
+        this.postTitle = dto.getTitle();
+        this.content = dto.getContent();
+    }
 }

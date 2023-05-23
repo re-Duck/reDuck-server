@@ -17,11 +17,11 @@ public class PostResponseDtoMapper {
                 //user
                 .postAuthorId(post.getUser().getUserId())
                 .postAuthorName(post.getUser().getName())
-                .postAuthorProfileImg(post.getUser().getProfileImg())
+                .postAuthorProfileImgPath(post.getUser().getProfileImg().getPath())
                 .postAuthorDevelopAnnual(developAnnual)
                 //post
                 .postTitle(post.getPostTitle())
-                .postContent(post.getPostContent())
+                .postContent(post.getContent())
                 .postOriginId(post.getPostOriginId())
                 .postType(post.getPostType())
                 .postCreatedAt(post.getCreatedAt())
@@ -31,22 +31,18 @@ public class PostResponseDtoMapper {
     }
 
     public static PostResponseDto from(Post post) {
-        List<CommentResponseDto> comments = new ArrayList<>();
         String developAnnual = DevelopAnnualCalculation.calculate(post.getUser().getDevelopYear());
+        List<CommentResponseDto> comments = CommentResponseDtoMapper.from(post);
 
-        for (Comment comm : post.getComments()) {
-            CommentResponseDto commentResponseDto = CommentResponseDtoMapper.of(comm.getUser(), comm);
-            comments.add(commentResponseDto);
-        }
         PostResponseDto postResponseDto = PostResponseDto.builder()
                 //user
                 .postAuthorId(post.getUser().getUserId())
                 .postAuthorName(post.getUser().getName())
-                .postAuthorProfileImg(post.getUser().getProfileImg())
+                .postAuthorProfileImgPath(post.getUser().getProfileImg().getPath())
                 .postAuthorDevelopAnnual(developAnnual)
                 //post
                 .postTitle(post.getPostTitle())
-                .postContent(post.getPostContent())
+                .postContent(post.getContent())
                 .postOriginId(post.getPostOriginId())
                 .postType(post.getPostType())
                 .postCreatedAt(post.getCreatedAt())

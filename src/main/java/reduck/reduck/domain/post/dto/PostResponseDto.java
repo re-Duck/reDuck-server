@@ -17,7 +17,7 @@ import java.util.List;
 public class PostResponseDto {
     //user
     private String postAuthorId;
-    private UserProfileImg postAuthorProfileImg;
+    private String postAuthorProfileImgPath;
     private String postAuthorName;
     private String postAuthorDevelopAnnual;
 
@@ -36,7 +36,7 @@ public class PostResponseDto {
     public String toString() {
         return "PostResponseDto{" +
                 "postAuthorId='" + postAuthorId + '\'' +
-                ", postAuthorProfileImg=" + postAuthorProfileImg +
+                ", postAuthorProfileImgPath=" + postAuthorProfileImgPath +
                 ", postAuthorName='" + postAuthorName + '\'' +
                 ", postTitle='" + postTitle + '\'' +
                 ", postContent='" + postContent + '\'' +
