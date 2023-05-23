@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import reduck.reduck.domain.auth.dto.EmailAuthenticateRequestDto;
+import reduck.reduck.domain.auth.dto.EmailAuthenticateResponseDto;
 import reduck.reduck.domain.auth.dto.EmailRequestDto;
 import reduck.reduck.domain.auth.entity.EmailAuthentication;
 import reduck.reduck.domain.auth.entity.EmailType;
@@ -56,13 +57,16 @@ public class EmailService {
     }
 
     @Transactional
-    public String authenticateEmail(EmailAuthenticateRequestDto emailRequestDto) {
+    public EmailAuthenticateResponseDto authenticateEmail(EmailAuthenticateRequestDto emailRequestDto) {
         int number = emailRequestDto.getNumber();
         String type = emailRequestDto.getType();
         String email = emailRequestDto.getEmail();
         Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(email);
         validateEmailAuthenticationNumber(emailAuthentication, number);
-        return jwtProvider.createEmailToken(email, EmailType.valueOf(type), number);
+        String emailToken = jwtProvider.createEmailToken(email, EmailType.valueOf(type), number);
+        return EmailAuthenticateResponseDto.builder()
+                .emailAuthToken(emailToken)
+                .build();
     }
 
     private MimeMessage craeteEmailTemplate(EmailRequestDto emailRequestDto, int emailCertificatedNumber) throws MessagingException, UnsupportedEncodingException {

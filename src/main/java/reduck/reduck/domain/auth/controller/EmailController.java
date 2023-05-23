@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.auth.dto.EmailAuthenticateRequestDto;
+import reduck.reduck.domain.auth.dto.EmailAuthenticateResponseDto;
 import reduck.reduck.domain.auth.dto.EmailRequestDto;
 import reduck.reduck.domain.auth.service.EmailService;
 
@@ -21,14 +22,22 @@ public class EmailController {
 
     private final EmailService emailService;
 
-    @PostMapping("/email/number")
+    @PostMapping("/email/user/number") //회원가입
+    public ResponseEntity<Void> sendUserEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
+        emailService.sendEmail(emailRequestDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @PostMapping("/email/number") // 마이페이지
     public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
         emailService.sendEmail(emailRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-
-    @PostMapping("/email")
-    public ResponseEntity<String> authenticateEmail(@RequestBody @Valid EmailAuthenticateRequestDto userEmailRequestDto) {
+    @PostMapping("/email/user") //회원가입
+    public ResponseEntity<EmailAuthenticateResponseDto> authenticateUserEmail(@RequestBody @Valid EmailAuthenticateRequestDto userEmailRequestDto) {
+        return new ResponseEntity(emailService.authenticateEmail(userEmailRequestDto), HttpStatus.CREATED);
+    }
+    @PostMapping("/email") //마이 페이지
+    public ResponseEntity<EmailAuthenticateResponseDto> authenticateEmail(@RequestBody @Valid EmailAuthenticateRequestDto userEmailRequestDto) {
         return new ResponseEntity(emailService.authenticateEmail(userEmailRequestDto), HttpStatus.CREATED);
     }
 

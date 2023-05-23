@@ -73,19 +73,21 @@ public class UserService {
 
     @Transactional
     public User modifyUserInfo(ModifyUserDto modifyUserDto, MultipartFile multipartFile) {
-        String userId = modifyUserDto.getUserId();
+        String userId = AuthenticationToken.getUserId();
         User user = findByUserId(userId);
-        validateModifyUserDto(modifyUserDto, user);
 
         try {
             if (!multipartFile.isEmpty()) {
                 UserProfileImg userProfileImg = saveProfileImage(multipartFile, userId);
                 user.updateProfileImg(userProfileImg);
             }
+            validateUserEmail(modifyUserDto, user);
+            if (validateCompanyEmail(modifyUserDto, user)) user.authenticateCompanyEmail();
+            if (validateSchoolEmail(modifyUserDto, user)) user.authenticateSchoolEmail();
             user.updateFrom(modifyUserDto);
             User save = userRepository.save(user);
             return save;
-        } catch (CommonException | DataIntegrityViolationException e) {
+        } catch (CommonException | AuthException | DataIntegrityViolationException e) {
             throw e;
         }
 
@@ -134,34 +136,68 @@ public class UserService {
 
     }
 
-    private void validateSchoolEmail(ModifyUserDto modifyUserDto, User user) {
+    private boolean validateSchoolEmail(ModifyUserDto modifyUserDto, User user) {
         String schoolEmail = modifyUserDto.getSchoolEmail();
         if (schoolEmail.equals("")) {
             // 입력 된적도 없다.
             // 수정하지도 않겠다.
-            return;
+            return false;
         }
         // 입력 대상인가 ? 기존 메일인가(수정)
         String originSchoolEmail = user.getSchoolEmail();
-        if (!originSchoolEmail.isEmpty() && schoolEmail.equals(originSchoolEmail)) {
+        if (!(originSchoolEmail == null) && schoolEmail.equals(originSchoolEmail)) {
             // 유저의 기존 메일 존재 && (두 메일 정보가 같음 -> 수정하지 않겠다.)
-            return;
+            return false;
         }
-        // 새롭게 추가될 이메일 || 존재하지만 수정될 이메일.
-        String emailAuthToken = modifyUserDto.getEmailAuthToken();
-        Claims claims = jwtProvider.getClaims(modifyUserDto.getEmailAuthToken());
+        // 새롭게 추가될 이메일 || 존재하지만 수정될 이메일. ==> 수정 대상 이메일
+        String emailAuthToken = modifyUserDto.getSchoolEmailAuthToken();
+        if (emailAuthToken.isEmpty()) {
+            // 인증 식별자가 존재하지 않음.
+            throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
+        }
+        Claims claims = jwtProvider.getClaims(emailAuthToken);
         String authEmail = String.valueOf(claims.get("school"));
 
         // (추가||수정 될 이메일) && 인증완료.
-        if (emailAuthToken.equals("") && !authEmail.equals(schoolEmail)) {
+        if (!authEmail.equals(schoolEmail)) {
             throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
         }
+        return true;
+
     }
 
-    private void validateCompanyEmail(ModifyUserDto modifyUserDto, User user) {
+    private boolean validateCompanyEmail(ModifyUserDto modifyUserDto, User user) {
+        String companyEmail = modifyUserDto.getCompanyEmail();
+        if (companyEmail.equals("")) {
+            // 입력 된적도 없다.
+            // 수정하지도 않겠다.
+            return false;
+        }
+        // 입력 대상인가 ? 기존 메일인가(수정)
+        String originCompanyEmail = user.getCompanyEmail();
+
+
+        if (!(originCompanyEmail == null) && companyEmail.equals(originCompanyEmail)) {
+            // 유저의 기존 메일 존재 && (두 메일 정보가 같음 -> 수정하지 않겠다.)
+            return false;
+        }
+        // 새롭게 추가될 이메일 || 존재하지만 수정될 이메일. ==> 수정 대상 이메일
+        String emailAuthToken = modifyUserDto.getCompanyEmailAuthToken();
+        if (emailAuthToken.isEmpty()) {
+            // 인증 식별자가 존재하지 않음.
+            throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
+        }
+        Claims claims = jwtProvider.getClaims(emailAuthToken);
+        String authEmail = String.valueOf(claims.get("school"));
+
+        // (추가||수정 될 이메일) && 인증완료.
+        if (!authEmail.equals(companyEmail)) {
+            throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
+        }
+        return true;
     }
 
-    private void validateUserEmail(ModifyUserDto modifyUserDto, User user) {
+    private boolean validateUserEmail(ModifyUserDto modifyUserDto, User user) {
         // 기본적으로 인증완료된 이메일를 가지고 있음.
 
         // modifyUserDto의 email정보와 user의 Email의 일치여부만 검증하며됨.
@@ -169,7 +205,7 @@ public class UserService {
         String originEmail = user.getEmail();
         if (originEmail.equals(targetEmail)) {
             // 수정하지 않겠음.
-            return;
+            return false;
         }
         // 정보가 다름 -> 수정대상 이메일
         String emailAuthToken = modifyUserDto.getEmailAuthToken();
@@ -178,10 +214,11 @@ public class UserService {
             throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
         }
         Claims claims = jwtProvider.getClaims(emailAuthToken);
-        String authEmail = String.valueOf(claims.get("school"));
+        String authEmail = String.valueOf(claims.get("user"));
         if (!authEmail.equals(targetEmail)) {
             throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
         }
+        return true;
     }
 
     private UserProfileImg saveProfileImage(MultipartFile multipartFile, String userId) {
