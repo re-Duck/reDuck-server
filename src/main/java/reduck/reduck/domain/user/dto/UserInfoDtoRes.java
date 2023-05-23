@@ -26,7 +26,7 @@ public class UserInfoDtoRes {
     private String schoolEmail;
     private boolean schoolEmailAuthentication;
     private String developAnnual;
-    private UserProfileImg userProfileImg;
+    private String userProfileImgPath;
     private List<PostOfUserResponseDto> posts;
 
 }

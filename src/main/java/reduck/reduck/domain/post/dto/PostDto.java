@@ -18,6 +18,6 @@ public class PostDto {
     private String content;
     @NotBlank
     private String postOriginId;
-
-    private PostType postType;
+    @NotBlank
+    private String postType;
 }

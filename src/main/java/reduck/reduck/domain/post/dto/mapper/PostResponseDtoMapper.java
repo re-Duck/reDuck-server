@@ -17,7 +17,7 @@ public class PostResponseDtoMapper {
                 //user
                 .postAuthorId(post.getUser().getUserId())
                 .postAuthorName(post.getUser().getName())
-                .postAuthorProfileImg(post.getUser().getProfileImg())
+                .postAuthorProfileImgPath(post.getUser().getProfileImg().getPath())
                 .postAuthorDevelopAnnual(developAnnual)
                 //post
                 .postTitle(post.getPostTitle())
@@ -38,7 +38,7 @@ public class PostResponseDtoMapper {
                 //user
                 .postAuthorId(post.getUser().getUserId())
                 .postAuthorName(post.getUser().getName())
-                .postAuthorProfileImg(post.getUser().getProfileImg())
+                .postAuthorProfileImgPath(post.getUser().getProfileImg().getPath())
                 .postAuthorDevelopAnnual(developAnnual)
                 //post
                 .postTitle(post.getPostTitle())
