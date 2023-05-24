@@ -129,13 +129,6 @@ public class UserService {
         if (!email.equals(userEmail)) throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
     }
 
-    private void validateModifyUserDto(ModifyUserDto modifyUserDto, User user) {
-        validateUserEmail(modifyUserDto, user);
-        validateCompanyEmail(modifyUserDto, user);
-        validateSchoolEmail(modifyUserDto, user);
-
-    }
-
     private boolean validateSchoolEmail(ModifyUserDto modifyUserDto, User user) {
         String schoolEmail = modifyUserDto.getSchoolEmail();
         if (schoolEmail.equals("")) {

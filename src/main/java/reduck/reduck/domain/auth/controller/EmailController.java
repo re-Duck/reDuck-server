@@ -22,23 +22,16 @@ public class EmailController {
 
     private final EmailService emailService;
 
-    @PostMapping("/email/user/number") //회원가입
+    @PostMapping("/email/number") // 인증번호 요청
     public ResponseEntity<Void> sendUserEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
         emailService.sendEmail(emailRequestDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
-    @PostMapping("/email/number") // 마이페이지
-    public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto emailRequestDto) throws MessagingException, UnsupportedEncodingException {
-        emailService.sendEmail(emailRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+
+    @PostMapping("/email") // 인증 요청
+    public ResponseEntity<EmailAuthenticateResponseDto> authenticateUserEmail(@RequestBody @Valid EmailAuthenticateRequestDto emailRequestDto) {
+        return new ResponseEntity(emailService.authenticateEmail(emailRequestDto), HttpStatus.CREATED);
     }
-    @PostMapping("/email/user") //회원가입
-    public ResponseEntity<EmailAuthenticateResponseDto> authenticateUserEmail(@RequestBody @Valid EmailAuthenticateRequestDto userEmailRequestDto) {
-        return new ResponseEntity(emailService.authenticateEmail(userEmailRequestDto), HttpStatus.CREATED);
-    }
-    @PostMapping("/email") //마이 페이지
-    public ResponseEntity<EmailAuthenticateResponseDto> authenticateEmail(@RequestBody @Valid EmailAuthenticateRequestDto userEmailRequestDto) {
-        return new ResponseEntity(emailService.authenticateEmail(userEmailRequestDto), HttpStatus.CREATED);
-    }
+
 
 }
