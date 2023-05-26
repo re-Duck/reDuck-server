@@ -105,13 +105,6 @@ public class UserService {
     }
 
     @Transactional
-    public UserInfoDtoRes getMyInfo() {
-        String userId = AuthenticationToken.getUserId();
-        return getUserInfo(userId);
-
-    }
-
-    @Transactional
     public UserInfoDtoRes getUser(String userId) {
         return getUserInfo(userId);
     }
@@ -181,7 +174,7 @@ public class UserService {
             throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
         }
         Claims claims = jwtProvider.getClaims(emailAuthToken);
-        String authEmail = String.valueOf(claims.get("school"));
+        String authEmail = String.valueOf(claims.get("company"));
 
         // (추가||수정 될 이메일) && 인증완료.
         if (!authEmail.equals(companyEmail)) {
@@ -225,12 +218,9 @@ public class UserService {
         if (!Folder.exists()) {
             try {
                 Folder.mkdir(); //폴더 생성합니다.
-                System.out.println("폴더가 생성되었습니다.");
             } catch (Exception e) {
                 e.getStackTrace();
             }
-        } else {
-            System.out.println("이미 폴더가 생성되어 있습니다.");
         }
         Path imagePath = Paths.get(path, storageFileName); //local용
 //        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
