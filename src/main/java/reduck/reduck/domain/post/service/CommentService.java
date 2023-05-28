@@ -5,6 +5,7 @@ import org.apache.tomcat.websocket.AuthenticationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.post.dto.CommentDto;
+import reduck.reduck.domain.post.dto.UpdateCommentDto;
 import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.repository.CommentRepository;
@@ -51,9 +52,10 @@ public class CommentService {
         commentRepository.delete(comment);
     }
 
-    public void updateComment(String commentOriginId, CommentDto commentDto) {
+    public void updateComment(String commentOriginId, UpdateCommentDto commentDto) {
         Comment comment = commentRepository.findByCommentOriginId(commentOriginId).orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_EXIST));
         validateAuthentication(comment);
+        comment.updateFrom(commentDto);
         commentRepository.save(comment);
     }
     private void validateAuthentication(Comment comment) {

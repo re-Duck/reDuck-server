@@ -222,8 +222,7 @@ public class UserService {
                 e.getStackTrace();
             }
         }
-        Path imagePath = Paths.get(path, storageFileName); //local용
-//        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
+        Path imagePath = Paths.get(path, storageFileName);
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
                     .storagedFileName(storageFileName)
