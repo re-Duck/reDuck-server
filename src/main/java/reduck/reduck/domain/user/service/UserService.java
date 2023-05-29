@@ -17,13 +17,12 @@ import reduck.reduck.domain.user.entity.Authority;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.entity.mapper.UserMapper;
+import reduck.reduck.domain.user.repository.UserDslRepositoryImpl;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.exception.exception.CommonException;
-import reduck.reduck.global.exception.errorcode.UserErrorCode;
-import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 import reduck.reduck.util.AuthenticationToken;
 
@@ -44,6 +43,7 @@ public class UserService {
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage/profile";
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final UserDslRepositoryImpl userDslRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
@@ -111,7 +111,9 @@ public class UserService {
 
     @Transactional
     public User findByUserId(String userId) {
-        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        return userDslRepository.findByUserId(userId);
+
+//        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
     }
 
     private void validateSignUpDto(SignUpDto signUpDto) {
