@@ -76,6 +76,7 @@ public class User extends BaseEntity {
         this.profileImg = userProfileImg;
     }
     public void updateFrom(ModifyUserDto modifyUserDto) {
+        this.password = modifyUserDto.getPassword();
         this.name = modifyUserDto.getName();
         this.email = modifyUserDto.getEmail();
         this.company = modifyUserDto.getCompany();

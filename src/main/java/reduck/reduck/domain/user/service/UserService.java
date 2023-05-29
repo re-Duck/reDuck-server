@@ -26,6 +26,7 @@ import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 import reduck.reduck.util.AuthenticationToken;
+import reduck.reduck.util.Encoder;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -44,12 +45,11 @@ public class UserService {
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage/profile";
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
-            encodePasswordOf(signUpDto);
+            Encoder.encodePasswordOf(signUpDto);
             validateSignUpDto(signUpDto);
             User user = UserMapper.from(signUpDto);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
@@ -75,7 +75,13 @@ public class UserService {
     public User modifyUserInfo(ModifyUserDto modifyUserDto, MultipartFile multipartFile) {
         String userId = AuthenticationToken.getUserId();
         User user = findByUserId(userId);
-
+        if (Encoder.validate(modifyUserDto.getPassword(),user.getPassword())) {
+           modifyUserDto.setPassword(
+                   modifyUserDto.getNewPassword().equals("")
+                           ? modifyUserDto.getPassword()
+                           : modifyUserDto.getNewPassword());
+           Encoder.encodePasswordOf(modifyUserDto);
+        }
         try {
             if (!multipartFile.isEmpty()) {
                 UserProfileImg userProfileImg = saveProfileImage(multipartFile, userId);
@@ -240,15 +246,10 @@ public class UserService {
         }
     }
 
-    private void encodePasswordOf(SignUpDto signUpDto) {
-        String password = signUpDto.getPassword();
-        String encode = passwordEncoder.encode(password);
-        signUpDto.setPassword(encode);
-    }
-
     private UserInfoDtoRes getUserInfo(String userId) {
         User user = findByUserId(userId);
         UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
         return userInfoDtoRes;
     }
+
 }
