@@ -40,3 +40,7 @@ target
 secrets.yml
 .gradletasknamecache
 .sts4-cache
+ca_bundle.crt
+certificate.crt
+keystore.p12
+private.key
