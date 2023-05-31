@@ -39,13 +39,7 @@ spring:
           time_zone: Asia/Seoul
     hibernate:
       ddl-auto: update
-server:
-  ssl:
-    enabled: true
-    key-store: keystore.p12
-    key-store-password: p39pwt12!
-    key-store-type: PKCS12
-  port: 8080
+
 jwt:
   secret: ${secret_key}
 ## local
