@@ -9,7 +9,7 @@ public class PostMapper {
         Post post = Post.builder()
                 .postOriginId(obj.getPostOriginId())
                 .postTitle(obj.getTitle())
-                .postType(PostType.getType(obj.getPostType()))
+                .postType(obj.getPostType())
                 .content(obj.getContent())
                 .build();
         return post;
