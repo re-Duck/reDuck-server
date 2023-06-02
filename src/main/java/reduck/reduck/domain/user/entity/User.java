@@ -72,6 +72,9 @@ public class User extends BaseEntity {
         role.forEach(o -> o.setUser(this));
     }
 
+    public String getProfileImgPath() {
+        return this.profileImg != null ? this.profileImg.getPath() : "";
+    }
     public void updateProfileImg(UserProfileImg userProfileImg) {
         this.profileImg = userProfileImg;
     }
