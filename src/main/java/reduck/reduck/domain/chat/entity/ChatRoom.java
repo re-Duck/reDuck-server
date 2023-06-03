@@ -1,26 +1,26 @@
 package reduck.reduck.domain.chat.entity;
 
-import lombok.Builder;
-import lombok.Getter;
-import org.springframework.web.socket.WebSocketSession;
-import reduck.reduck.domain.chat.dto.ChatMessageDto;
-import reduck.reduck.domain.chat.service.ChatService;
+import lombok.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.global.entity.BaseEntity;
+
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
+
 
 @Getter
-public class ChatRoom {
-
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+public class ChatRoom extends BaseEntity {
     private String roomId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User user;
+
     private String roomName;
 
-
-    public static ChatRoom create(String name) {
-        ChatRoom room = new ChatRoom();
-        room.roomId = UUID.randomUUID().toString();
-        room.roomName = name;
-        return room;
-    }
 }
