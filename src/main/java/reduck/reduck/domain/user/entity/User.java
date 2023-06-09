@@ -72,10 +72,14 @@ public class User extends BaseEntity {
         role.forEach(o -> o.setUser(this));
     }
 
+    public String getProfileImgPath() {
+        return this.profileImg != null ? this.profileImg.getPath() : "";
+    }
     public void updateProfileImg(UserProfileImg userProfileImg) {
         this.profileImg = userProfileImg;
     }
     public void updateFrom(ModifyUserDto modifyUserDto) {
+        this.password = modifyUserDto.getPassword();
         this.name = modifyUserDto.getName();
         this.email = modifyUserDto.getEmail();
         this.company = modifyUserDto.getCompany();

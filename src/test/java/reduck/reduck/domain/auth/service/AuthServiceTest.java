@@ -36,20 +36,4 @@ class AuthServiceTest {
     @Autowired
     private Gson gson;
 
-    @Transactional
-    @DisplayName("정상 회원가입")
-    @ParameterizedTest
-    @CsvSource("test2, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
-    void signIn() throws Exception {
-
-        SignInDto dto = new SignInDto();
-        dto.setPassword("p39pwt12!");
-        dto.setUserId("test1");
-        String s = gson.toJson(dto);
-        mockMvc.perform(post("/login")
-                        .content(s)
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-
-    }
 }

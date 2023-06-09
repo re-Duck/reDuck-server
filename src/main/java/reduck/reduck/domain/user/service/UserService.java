@@ -26,6 +26,7 @@ import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 import reduck.reduck.util.AuthenticationToken;
+import reduck.reduck.util.Encoder;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -44,12 +45,11 @@ public class UserService {
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage/profile";
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
         try {
-            encodePasswordOf(signUpDto);
+            Encoder.encodePasswordOf(signUpDto);
             validateSignUpDto(signUpDto);
             User user = UserMapper.from(signUpDto);
             user.setRoles(Collections.singletonList(Authority.builder().name("ROLE_USER").build()));
@@ -75,7 +75,13 @@ public class UserService {
     public User modifyUserInfo(ModifyUserDto modifyUserDto, MultipartFile multipartFile) {
         String userId = AuthenticationToken.getUserId();
         User user = findByUserId(userId);
-
+        if (Encoder.validate(modifyUserDto.getPassword(),user.getPassword())) {
+           modifyUserDto.setPassword(
+                   modifyUserDto.getNewPassword().equals("")
+                           ? modifyUserDto.getPassword()
+                           : modifyUserDto.getNewPassword());
+           Encoder.encodePasswordOf(modifyUserDto);
+        }
         try {
             if (!multipartFile.isEmpty()) {
                 UserProfileImg userProfileImg = saveProfileImage(multipartFile, userId);
@@ -105,13 +111,6 @@ public class UserService {
     }
 
     @Transactional
-    public UserInfoDtoRes getMyInfo() {
-        String userId = AuthenticationToken.getUserId();
-        return getUserInfo(userId);
-
-    }
-
-    @Transactional
     public UserInfoDtoRes getUser(String userId) {
         return getUserInfo(userId);
     }
@@ -127,13 +126,6 @@ public class UserService {
         Claims claims = jwtProvider.getClaims(emailAuthToken);
         String userEmail = String.valueOf(claims.get("user"));
         if (!email.equals(userEmail)) throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
-    }
-
-    private void validateModifyUserDto(ModifyUserDto modifyUserDto, User user) {
-        validateUserEmail(modifyUserDto, user);
-        validateCompanyEmail(modifyUserDto, user);
-        validateSchoolEmail(modifyUserDto, user);
-
     }
 
     private boolean validateSchoolEmail(ModifyUserDto modifyUserDto, User user) {
@@ -188,7 +180,7 @@ public class UserService {
             throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
         }
         Claims claims = jwtProvider.getClaims(emailAuthToken);
-        String authEmail = String.valueOf(claims.get("school"));
+        String authEmail = String.valueOf(claims.get("company"));
 
         // (추가||수정 될 이메일) && 인증완료.
         if (!authEmail.equals(companyEmail)) {
@@ -232,15 +224,11 @@ public class UserService {
         if (!Folder.exists()) {
             try {
                 Folder.mkdir(); //폴더 생성합니다.
-                System.out.println("폴더가 생성되었습니다.");
             } catch (Exception e) {
                 e.getStackTrace();
             }
-        } else {
-            System.out.println("이미 폴더가 생성되어 있습니다.");
         }
-        Path imagePath = Paths.get(path, storageFileName); //local용
-//        Path imagePath = Paths.get(DEV_PATH, storageFileName); //dev용
+        Path imagePath = Paths.get(path, storageFileName);
         try {
             UserProfileImg userProfileImg = UserProfileImg.builder()
                     .storagedFileName(storageFileName)
@@ -258,15 +246,10 @@ public class UserService {
         }
     }
 
-    private void encodePasswordOf(SignUpDto signUpDto) {
-        String password = signUpDto.getPassword();
-        String encode = passwordEncoder.encode(password);
-        signUpDto.setPassword(encode);
-    }
-
     private UserInfoDtoRes getUserInfo(String userId) {
         User user = findByUserId(userId);
         UserInfoDtoRes userInfoDtoRes = UserInfoDtoResMapper.from(user);
         return userInfoDtoRes;
     }
+
 }

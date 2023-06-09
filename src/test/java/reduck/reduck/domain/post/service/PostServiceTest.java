@@ -141,7 +141,7 @@ class PostServiceTest {
         PostDto update = PostDto.builder()
                 .content("<p>updated@@@@@@@@@@@@@</p>")
                 .postOriginId("post22")
-                .postType(PostType.stack)
+                .postType("stack")
                 .title("test title")
                 .build();
         String s = gson.toJson(update);
@@ -157,13 +157,13 @@ class PostServiceTest {
         PostDto postDto = PostDto.builder()
                 .content("<p>hello</p>")
                 .postOriginId("post123123")
-                .postType(PostType.qna)
+                .postType("qna")
                 .title("test title")
                 .build();
         PostDto empty = PostDto.builder()
                 .content("<p>hello</p>")
                 .postOriginId("post55")
-                .postType(PostType.qna)
+                .postType("qna")
                 .title("test title")
                 .build();
         return Stream.of(

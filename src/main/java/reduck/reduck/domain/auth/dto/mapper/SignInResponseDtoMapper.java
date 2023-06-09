@@ -9,7 +9,7 @@ public class SignInResponseDtoMapper {
                 .userId(obj.getUserId())
                 .name(obj.getName())
                 .email(obj.getEmail())
-                .userProfileImgPath(obj.getProfileImg() == null ? "" : obj.getProfileImg().getPath())
+                .userProfileImgPath(obj.getProfileImgPath())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -5,6 +5,7 @@ import reduck.reduck.domain.post.entity.PostType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -18,6 +19,6 @@ public class PostDto {
     private String content;
     @NotBlank
     private String postOriginId;
-    @NotBlank
-    private String postType;
+    @NotNull
+    private PostType postType;
 }

@@ -16,7 +16,7 @@ public class CommentResponseDtoMapper {
                 .commentAuthorId(user.getUserId())
                 .commentAuthorName(user.getName())
                 .commentAuthorDevelopAnnual(developAnnual)
-                .commentAuthorProfileImgPath(user.getProfileImg().getPath())
+                .commentAuthorProfileImgPath(user.getProfileImgPath())
 
                 //comment
                 .commentCreatedAt(comment.getCreatedAt())
