@@ -5,6 +5,9 @@ import reduck.reduck.domain.user.entity.DevelopAnnual;
 import java.time.LocalDateTime;
 
 public class DevelopAnnualCalculation {
+    private DevelopAnnualCalculation(){
+
+    }
     public static String calculate(int developYear) {
         int curYear = LocalDateTime.now().getYear();
 
