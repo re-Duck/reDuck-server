@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import org.springframework.validation.BindException;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
+import reduck.reduck.global.exception.errorcode.ValidationErrorCode;
 import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 
@@ -27,7 +28,8 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private List<FieldError> fieldErrors;
-//
+
+    //
 //    @ExceptionHandler(UserException.class)
 //    public ResponseEntity<Object> handleCustomException(UserException e) {
 //        ErrorCode errorCode = e.getErrorCode();
@@ -48,6 +50,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorCode errorCode = e.getErrorCode();
         return handleExceptionInternal(errorCode);
     }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
         log.warn("handleIllegalArgument", e);
@@ -66,14 +69,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getField());
         System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getRejectedValue());
         System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getDefaultMessage());
-        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        ValidationErrorCode codeFrom = ValidationErrorCode.getCodeFrom(fieldErrors.get(0).getField());
+        final ErrorCode errorCode = codeFrom;
         return handleExceptionInternal(e, errorCode);
     }
 
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllException(Exception ex) {
         log.warn("handleAllException", ex);
-        if(ex instanceof DataIntegrityViolationException){
+        if (ex instanceof DataIntegrityViolationException) {
             ErrorCode errorCode = CommonErrorCode.DATA_INTEGRITY_VIOLATION;
             return handleExceptionInternal(errorCode);
         }
@@ -92,7 +96,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private ErrorResponse makeErrorResponse(ErrorCode errorCode) {
         return ErrorResponse.builder()
-                .code(errorCode.name())
+                .code(errorCode.code())
+                .name(errorCode.name())
                 .message(errorCode.getMessage())
                 .build();
     }
@@ -122,7 +127,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .collect(Collectors.toList());
 
         return ErrorResponse.builder()
-                .code(errorCode.name())
+                .code(errorCode.code())
+                .name(errorCode.name())
                 .message(errorCode.getMessage())
                 .errors(validationErrorList)
                 .build();

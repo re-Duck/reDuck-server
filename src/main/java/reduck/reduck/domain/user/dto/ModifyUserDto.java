@@ -22,7 +22,7 @@ public class ModifyUserDto {
 
     @NotBlank
     private String name;
-    @NotBlank
+    @Email
     private String email;
 
     private String emailAuthToken;

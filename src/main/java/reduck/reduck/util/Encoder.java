@@ -14,7 +14,6 @@ import reduck.reduck.global.exception.exception.UserException;
 public class Encoder{
 
     private static PasswordEncoder passwordEncoder;
-    private final   PasswordEncoder pwE;
 
     public static void encodePasswordOf(SignUpDto signUpDto) {
         String password = signUpDto.getPassword();

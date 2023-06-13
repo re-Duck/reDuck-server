@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ErrorResponse {
     private final String code;
+    private final String name;
     private final String message;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
