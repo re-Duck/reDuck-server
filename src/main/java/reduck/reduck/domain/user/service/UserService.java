@@ -72,7 +72,7 @@ public class UserService {
     }
 
     @Transactional
-    public User modifyUserInfo(ModifyUserDto modifyUserDto, MultipartFile multipartFile) {
+    public UserInfoDtoRes modifyUserInfo(ModifyUserDto modifyUserDto, MultipartFile multipartFile) {
         String userId = AuthenticationToken.getUserId();
         User user = findByUserId(userId);
         if (Encoder.validate(modifyUserDto.getPassword(),user.getPassword())) {
@@ -92,7 +92,8 @@ public class UserService {
             if (validateSchoolEmail(modifyUserDto, user)) user.authenticateSchoolEmail();
             user.updateFrom(modifyUserDto);
             User save = userRepository.save(user);
-            return save;
+            UserInfoDtoRes userInfo = UserInfoDtoResMapper.from(save);
+            return userInfo;
         } catch (CommonException | AuthException | DataIntegrityViolationException e) {
             throw e;
         }
