@@ -24,7 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.auth.dto.SignInDto;
 import reduck.reduck.domain.auth.dto.SignInResponseDto;
 import reduck.reduck.domain.auth.service.AuthService;
+import reduck.reduck.domain.post.dto.CommentDto;
 import reduck.reduck.domain.post.dto.PostDto;
+import reduck.reduck.domain.post.dto.UpdateCommentDto;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.post.repository.PostRepository;
@@ -82,7 +84,7 @@ class PostServiceTest {
 
     @Test
     @Transactional
-    void saveImage() throws Exception {
+    void 이미지저장() throws Exception {
         String accessToken = getAccessToken();
         MockMultipartFile file
                 = new MockMultipartFile(
@@ -101,7 +103,7 @@ class PostServiceTest {
 
     @Test
     @Transactional
-    void getPost() throws Exception {
+    void 게시글1개조회() throws Exception {
         String path = "/post/detail/post1";
         mockMvc.perform(get(path))
                 .andExpect(status().isOk())
@@ -111,19 +113,19 @@ class PostServiceTest {
     @Transactional
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("providePostOriginId")
-    void getPosts(String testName, String id) throws Exception {
+    void 게시글_여러개_조회(String testName, String id) throws Exception {
         String path = "/post?postType=qna&page=3&postOriginId=" + id;
         mockMvc.perform(get(path))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].postOriginId", Matchers.is(id==""?"post2":"post22")))
-                .andExpect(jsonPath("$[1].postOriginId", Matchers.is(id==""?"post22":"post11")))
-                .andExpect(jsonPath("$[2].postOriginId", Matchers.is(id==""?"post11":"post1")));
+                .andExpect(jsonPath("$[0].postOriginId", Matchers.is(id == "" ? "post2" : "post22")))
+                .andExpect(jsonPath("$[1].postOriginId", Matchers.is(id == "" ? "post22" : "post11")))
+                .andExpect(jsonPath("$[2].postOriginId", Matchers.is(id == "" ? "post11" : "post1")));
 
     }
 
     @Test
     @Transactional
-    void removePost() throws Exception {
+    void 게시글_삭제() throws Exception {
         String path = "/post/post22";
         String accessToken = getAccessToken();
 
@@ -135,13 +137,13 @@ class PostServiceTest {
 
     @Test
     @Transactional
-    void updatePost() throws Exception {
+    void 게시글_수정() throws Exception {
         String path = "/post/post22";
         String accessToken = getAccessToken();
         PostDto update = PostDto.builder()
                 .content("<p>updated@@@@@@@@@@@@@</p>")
                 .postOriginId("post22")
-                .postType("stack")
+                .postType(PostType.stack)
                 .title("test title")
                 .build();
         String s = gson.toJson(update);
@@ -152,18 +154,60 @@ class PostServiceTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    @Transactional
+    void 댓글_작성() throws Exception {
+        String path = "/post/comment";
+        String accessToken = getAccessToken();
+        CommentDto comment = new CommentDto();
+        comment.setCommentOriginId("comment2");
+        comment.setContent("댓글이다.");
+        comment.setPostOriginId("post22");
+        String s = gson.toJson(comment);
+        mockMvc.perform(post(path)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(s)
+                        .header("Authorization", accessToken))
+                .andExpect(status().isCreated());
+    }
 
+    @Test
+    @Transactional
+    void 댓글_삭제() throws Exception {
+        String path = "/post/comment/comment1";
+        String accessToken = getAccessToken();
+
+        mockMvc.perform(delete(path)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", accessToken))
+                .andExpect(status().isNoContent());
+    }
+    @Test
+    @Transactional
+    void 댓글_수정() throws Exception {
+        String path = "/post/comment/comment1";
+        String accessToken = getAccessToken();
+        UpdateCommentDto comment = new UpdateCommentDto();
+        comment.setCommentOriginId("comment1");
+        comment.setContent("댓글수정이다.");
+        String s = gson.toJson(comment);
+        mockMvc.perform(put(path)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(s)
+                        .header("Authorization", accessToken))
+                .andExpect(status().isOk());
+    }
     private static Stream<Arguments> providePostObject() {
         PostDto postDto = PostDto.builder()
                 .content("<p>hello</p>")
                 .postOriginId("post123123")
-                .postType("qna")
+                .postType(PostType.qna)
                 .title("test title")
                 .build();
         PostDto empty = PostDto.builder()
                 .content("<p>hello</p>")
                 .postOriginId("post55")
-                .postType("qna")
+                .postType(PostType.qna)
                 .title("test title")
                 .build();
         return Stream.of(
