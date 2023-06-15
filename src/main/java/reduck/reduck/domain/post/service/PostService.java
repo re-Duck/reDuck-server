@@ -73,7 +73,7 @@ public class PostService {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
-        String path = DEV_PATH + "/" + AuthenticationToken.getUserId(); //폴더 경로
+        String path = PATH + "/" + AuthenticationToken.getUserId(); //폴더 경로
         File Folder = new File(path);
         // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
         if (!Folder.exists()) {
