@@ -32,6 +32,7 @@ import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.security.JwtProvider;
+import reduck.reduck.util.Encoder;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
@@ -95,6 +96,8 @@ class UserServiceTest {
 
         ModifyUserDto build = ModifyUserDto.builder()
                 .name("new name")
+                .password("p39pwt12!")
+                .newPassword("")
                 .email("zhfptm12@gmail.com")
                 .emailAuthToken(userToken)
                 .company("no")
@@ -128,7 +131,7 @@ class UserServiceTest {
     @DisplayName("유저 정보 변경 예외테스트")
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideModifyDtoObject")
-    void 유저정보변경예외테스트(String testName,String name, String email, String company, String companyEmail, String school, String schoolEmail
+    void 유저정보변경예외테스트(String testName,String name, String password, String newPassword,String email, String company, String companyEmail, String school, String schoolEmail
             , int developYear, MockMultipartFile file, Class obj) throws Exception {
         String accessToken = getAccessToken();
 
@@ -138,6 +141,8 @@ class UserServiceTest {
 
         ModifyUserDto build = ModifyUserDto.builder()
                 .name(name)
+                .password(password)
+                .newPassword(newPassword)
                 .email(email)
                 .emailAuthToken(userToken)
                 .company(company)
@@ -172,7 +177,7 @@ class UserServiceTest {
         );
 
         return Stream.of(
-                Arguments.of("user email token 유효성", "donghun", "zhfptm12@gmail.com"
+                Arguments.of("user email token 유효성", "donghun", "p39pwt12!", "","zhfptm12@gmail.com"
                         , "naver", "zhfptm12@naver.com", "CNU","zhfptm12@o.cnu.ac.kr"
                         ,2020,file, AuthException.class)
         );
