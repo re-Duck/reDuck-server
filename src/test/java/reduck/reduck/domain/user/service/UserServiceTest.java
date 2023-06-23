@@ -90,9 +90,9 @@ class UserServiceTest {
     @Test
     void 유저정보변경() throws Exception {
         String accessToken = getAccessToken();
-        String schoolEmailToken = createEmailToken("zhfptm12@o.cnu.ac.kr", EmailType.school, 111111);
-        String companyToken = createEmailToken("zhfptm12@naver.com", EmailType.company, 111111);
-        String userToken = createEmailToken("zhfptm12@gmail.com", EmailType.user, 111111);
+        String schoolEmailToken = createEmailToken("zhfptm12@o.cnu.ac.kr", EmailType.SCHOOL, 111111);
+        String companyToken = createEmailToken("zhfptm12@naver.com", EmailType.COMPANY, 111111);
+        String userToken = createEmailToken("zhfptm12@gmail.com", EmailType.USER, 111111);
 
         ModifyUserDto build = ModifyUserDto.builder()
                 .name("new name")
@@ -135,9 +135,9 @@ class UserServiceTest {
             , int developYear, MockMultipartFile file, Class obj) throws Exception {
         String accessToken = getAccessToken();
 
-        String schoolEmailToken =  createEmailToken("zhfptm12not@o.cnu.ac.kr", EmailType.school, 111111);
-        String companyToken = createEmailToken("zhfptm12not@naver.com", EmailType.company, 111111);
-        String userToken = createEmailToken("zhfptm12not@naver.com", EmailType.user, 111111);
+        String schoolEmailToken =  createEmailToken("zhfptm12not@o.cnu.ac.kr", EmailType.SCHOOL, 111111);
+        String companyToken = createEmailToken("zhfptm12not@naver.com", EmailType.COMPANY, 111111);
+        String userToken = createEmailToken("zhfptm12not@naver.com", EmailType.USER, 111111);
 
         ModifyUserDto build = ModifyUserDto.builder()
                 .name(name)
@@ -205,7 +205,7 @@ class UserServiceTest {
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
-        String emailToken = createEmailToken(email, EmailType.user, 111111);
+        String emailToken = createEmailToken(email, EmailType.USER, 111111);
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)
                 .password(password)
@@ -227,7 +227,7 @@ class UserServiceTest {
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideUserObject")
     void 회원가입유효성검사(String testName, String userId, String password, String name, String email, int developYear, String company, String school, MockMultipartFile file, Class obj) throws Exception {
-        String emailToken = createEmailToken(email, EmailType.user, 111111);
+        String emailToken = createEmailToken(email, EmailType.USER, 111111);
 
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)

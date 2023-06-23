@@ -137,7 +137,7 @@ public class UserService {
         }
         String emailAuthToken = modifyUserDto.getSchoolEmailAuthToken();
         validateModifyUserDtoEmailAuthToken(emailAuthToken);
-        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.school));
+        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.SCHOOL));
         validateModifyUserDtoEmailAuthToken(authEmail, schoolEmail);
         return true;
     }
@@ -149,7 +149,7 @@ public class UserService {
         }
         String emailAuthToken = modifyUserDto.getCompanyEmailAuthToken();
         validateModifyUserDtoEmailAuthToken(emailAuthToken);
-        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.company));
+        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.COMPANY));
         validateModifyUserDtoEmailAuthToken(authEmail, companyEmail);
         return true;
     }
@@ -161,7 +161,7 @@ public class UserService {
         }
         String emailAuthToken = modifyUserDto.getEmailAuthToken();
         validateModifyUserDtoEmailAuthToken(emailAuthToken);
-        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.user));
+        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.USER));
         validateModifyUserDtoEmailAuthToken(authEmail, userEmail);
         return true;
     }
