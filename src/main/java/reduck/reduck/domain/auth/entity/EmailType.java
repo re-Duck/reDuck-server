@@ -1,9 +1,9 @@
 package reduck.reduck.domain.auth.entity;
 
 public enum EmailType {
-    user("user"),
-    school("school"),
-    company("company");
+    USER("user"),
+    SCHOOL("school"),
+    COMPANY("company");
 
     EmailType(String company) {
 

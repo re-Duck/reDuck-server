@@ -22,7 +22,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/post/comment/{commentOriginId}")
-    public ResponseEntity<Void> createComment(@PathVariable String commentOriginId) {
+    public ResponseEntity<Void> removeComment(@PathVariable String commentOriginId) {
         commentService.removeComment(commentOriginId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

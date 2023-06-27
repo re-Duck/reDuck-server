@@ -1,19 +1,19 @@
 package reduck.reduck.domain.post.dto.mapper;
 
 import reduck.reduck.domain.post.dto.CommentResponseDto;
+import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
-import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.util.DevelopAnnualCalculation;
 
-import java.util.*;
+import java.util.List;
 
-public class PostResponseDtoMapper {
-
-    public static PostResponseDto from(Post post) {
+public class PostDetailResponseDtoMapper {
+    public static PostDetailResponseDto from(Post post) {
         String developAnnual = DevelopAnnualCalculation.calculate(post.getUser().getDevelopYear());
+        List<CommentResponseDto> comments = CommentResponseDtoMapper.from(post);
 
-        PostResponseDto postResponseDto = PostResponseDto.builder()
+        PostDetailResponseDto postDetailResponseDto = PostDetailResponseDto.builder()
                 //user
                 .postAuthorId(post.getUser().getUserId())
                 .postAuthorName(post.getUser().getName())
@@ -26,10 +26,10 @@ public class PostResponseDtoMapper {
                 .postType(post.getPostType())
                 .postCreatedAt(post.getCreatedAt())
                 .postUpdatedAt(post.getUpdatedAt())
-
-                .commentsCount(post.getComments().size())
+                //comment
+                .comments(comments)
                 .build();
-        return postResponseDto;
-    }
 
+        return postDetailResponseDto;
+    }
 }

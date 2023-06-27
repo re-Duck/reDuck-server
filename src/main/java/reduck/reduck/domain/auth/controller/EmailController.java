@@ -15,7 +15,7 @@ import javax.mail.MessagingException;
 import javax.validation.Valid;
 import java.io.UnsupportedEncodingException;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 public class EmailController {

@@ -1,6 +1,7 @@
 package reduck.reduck.domain.auth.dto;
 
 import lombok.Getter;
+import reduck.reduck.domain.auth.entity.EmailType;
 
 import javax.validation.constraints.*;
 
@@ -9,8 +10,8 @@ public class EmailAuthenticateRequestDto {
     @Email
     private String email;
 
-    @NotBlank
-    private String type;
+    @NotNull
+    private EmailType type;
 
     @NotNull @Max(999999) @Min(100000)
     int number;

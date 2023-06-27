@@ -22,7 +22,7 @@ public class UserInfoDtoResMapper {
                 .schoolEmail(user.getSchoolEmail())
                 .schoolEmailAuthentication(user.isSchoolEmailAuthentication())
                 .developAnnual(developAnnual)
-                .userProfileImgPath(user.getProfileImg().getPath())
+                .userProfileImgPath(user.getProfileImgPath())
                 .posts(PostOfUserResponseDtoMapper.from(user.getPosts()))
                 .build();
         return userInfoDtoRes;

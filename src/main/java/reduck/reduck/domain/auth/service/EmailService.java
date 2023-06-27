@@ -59,7 +59,7 @@ public class EmailService {
     @Transactional
     public EmailAuthenticateResponseDto authenticateEmail(EmailAuthenticateRequestDto emailRequestDto) {
         int number = emailRequestDto.getNumber();
-        String type = emailRequestDto.getType();
+        String type = emailRequestDto.getType().toString();
         String email = emailRequestDto.getEmail();
         Optional<EmailAuthentication> emailAuthentication = emailAuthenticationRepository.findTopByEmailOrderByIdDesc(email);
         validateEmailAuthenticationNumber(emailAuthentication, number);
