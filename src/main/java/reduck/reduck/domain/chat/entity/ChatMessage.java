@@ -4,6 +4,8 @@ import lombok.*;
 import reduck.reduck.global.entity.BaseEntity;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 
 @Entity
 @Getter
@@ -11,10 +13,7 @@ import javax.persistence.Entity;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatMessage extends BaseEntity {
-    public enum MessageType {
-        ENTER, TALK
-    }
-
+    @Enumerated(EnumType.STRING)
     private MessageType type;
     //채팅방 ID
     private String roomId;

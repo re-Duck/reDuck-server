@@ -90,7 +90,7 @@
 
     // websocket &amp; stomp initialize
 
-    var sock = new SockJS("/ws-stomp");
+    var sock = new SockJS("/ws-connection");
 
     var ws = Stomp.over(sock);
 
@@ -119,8 +119,8 @@
         created() {
 
             this.roomId = localStorage.getItem('wschat.roomId');
-
             this.sender = localStorage.getItem('wschat.sender');
+            console.log(`########################## ${this.sender}`)
 
             this.findRoom();
 
@@ -130,13 +130,15 @@
 
             findRoom: function() {
 
-                axios.get('/chat/room/'+this.roomId).then(response => { this.room = response.data; });
+                axios.get('/chat/room/'+this.roomId).then(response => {
+                    console.log(response) //채팅 내역 넘어옴.
+                    this.room = response.data; });
 
             },
 
             sendMessage: function() {
 
-                ws.send("/pub/chat/message", {}, JSON.stringify({type:'TALK', roomId:this.roomId, sender:this.sender, message:this.message}));
+                ws.send("/pub/chat/message", {}, JSON.stringify({type:'CHAT', roomId:this.roomId, userId:this.sender, message:this.message}));
 
                 this.message = '';
 
@@ -144,7 +146,7 @@
 
             recvMessage: function(recv) {
 
-                this.messages.unshift({"type":recv.type,"sender":recv.type=='ENTER'?'[알림]':recv.sender,"message":recv.message})
+                this.messages.unshift({"type":recv.type,"sender":recv.type=='ENTER'?'[알림]':recv.userId,"message":recv.message})
 
             }
 
@@ -162,13 +164,14 @@
 
             ws.subscribe("/sub/chat/room/"+vm.$data.roomId, function(message) {
 
+                console.log(message)
                 var recv = JSON.parse(message.body);
 
                 vm.recvMessage(recv);
 
             });
 
-            ws.send("/pub/chat/message", {}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, sender:vm.$data.sender}));
+            ws.send("/pub/chat/message", {}, JSON.stringify({type:'ENTER', roomId:vm.$data.roomId, userId:vm.$data.sender}));
 
         }, function(error) {
 
@@ -178,7 +181,7 @@
 
                     console.log("connection reconnect");
 
-                    sock = new SockJS("/ws-stomp");
+                    sock = new SockJS("/ws-connection");
 
                     ws = Stomp.over(sock);
 
