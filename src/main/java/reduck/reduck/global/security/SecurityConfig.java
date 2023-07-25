@@ -54,7 +54,7 @@ public class SecurityConfig {
                                 config.setAllowedHeaders(List.of("*"));
                                 return config;
                             };
-                            c .configurationSource(source);
+                            c.configurationSource(source);
                         }
                 )
                 // Spring Security 세션 정책 : 세션을 생성 및 사용하지 않음
@@ -66,6 +66,8 @@ public class SecurityConfig {
 //                .regexMatchers(HttpMethod.POST, "/user")
                 .mvcMatchers(HttpMethod.POST, "/login", "/user", "/auth/email", "/auth/email/user").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/**").permitAll()
+                //채팅 구현을 위해 일시적으로 허용.
+                .mvcMatchers(HttpMethod.POST, "/chat/**").permitAll()
 //                .antMatchers("/register").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
                 .antMatchers("/admin/**").hasRole("ADMIN")
