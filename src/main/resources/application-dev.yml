@@ -18,9 +18,9 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+  thymeleaf:
+    cache: false
+    suffix: .ftl
   datasource:
     url: jdbc:mysql://${ip}:3306/${database}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&characterSetResults=UTF-8&characterEncoding=UTF-8
     username: root
@@ -30,7 +30,6 @@ spring:
     host: ${ip}
     port: 6379
   jpa:
-
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     generate-ddl: true
@@ -42,6 +41,15 @@ spring:
           time_zone: Asia/Seoul
     hibernate:
       ddl-auto: update
+
+  #static파일을 개발할때 서버를 재시작 하지 않고도 수정한 내용이 반영
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: false
+    freemarker:
+      cache: false
 jwt:
   secret: ${secret_key}
 ## local
