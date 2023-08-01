@@ -5,9 +5,7 @@ import lombok.*;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 
 
 @Getter
@@ -18,9 +16,10 @@ import javax.persistence.ManyToOne;
 public class ChatRoom extends BaseEntity {
     private String roomId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    private User user;
+//    @OneToOne
+//    @JoinColumn(name = "chat_message_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+//    private ChatMessage lastChatMessage;
 
-    private String roomName;
+    private String lastChatMessage;
 
 }

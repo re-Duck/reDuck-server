@@ -26,15 +26,19 @@ public class StompChatController {
 //    }
     private final SimpMessageSendingOperations messagingTemplate;
     private final ChatService chatService;
+
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message) {
         System.out.println("message = " + message.getUserId());
+
+        // 입장 알림 메시지를 저장 할 필요 X
         if (message.getType().equals(MessageType.ENTER)) {
-
             message.setMessage(message.getUserId() + "님이 입장하셨습니다.");
+            // 입장시, ChatRoomUsers에 등록 필요.
+            chatService.joinUser(message);
+        } else if (message.getType().equals(MessageType.CHAT)) {
+            chatService.sendMessage(message); // save mysql
         }
-        chatService.sendMessage(message); // save mysql
-
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 
     }

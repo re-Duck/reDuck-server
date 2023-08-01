@@ -64,6 +64,7 @@ public class RoomController {
     }
 
     //채팅방 개설
+    // 유저 선택 후 채팅 신청.
     @PostMapping("/room")
     @ResponseBody
     public ResponseEntity<Void> create(@RequestBody ChatRoomDto chatRoomDto) {
