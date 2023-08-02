@@ -4,8 +4,8 @@ public enum EmailType {
     USER("user"),
     SCHOOL("school"),
     COMPANY("company");
-
-    EmailType(String company) {
+    private String type;
+    EmailType(String type) {
 
     }
 }

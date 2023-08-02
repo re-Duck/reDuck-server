@@ -126,18 +126,20 @@ public class UserService {
 
         String emailAuthToken = signUpDto.getEmailAuthToken();
         Claims claims = jwtProvider.getClaims(emailAuthToken);
-        String userEmail = String.valueOf(claims.get("user"));
+        String userEmail = String.valueOf(claims.get(EmailType.USER.name()));
+        System.out.println(userEmail);
+        System.out.println(email);
         if (!email.equals(userEmail)) throw new AuthException(AuthErrorCode.UNAUTHENTICATED_EMAIL);
     }
 
     private boolean validateSchoolEmail(ModifyUserDto modifyUserDto, User user) {
         String schoolEmail = modifyUserDto.getSchoolEmail();
-        if (!isModifyAble(schoolEmail, user.getCompanyEmail())) {
+        if (!isModifyAble(schoolEmail, user.getSchoolEmail())) {
             return false;
         }
         String emailAuthToken = modifyUserDto.getSchoolEmailAuthToken();
         validateModifyUserDtoEmailAuthToken(emailAuthToken);
-        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.SCHOOL));
+        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.SCHOOL.name()));
         validateModifyUserDtoEmailAuthToken(authEmail, schoolEmail);
         return true;
     }
@@ -149,19 +151,19 @@ public class UserService {
         }
         String emailAuthToken = modifyUserDto.getCompanyEmailAuthToken();
         validateModifyUserDtoEmailAuthToken(emailAuthToken);
-        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.COMPANY));
+        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.COMPANY.name()));
         validateModifyUserDtoEmailAuthToken(authEmail, companyEmail);
         return true;
     }
 
     private boolean validateUserEmail(ModifyUserDto modifyUserDto, User user) {
         String userEmail = modifyUserDto.getEmail();
-        if (!isModifyAble(userEmail, user.getCompanyEmail())) {
+        if (!isModifyAble(userEmail, user.getEmail())) {
             return false;
         }
         String emailAuthToken = modifyUserDto.getEmailAuthToken();
         validateModifyUserDtoEmailAuthToken(emailAuthToken);
-        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.USER));
+        String authEmail = String.valueOf(jwtProvider.getClaims(emailAuthToken).get(EmailType.USER.name()));
         validateModifyUserDtoEmailAuthToken(authEmail, userEmail);
         return true;
     }

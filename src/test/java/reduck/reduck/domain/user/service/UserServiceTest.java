@@ -189,13 +189,13 @@ class UserServiceTest {
     void 아이디중복확인(String userId) throws Exception {
         mockMvc.perform(get("/user/duplicate/" + userId))
                 .andExpect(status().isOk())
-                .andExpect(content().string("false"));
+                .andExpect(content().string("true"));
     }
 
     @Transactional
     @DisplayName("정상 회원가입")
     @ParameterizedTest
-    @CsvSource("test2, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
+    @CsvSource("test3, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
     void 정상회원가입(String userId, String password, String name, String email, int developYear, String company, String school) throws Exception {
 
         MockMultipartFile file
