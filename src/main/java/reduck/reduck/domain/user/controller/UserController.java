@@ -36,19 +36,16 @@ public class UserController {
         userService.withdraw();
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
-    @GetMapping("/me")
-    public ResponseEntity<UserInfoDtoRes> getMyInfo() {
-        return new ResponseEntity(userService.getMyInfo(), HttpStatus.OK);
-    }
+
     @GetMapping("/{userId}")
     public ResponseEntity<UserInfoDtoRes> getUser(@PathVariable("userId") String userId) {
         return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<Void> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile multipartFile) {
-        userService.modifyUserInfo(modifyUserDto, multipartFile);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<UserInfoDtoRes> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile file) {
+
+        return new ResponseEntity(userService.modifyUserInfo(modifyUserDto, file),HttpStatus.CREATED);
     }
 
 }

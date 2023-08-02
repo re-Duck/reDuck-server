@@ -13,7 +13,7 @@ public class CommentResponseDto {
     //user
     private String commentAuthorId;
     private String commentAuthorName;
-    private UserProfileImg commentAuthorProfileImg;
+    private String commentAuthorProfileImgPath;
     private String commentAuthorDevelopAnnual;
 
     //comment

@@ -1,6 +1,8 @@
 package reduck.reduck.domain.post.entity;
 
 import lombok.*;
+import reduck.reduck.domain.post.dto.CommentDto;
+import reduck.reduck.domain.post.dto.UpdateCommentDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
@@ -32,5 +34,10 @@ public class Comment extends BaseEntity {
 
     @Column(columnDefinition = "integer default 0")
     private int likes;
+
+    public void updateFrom(UpdateCommentDto commentDto) {
+        this.commentContent = commentDto.getContent();
+
+    }
 
 }

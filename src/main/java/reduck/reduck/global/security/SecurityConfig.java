@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 // 회원가입과 로그인은 모두 승인 => 만약 method type + uri로 분기 하고 싶다면 mvcMatchers 쓰면 될듯함.
 //                .regexMatchers(HttpMethod.POST, "/user")
-                .mvcMatchers(HttpMethod.POST, "/login", "/user", "/auth/email", "/auth/email/user").permitAll()
+                .mvcMatchers(HttpMethod.POST, "/login", "/user", "/auth/email/user/**").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                 //채팅 구현을 위해 일시적으로 허용.
                 .mvcMatchers(HttpMethod.POST, "/chat/**").permitAll()

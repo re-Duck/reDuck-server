@@ -27,13 +27,13 @@ public class SignUpDto {
     private String email;
 
     private String company;
-    @Email
-    private String companyEmail;
 
     private String school;
-    @Email
-    private String schoolEmail;
+
     @NotNull
     private int developYear;
+
+    @NotBlank
+    private String emailAuthToken;
 
 }

@@ -3,6 +3,7 @@ package reduck.reduck.domain.user.service;
 import com.google.gson.Gson;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -11,24 +12,36 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.WebApplicationContext;
+import reduck.reduck.domain.auth.dto.SignInDto;
+import reduck.reduck.domain.auth.dto.SignInResponseDto;
+import reduck.reduck.domain.auth.entity.EmailType;
 import reduck.reduck.domain.auth.repository.AuthRepository;
 import reduck.reduck.domain.auth.service.AuthService;
+import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.security.JwtProvider;
+import reduck.reduck.util.Encoder;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
 import java.util.stream.Stream;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
@@ -53,6 +66,133 @@ class UserServiceTest {
     private Gson gson;
 
     @Transactional
+    @DisplayName("회원 탈퇴")
+    @Test
+    void 회원탈퇴() throws Exception {
+        String accessToken = getAccessToken();
+        mockMvc.perform(delete("/user").header("Authorization", accessToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Transactional
+    @DisplayName("유저 정보 확인")
+    @Test
+    void 유저정보() throws Exception {
+        mockMvc.perform(get("/user/test1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("name", is("donghun")))
+                .andExpect(jsonPath("company", is("naver")))
+                .andReturn();
+    }
+
+    @Transactional
+    @DisplayName("유저 정보 변경")
+    @Test
+    void 유저정보변경() throws Exception {
+        String accessToken = getAccessToken();
+        String schoolEmailToken = createEmailToken("zhfptm12@o.cnu.ac.kr", EmailType.SCHOOL, 111111);
+        String companyToken = createEmailToken("zhfptm12@naver.com", EmailType.COMPANY, 111111);
+        String userToken = createEmailToken("zhfptm12@gmail.com", EmailType.USER, 111111);
+
+        ModifyUserDto build = ModifyUserDto.builder()
+                .name("new name")
+                .password("p39pwt12!")
+                .newPassword("")
+                .email("zhfptm12@gmail.com")
+                .emailAuthToken(userToken)
+                .company("no")
+                .companyEmail("zhfptm12@naver.com")
+                .companyEmailAuthToken(companyToken)
+                .school("cnu")
+                .schoolEmail("zhfptm12@o.cnu.ac.kr")
+                .schoolEmailAuthToken(schoolEmailToken)
+                .developYear(2018)
+                .build();
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "file",
+                "hello.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "Hello, World!".getBytes()
+        );
+        String path = "/user/test1";
+        MockMultipartFile jsonPart = new MockMultipartFile("modifyUserDto", "modifyUserDto", "application/json", gson.toJson(build).getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart(HttpMethod.PUT, path)
+                        .file(file)
+                        .file(jsonPart)
+                        .header("Authorization", accessToken)
+                )
+                .andExpect(status().isCreated())
+        ;
+
+    }
+
+    @Transactional
+    @DisplayName("유저 정보 변경 예외테스트")
+    @ParameterizedTest(name = "{index}:{0}")
+    @MethodSource("provideModifyDtoObject")
+    void 유저정보변경예외테스트(String testName,String name, String password, String newPassword,String email, String company, String companyEmail, String school, String schoolEmail
+            , int developYear, MockMultipartFile file, Class obj) throws Exception {
+        String accessToken = getAccessToken();
+
+        String schoolEmailToken =  createEmailToken("zhfptm12not@o.cnu.ac.kr", EmailType.SCHOOL, 111111);
+        String companyToken = createEmailToken("zhfptm12not@naver.com", EmailType.COMPANY, 111111);
+        String userToken = createEmailToken("zhfptm12not@naver.com", EmailType.USER, 111111);
+
+        ModifyUserDto build = ModifyUserDto.builder()
+                .name(name)
+                .password(password)
+                .newPassword(newPassword)
+                .email(email)
+                .emailAuthToken(userToken)
+                .company(company)
+                .companyEmail(companyEmail)
+                .companyEmailAuthToken(companyToken)
+                .school(school)
+                .schoolEmail(schoolEmail)
+                .schoolEmailAuthToken(schoolEmailToken)
+                .developYear(developYear)
+                .build();
+
+        String path = "/user/test1";
+        MockMultipartFile jsonPart = new MockMultipartFile("modifyUserDto", "modifyUserDto", "application/json", gson.toJson(build).getBytes(StandardCharsets.UTF_8));
+        mockMvc.perform(multipart(HttpMethod.PUT, path)
+                        .file(file)
+                        .file(jsonPart)
+                        .header("Authorization", accessToken)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(ex -> org.junit.jupiter.api.Assertions.assertTrue(ex.getResolvedException()
+                        .getClass().isAssignableFrom(obj)));
+        ;
+
+    }
+    private static  Stream<Arguments> provideModifyDtoObject() {
+        MockMultipartFile file
+                = new MockMultipartFile(
+                "file",
+                "hello.txt",
+                MediaType.TEXT_PLAIN_VALUE,
+                "Hello, World!".getBytes()
+        );
+
+        return Stream.of(
+                Arguments.of("user email token 유효성", "donghun", "p39pwt12!", "","zhfptm12@gmail.com"
+                        , "naver", "zhfptm12@naver.com", "CNU","zhfptm12@o.cnu.ac.kr"
+                        ,2020,file, AuthException.class)
+        );
+    }
+    @Transactional
+    @DisplayName("아이디 중복 확인")
+    @ParameterizedTest
+    @CsvSource("test2")
+    void 아이디중복확인(String userId) throws Exception {
+        mockMvc.perform(get("/user/duplicate/" + userId))
+                .andExpect(status().isOk())
+                .andExpect(content().string("false"));
+    }
+
+    @Transactional
     @DisplayName("정상 회원가입")
     @ParameterizedTest
     @CsvSource("test2, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
@@ -65,15 +205,18 @@ class UserServiceTest {
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
+        String emailToken = createEmailToken(email, EmailType.USER, 111111);
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)
                 .password(password)
                 .name(name)
                 .email(email)
+                .emailAuthToken(emailToken)
                 .developYear(developYear)
                 .company(company)
                 .school(school)
                 .build();
+
         User user = userService.signUp(signUpDto, file);
         User byUserId = userService.findByUserId(user.getUserId());
         Assertions.assertThat(user.getUserId()).isEqualTo(byUserId.getUserId());
@@ -84,11 +227,14 @@ class UserServiceTest {
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideUserObject")
     void 회원가입유효성검사(String testName, String userId, String password, String name, String email, int developYear, String company, String school, MockMultipartFile file, Class obj) throws Exception {
+        String emailToken = createEmailToken(email, EmailType.USER, 111111);
+
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)
                 .password(password)
                 .name(name)
                 .email(email)
+                .emailAuthToken(emailToken)
                 .developYear(developYear)
                 .company(company)
                 .school(school)
@@ -107,7 +253,7 @@ class UserServiceTest {
     private static Stream<Arguments> provideUserObject() {
         MockMultipartFile file
                 = new MockMultipartFile(
-                "multipartFile",
+                "file",
                 "hello.txt",
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
@@ -127,45 +273,18 @@ class UserServiceTest {
 
         );
     }
-//
-//    @Test @Transactional
-//    void signIn() throws Exception {
-//        try {
-//            //정상 작동
-//            SignInDto signInDto = new SignInDto();
-//            signInDto.setUserId("test1");
-//            signInDto.setPassword("1234");
-//            authService.signIn(signInDto);
-//
-//            //아이디 일치 에러
-//            SignInDto signInDto2 = new SignInDto();
-//            signInDto2.setUserId("test2");
-//            signInDto2.setPassword("1234");
-//            Assertions.assertThatThrownBy(() -> {
-//                authService.signIn(signInDto2);
-//            }).isInstanceOf(UserException.class);
-//
-//            //비밀번호 일치 에러
-//            SignInDto signInDto3 = new SignInDto();
-//            signInDto3.setUserId("test1");
-//            signInDto3.setPassword("test1@@@");
-//            Assertions.assertThatThrownBy(() -> {
-//                authService.signIn(signInDto3);
-//            }).isInstanceOf(UserException.class);
-//        } catch (UserException e) {
-//            Assertions.assertThat(e.getClass().toString()).isEqualTo("class org.springframework.security.authentication.BadCredentialsException");
-//
-//        }
-//
-//
-//    }
-//
-//    @Test
-//    @Transactional
-//    void getUser() throws Exception {
-//        User user = userService.findByUserId("test1");
-//        Optional<User> findUser = userRepository.findByUserId("test1");
-//        Assertions.assertThat(user).isEqualTo(findUser.get());
-//
-//    }
+
+    private String getAccessToken() {
+        SignInDto dto = new SignInDto();
+        dto.setPassword("p39pwt12!");
+        dto.setUserId("test1");
+        //로그인 먼저
+        SignInResponseDto signInResponseDto = authService
+                .signIn(dto);
+        String accessToken = "Bearer " + signInResponseDto.getAccessToken();
+        return accessToken;
+    }
+    private String createEmailToken(String email, EmailType type, int num) {
+        return jwtProvider.createEmailToken(email, type, num);
+    }
 }

@@ -21,7 +21,7 @@ import java.util.List;
 @Builder
 @Table(indexes = @Index(name = "idx_userId", columnList = "userId", unique = true))
 @Where(clause = "del_yn=false")
-@SQLDelete(sql = "UPDATE USER SET del_yn=true, user_id=null where id=?")
+@SQLDelete(sql = "UPDATE user SET del_yn=true, user_id=null where id=?")
 public class User extends BaseEntity {
 
     private String password;
@@ -31,12 +31,18 @@ public class User extends BaseEntity {
     private String name;
 
     private String email;
+    @Getter
+    private boolean emailAuthentication;
+
     private String company;
+    @Column(columnDefinition = "varchar(255) default ''")
     private String companyEmail;
+
     @Column(columnDefinition = ("boolean default false"))
     private boolean companyEmailAuthentication;
 
     private String school;
+    @Column(columnDefinition = "varchar(255) default ''")
     private String schoolEmail;
     @Column(columnDefinition = ("boolean default false"))
     private boolean schoolEmailAuthentication;
@@ -66,10 +72,14 @@ public class User extends BaseEntity {
         role.forEach(o -> o.setUser(this));
     }
 
+    public String getProfileImgPath() {
+        return this.profileImg != null ? this.profileImg.getPath() : "";
+    }
     public void updateProfileImg(UserProfileImg userProfileImg) {
         this.profileImg = userProfileImg;
     }
     public void updateFrom(ModifyUserDto modifyUserDto) {
+        this.password = modifyUserDto.getPassword();
         this.name = modifyUserDto.getName();
         this.email = modifyUserDto.getEmail();
         this.company = modifyUserDto.getCompany();
@@ -78,10 +88,10 @@ public class User extends BaseEntity {
         this.schoolEmail = modifyUserDto.getSchoolEmail();
         this.developYear = modifyUserDto.getDevelopYear();
     }
-    public void authenticatedCompanyEmail() {
+    public void authenticateCompanyEmail() {
         this.companyEmailAuthentication = true;
     }
-    public void authenticatedSchoolEmail() {
+    public void authenticateSchoolEmail() {
         this.schoolEmailAuthentication = true;
     }
 }

@@ -2,13 +2,21 @@ package reduck.reduck.domain.post.dto;
 
 import lombok.*;
 import reduck.reduck.domain.post.entity.PostType;
+
 import java.time.LocalDateTime;
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PostOfUserResponseDto {
+public class PostDetailResponseDto {
+    //user
+    private String postAuthorId;
+    private String postAuthorProfileImgPath;
+    private String postAuthorName;
+    private String postAuthorDevelopAnnual;
 
     //post
     private String postTitle;
@@ -18,5 +26,7 @@ public class PostOfUserResponseDto {
     private LocalDateTime postCreatedAt;
     private LocalDateTime postUpdatedAt;
 
+    //comment
+    private List<CommentResponseDto> comments;
 
 }

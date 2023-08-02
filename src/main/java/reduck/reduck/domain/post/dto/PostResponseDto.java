@@ -17,34 +17,19 @@ import java.util.List;
 public class PostResponseDto {
     //user
     private String postAuthorId;
-    private UserProfileImg postAuthorProfileImg;
+    private String postAuthorProfileImgPath;
     private String postAuthorName;
     private String postAuthorDevelopAnnual;
 
     //post
     private String postTitle;
-    private String postContentPath;
+    private String postContent;
     private String postOriginId;
     private PostType postType;
     private LocalDateTime postCreatedAt;
     private LocalDateTime postUpdatedAt;
 
     //comment
-    private List<CommentResponseDto> comments;
+    private int commentsCount;
 
-    @Override
-    public String toString() {
-        return "PostResponseDto{" +
-                "postAuthorId='" + postAuthorId + '\'' +
-                ", postAuthorProfileImg=" + postAuthorProfileImg +
-                ", postAuthorName='" + postAuthorName + '\'' +
-                ", postTitle='" + postTitle + '\'' +
-                ", postContent='" + postContentPath + '\'' +
-                ", postOriginId='" + postOriginId + '\'' +
-                ", postType=" + postType +
-                ", postCreatedAt=" + postCreatedAt +
-                ", postUpdatedAt=" + postUpdatedAt +
-                 +
-                '}';
-    }
 }

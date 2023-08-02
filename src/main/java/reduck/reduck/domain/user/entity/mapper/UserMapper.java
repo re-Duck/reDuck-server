@@ -12,10 +12,9 @@ public class UserMapper {
                 .name(obj.getName())
                 .email(obj.getEmail())
                 .company(obj.getCompany())
-                .companyEmail(obj.getCompanyEmail())
                 .school(obj.getSchool())
-                .schoolEmail(obj.getSchoolEmail())
                 .developYear(obj.getDevelopYear())
+                .emailAuthentication(true)
                 .build();
     }
 

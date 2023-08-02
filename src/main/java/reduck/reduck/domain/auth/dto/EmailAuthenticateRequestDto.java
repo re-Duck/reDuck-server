@@ -1,15 +1,18 @@
 package reduck.reduck.domain.auth.dto;
 
 import lombok.Getter;
+import reduck.reduck.domain.auth.entity.EmailType;
 
 import javax.validation.constraints.*;
 
 @Getter
-public class SchoolEmailRequestDto {
+public class EmailAuthenticateRequestDto {
     @Email
-    private String schoolEmail;
-    @NotBlank
-    private String userId;
+    private String email;
+
+    @NotNull
+    private EmailType type;
+
     @NotNull @Max(999999) @Min(100000)
     int number;
 }

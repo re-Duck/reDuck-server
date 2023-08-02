@@ -59,3 +59,10 @@ database: reduck
 password: p39pwt12!
 ip: localhost
 secret_key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+##aws
+#mail_username: donghunkim1101@gmail.com
+#mail_password: utgoumexcfqezlfd
+#database: reduck
+#password: p39pwt12!
+#ip: reduckdb.clhum1zhqpie.ap-northeast-2.rds.amazonaws.com
+#secret_key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
