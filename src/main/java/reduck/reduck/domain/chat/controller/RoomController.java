@@ -12,6 +12,10 @@ import reduck.reduck.domain.chat.dto.ChatRoomDto;
 import reduck.reduck.domain.chat.entity.ChatMessage;
 import reduck.reduck.domain.chat.entity.ChatRoom;
 import reduck.reduck.domain.chat.service.ChatService;
+import reduck.reduck.domain.user.dto.UserInfoDtoRes;
+import reduck.reduck.domain.user.dto.mapper.UserInfoDtoResMapper;
+import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.repository.UserRepository;
 
 import java.util.List;
 
@@ -21,6 +25,7 @@ import java.util.List;
 @Log4j2
 public class RoomController {
     private final ChatService chatService;
+    private final UserRepository repository;
 
     // 채팅 리스트 화면
     @GetMapping("/room")
@@ -28,7 +33,7 @@ public class RoomController {
         return "/chat/room";
     }
 
-// 모든 채팅방 목록 반환
+    // 모든 채팅방 목록 반환
     @GetMapping("/rooms")
     @ResponseBody
     public List<ChatRoom> room() {
@@ -43,7 +48,7 @@ public class RoomController {
                 , HttpStatus.OK);
     }
 
-// 채팅방 입장 화면
+    // 채팅방 입장 화면
     @GetMapping("/room/enter/{roomId}")
     public String roomDetail(Model model, @PathVariable String roomId) {
 
@@ -52,6 +57,7 @@ public class RoomController {
         return "/chat/roomdetail";
 
     }
+
     //유저에 대한 채팅방 목록 조회
     @GetMapping(value = "/rooms/{userId}")
     @ResponseBody
@@ -74,6 +80,18 @@ public class RoomController {
         //        rttr.addFlashAttribute("roomName", repository.createChatRoomDTO(name));
 
         return new ResponseEntity(HttpStatus.CREATED);
+    }
+
+    @GetMapping("/random")
+    @ResponseBody
+    public ResponseEntity<List<UserInfoDtoRes>> recommendUsers() {
+        List<User> all = repository.findAll();
+        UserInfoDtoRes from1 = UserInfoDtoResMapper.from(all.get(0));
+        UserInfoDtoRes from2 = UserInfoDtoResMapper.from(all.get(1));
+        from1.setPosts(null);
+        from2.setPosts(null);
+        List<UserInfoDtoRes> users = List.of(from1, from2);
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
 
