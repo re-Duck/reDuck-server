@@ -9,6 +9,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import reduck.reduck.domain.chat.dto.ChatRoomDto;
+import reduck.reduck.domain.chat.dto.RecommendUserDto;
+import reduck.reduck.domain.chat.dto.mapper.RecommendUserDtoMapper;
 import reduck.reduck.domain.chat.entity.ChatMessage;
 import reduck.reduck.domain.chat.entity.ChatRoom;
 import reduck.reduck.domain.chat.service.ChatService;
@@ -16,8 +18,10 @@ import reduck.reduck.domain.user.dto.UserInfoDtoRes;
 import reduck.reduck.domain.user.dto.mapper.UserInfoDtoResMapper;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.util.AuthenticationToken;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
@@ -27,11 +31,6 @@ public class RoomController {
     private final ChatService chatService;
     private final UserRepository repository;
 
-    // 채팅 리스트 화면
-    @GetMapping("/room")
-    public String rooms(Model model) {
-        return "chat/room";
-    }
 
     // 모든 채팅방 목록 반환
     @GetMapping("/rooms")
@@ -48,15 +47,6 @@ public class RoomController {
                 , HttpStatus.OK);
     }
 
-    // 채팅방 입장 화면
-    @GetMapping("/room/enter/{roomId}")
-    public String roomDetail(Model model, @PathVariable String roomId) {
-
-        model.addAttribute("roomId", roomId);
-
-        return "chat/roomdetail";
-
-    }
 
     //유저에 대한 채팅방 목록 조회
     @GetMapping(value = "/rooms/{userId}")
@@ -84,14 +74,13 @@ public class RoomController {
 
     @GetMapping("/random")
     @ResponseBody
-    public ResponseEntity<List<UserInfoDtoRes>> recommendUsers() {
-        List<User> all = repository.findAll();
-        UserInfoDtoRes from1 = UserInfoDtoResMapper.from(all.get(0));
-        UserInfoDtoRes from2 = UserInfoDtoResMapper.from(all.get(1));
-        from1.setPosts(null);
-        from2.setPosts(null);
-        List<UserInfoDtoRes> users = List.of(from1, from2);
-        return new ResponseEntity<>(users, HttpStatus.OK);
+    public ResponseEntity<List<RecommendUserDto>> recommendUsers() {
+        List<User> users = repository.findAll();
+        List<RecommendUserDto> recommendUsers = users.stream().filter(user -> !AuthenticationToken.getUserId().equals(user.getUserId()))
+                .map(user -> RecommendUserDtoMapper.from(user))
+                .limit(2)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(recommendUsers, HttpStatus.OK);
     }
 
 
