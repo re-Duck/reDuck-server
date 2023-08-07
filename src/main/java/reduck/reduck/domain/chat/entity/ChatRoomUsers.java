@@ -11,6 +11,7 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(indexes = @Index(name = "idx_user", columnList = "user_id"))
 public class ChatRoomUsers extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -20,4 +21,5 @@ public class ChatRoomUsers extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private User user;
+
 }

@@ -9,6 +9,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import reduck.reduck.domain.chat.dto.ChatRoomDto;
+import reduck.reduck.domain.chat.dto.ChatRoomListDto;
 import reduck.reduck.domain.chat.dto.RecommendUserDto;
 import reduck.reduck.domain.chat.dto.mapper.RecommendUserDtoMapper;
 import reduck.reduck.domain.chat.entity.ChatMessage;
@@ -23,7 +24,7 @@ import reduck.reduck.util.AuthenticationToken;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat")
 @Log4j2
@@ -31,32 +32,21 @@ public class RoomController {
     private final ChatService chatService;
     private final UserRepository repository;
 
-
-    // 모든 채팅방 목록 반환
-    @GetMapping("/rooms")
-    @ResponseBody
-    public List<ChatRoom> room() {
-        return chatService.findAllRoom();
-    }
-
     //채팅방 조회
     @GetMapping("/room/{roomId}")
-    @ResponseBody
     public ResponseEntity<List<ChatMessage>> getRoom(@PathVariable String roomId) {
-        return new ResponseEntity(chatService.findById(roomId)
+        return new ResponseEntity(chatService.getRoom(roomId)
                 , HttpStatus.OK);
     }
 
 
     //유저에 대한 채팅방 목록 조회
     @GetMapping(value = "/rooms/{userId}")
-    @ResponseBody
-
-    public ResponseEntity<ChatRoom> rooms(@PathVariable String userId) {
+    public ResponseEntity<ChatRoomListDto> getRooms(@PathVariable String userId) {
 
         log.info("# All Chat Rooms Ny User : " + userId);
 
-        return new ResponseEntity(chatService.findAllRoom(), HttpStatus.OK);
+        return new ResponseEntity(chatService.getRooms(), HttpStatus.OK);
     }
 
     //채팅방 개설
@@ -76,7 +66,8 @@ public class RoomController {
     @ResponseBody
     public ResponseEntity<List<RecommendUserDto>> recommendUsers() {
         List<User> users = repository.findAll();
-        List<RecommendUserDto> recommendUsers = users.stream().filter(user -> !AuthenticationToken.getUserId().equals(user.getUserId()))
+        List<RecommendUserDto> recommendUsers = users.stream()
+                .filter(user -> !AuthenticationToken.getUserId().equals(user.getUserId()))
                 .map(user -> RecommendUserDtoMapper.from(user))
                 .limit(2)
                 .collect(Collectors.toList());

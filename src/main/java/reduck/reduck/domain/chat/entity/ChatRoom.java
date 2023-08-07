@@ -16,10 +16,8 @@ import javax.persistence.*;
 public class ChatRoom extends BaseEntity {
     private String roomId;
 
-//    @OneToOne
-//    @JoinColumn(name = "chat_message_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-//    private ChatMessage lastChatMessage;
-
-    private String lastChatMessage;
+    @OneToOne
+    @JoinColumn(name = "last_chat_message_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    private ChatMessage lastChatMessage;
 
 }

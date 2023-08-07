@@ -7,17 +7,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 @NoArgsConstructor
 public class RecommendUserDto {
     private String userId;
-    private String profilePath;
+    private String name;
+    private String userProfileImagePath;
     private String company;
-    private boolean companyAuthentication;
-    private String developYear;
+    private boolean companyEmailAuthentication;
+    private String developAnnual;
 
     @Builder
-    public RecommendUserDto(String userId, String profilePath, String company, boolean companyAuthentication, String developYear) {
+    public RecommendUserDto(String userId, String name,String userProfileImagePath, String company, boolean companyEmailAuthentication, String developAnnual) {
         this.userId = userId;
-        this.profilePath = profilePath;
+        this.name = name;
+        this.userProfileImagePath = userProfileImagePath;
         this.company = company;
-        this.companyAuthentication = companyAuthentication;
-        this.developYear = developYear;
+        this.companyEmailAuthentication = companyEmailAuthentication;
+        this.developAnnual = developAnnual;
     }
 }

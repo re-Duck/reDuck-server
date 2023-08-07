@@ -2,10 +2,14 @@ package reduck.reduck.domain.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.chat.dto.ChatMessageDto;
 import reduck.reduck.domain.chat.dto.ChatRoomDto;
+import reduck.reduck.domain.chat.dto.ChatRoomListDto;
+import reduck.reduck.domain.chat.dto.mapper.ChatRoomListDtoMapper;
 import reduck.reduck.domain.chat.entity.ChatMessage;
 import reduck.reduck.domain.chat.entity.ChatRoom;
 import reduck.reduck.domain.chat.entity.ChatRoomUsers;
@@ -21,26 +25,34 @@ import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class ChatService {
+    private final static int UN_READ_MESSAGE_MAX_SIZE = 300;
+
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUsersRepository chatRoomUsersRepository;
 
-    public List<ChatRoom> findAllRoom() {
+    public List<ChatRoomListDto> getRooms() {
 
-        // 채팅방 생성순서 최근 순으로 반환
-
-        List<ChatRoom> rooms = chatRoomRepository.findAll();
-
-        Collections.reverse(rooms);
-
-        return rooms;
-
+        String userId = AuthenticationToken.getUserId();
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        List<ChatRoomUsers> chatRoomUsers = chatRoomUsersRepository.findAllByUser(user);
+        Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
+        return chatRoomUsers.stream().map(chatRoomUser -> {
+                    ChatRoom room = chatRoomUser.getRoom();
+                    Long chatMessageId = room.getLastChatMessage().getId();
+                    List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(room, pageable).get();
+                    long unReadMessageCount = chatMessages.stream().filter(chatId -> chatId.getId() > chatMessageId).count();
+                    ChatMessage lastChatMessage = chatMessages.get(0); // 마지막 chatMessage
+                    return ChatRoomListDtoMapper.of(user, room, lastChatMessage, unReadMessageCount);
+                })
+                .collect(Collectors.toList());
     }
 //    //채팅방 불러오기
 //    public List<ChatRoom> findAllRoom(String userId) {
@@ -51,7 +63,7 @@ public class ChatService {
 //    }
 
     //채팅방 하나 불러오기
-    public List<ChatMessage> findById(String roomId) {
+    public List<ChatMessage> getRoom(String roomId) {
         roomId += "#1";
         System.out.println(roomId);
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
@@ -72,7 +84,7 @@ public class ChatService {
 
         ChatRoom chatRoom = ChatRoom.builder()
                 .roomId(chatRoomDto.getRoomId())
-                .lastChatMessage("")
+//                .lastChatMessage("")
                 .build();
 
         ChatRoomUsers chatRoomUsers = ChatRoomUsers.builder()

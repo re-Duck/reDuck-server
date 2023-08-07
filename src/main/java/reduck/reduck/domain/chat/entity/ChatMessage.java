@@ -11,9 +11,15 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(indexes = {
+        @Index(name = "idx_chat_room_id", columnList = "chat_room_id"),
+        @Index(name = "idx_pk_chat_room_id", columnList = "chat_room_id, id")})
 public class ChatMessage extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageType type;
+
+    private String messageId;
+
     //채팅방 ID
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_room_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
@@ -25,4 +31,5 @@ public class ChatMessage extends BaseEntity {
     private User sender;
     //내용
     private String message;
+
 }

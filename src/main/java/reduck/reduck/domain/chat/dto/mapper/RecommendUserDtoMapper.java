@@ -9,10 +9,11 @@ public class RecommendUserDtoMapper {
     public static RecommendUserDto from(User user) {
         return RecommendUserDto.builder()
                 .userId(user.getUserId())
+                .name(user.getName())
                 .company(user.getCompany())
-                .companyAuthentication(user.isCompanyEmailAuthentication())
-                .developYear(DevelopAnnualCalculation.calculate(user.getDevelopYear()))
-                .profilePath(user.getProfileImgPath())
+                .companyEmailAuthentication(user.isCompanyEmailAuthentication())
+                .developAnnual(DevelopAnnualCalculation.calculate(user.getDevelopYear()))
+                .userProfileImagePath(user.getProfileImgPath())
                 .build();
     }
 }
