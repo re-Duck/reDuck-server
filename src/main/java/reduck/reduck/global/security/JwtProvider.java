@@ -67,7 +67,7 @@ public class JwtProvider {
     public String createEmailToken(String email, EmailType type , int number) {
         Claims claims = Jwts.claims().setSubject("emailAuthenticationToken");
         claims.put("number", number);
-        claims.put(String.valueOf(type), email);
+        claims.put(type.name(), email);
         Date now = new Date();
         return Jwts.builder()
                 .setClaims(claims)

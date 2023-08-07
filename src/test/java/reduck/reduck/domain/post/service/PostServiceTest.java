@@ -70,7 +70,7 @@ class PostServiceTest {
     @DisplayName("게시글 작성")
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("providePostObject")
-    void createBoard(String testName, PostDto postDto) throws Exception {
+    void 게시글작성(String testName, PostDto postDto) throws Exception {
         String accessToken = getAccessToken();
         String path = "/post";
         String s = gson.toJson(postDto);
@@ -104,7 +104,7 @@ class PostServiceTest {
     @Test
     @Transactional
     void 게시글1개조회() throws Exception {
-        String path = "/post/detail/post1";
+        String path = "/post/detail/post123123";
         mockMvc.perform(get(path))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("postContent", Matchers.is("<p>hello</p>")));
@@ -117,16 +117,16 @@ class PostServiceTest {
         String path = "/post?postType=qna&page=3&postOriginId=" + id;
         mockMvc.perform(get(path))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].postOriginId", Matchers.is(id == "" ? "post2" : "post22")))
-                .andExpect(jsonPath("$[1].postOriginId", Matchers.is(id == "" ? "post22" : "post11")))
-                .andExpect(jsonPath("$[2].postOriginId", Matchers.is(id == "" ? "post11" : "post1")));
+                .andExpect(jsonPath("$[0].postOriginId", Matchers.is(id == "" ? "post22" : "post1")))
+                .andExpect(jsonPath("$[1].postOriginId", Matchers.is(id == "" ? "post11" : "post55")))
+                .andExpect(jsonPath("$[2].postOriginId", Matchers.is(id == "" ? "post2" : "post123123")));
 
     }
 
     @Test
     @Transactional
     void 게시글_삭제() throws Exception {
-        String path = "/post/post22";
+        String path = "/post/post55";
         String accessToken = getAccessToken();
 
         mockMvc.perform(delete(path)
@@ -138,11 +138,11 @@ class PostServiceTest {
     @Test
     @Transactional
     void 게시글_수정() throws Exception {
-        String path = "/post/post22";
+        String path = "/post/post55";
         String accessToken = getAccessToken();
         PostDto update = PostDto.builder()
                 .content("<p>updated@@@@@@@@@@@@@</p>")
-                .postOriginId("post22")
+                .postOriginId("post55")
                 .postType(PostType.stack)
                 .title("test title")
                 .build();
@@ -160,9 +160,9 @@ class PostServiceTest {
         String path = "/post/comment";
         String accessToken = getAccessToken();
         CommentDto comment = new CommentDto();
-        comment.setCommentOriginId("comment2");
+        comment.setCommentOriginId("comment3");
         comment.setContent("댓글이다.");
-        comment.setPostOriginId("post22");
+        comment.setPostOriginId("post123123");
         String s = gson.toJson(comment);
         mockMvc.perform(post(path)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -200,13 +200,13 @@ class PostServiceTest {
     private static Stream<Arguments> providePostObject() {
         PostDto postDto = PostDto.builder()
                 .content("<p>hello</p>")
-                .postOriginId("post123123")
+                .postOriginId("post111")
                 .postType(PostType.qna)
                 .title("test title")
                 .build();
         PostDto empty = PostDto.builder()
                 .content("<p>hello</p>")
-                .postOriginId("post55")
+                .postOriginId("post222")
                 .postType(PostType.qna)
                 .title("test title")
                 .build();

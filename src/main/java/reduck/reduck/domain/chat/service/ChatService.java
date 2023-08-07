@@ -66,7 +66,7 @@ public class ChatService {
     public void createRoom(ChatRoomDto chatRoomDto) {
         String userId = AuthenticationToken.getUserId();
         // for dev
-        userId = "test";
+        userId = "test1234";
         System.out.println("userId = " + userId);
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
 
