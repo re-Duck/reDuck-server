@@ -54,16 +54,10 @@ public class ChatService {
                 .map(myChatRoomInfo -> {
                     if (myChatRoomInfo.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
                     ChatRoom chatRoom = myChatRoomInfo.getRoom();
-                    List<ChatRoomUsers> othersChatRoomInfo = chatRoomUsersRepository.findAllByRoomAndUserNot(chatRoom, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
-                    List<User> others = othersChatRoomInfo.stream().map(other -> other.getUser()).collect(Collectors.toList());
-                    Long chatMessageId = myChatRoomInfo.getLastChatMessage().getId(); // 마지막 메시지.
+                    List<User> others = getOtherUsersInChatRoom(chatRoom, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
                     List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable).get(); // 채팅방 최신 300개 메시지 내역
-                    long unReadMessageCount = chatMessages.stream()
-                            .filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId))) // 내가 보낸 메시지가 아니고,
-                            .filter(chatMessage -> chatMessage.getId() > chatMessageId) // 더 오래된 메시지
-                            .count(); // 안읽은 메시지 수
-
-                    return ChatRoomListDtoMapper.of(others, chatRoom, chatMessages.get(0), unReadMessageCount);
+                    Long unreadMessageCount = countOfUnreadMessages(myChatRoomInfo, chatMessages, userId); // 안읽은 메시지 수
+                    return ChatRoomListDtoMapper.of(others, chatRoom, chatMessages.get(0), unreadMessageCount);
                 })
                 .filter(chatRoomListDto -> chatRoomListDto != null) // 대화 내역이 있는 채팅방만.
                 .sorted((o1, o2) -> o2.getLastChatMessageTime().compareTo(o1.getLastChatMessageTime())) // 마지막 메시지 시간으로 정렬.
