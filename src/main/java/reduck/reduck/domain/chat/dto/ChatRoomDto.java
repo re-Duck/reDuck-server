@@ -5,6 +5,7 @@ import org.springframework.web.socket.WebSocketSession;
 import reduck.reduck.domain.user.entity.User;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -16,7 +17,7 @@ import java.util.UUID;
 public class ChatRoomDto {
 
     private String roomId; // 클라에서 지정 후 전달.
-    private String otherId; // 1:1 대화에서 상대방.
+    private List<String> otherIds; // 1:1 대화에서 상대방.
 
 
 }

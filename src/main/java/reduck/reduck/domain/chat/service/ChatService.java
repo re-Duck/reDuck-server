@@ -63,8 +63,23 @@ public class ChatService {
                 .sorted((o1, o2) -> o2.getLastChatMessageTime().compareTo(o1.getLastChatMessageTime())) // 마지막 메시지 시간으로 정렬.
                 .collect(Collectors.toList());
     }
+    private Long countOfUnreadMessages(ChatRoomUsers myChatRoomInfo, List<ChatMessage> chatMessages, String userId) {
+        Long chatMessageId = myChatRoomInfo.getLastChatMessage().getId(); // 마지막 메시지.
+        return chatMessages.stream()
+                .filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId))) // 내가 보낸 메시지가 아니고,
+                .filter(chatMessage -> chatMessage.getId() > chatMessageId) // 더 오래된 메시지
+                .count();
+    }
+    // 채팅 방 별, 나를 제외한 다른 사용자들.
+    private List<User> getOtherUsersInChatRoom(ChatRoom chatRoom, User user) {
+        List<ChatRoomUsers> othersChatRoomInfo = chatRoomUsersRepository.findAllByRoomAndUserNot(chatRoom, user);
+        return othersChatRoomInfo.stream()
+                .map(other -> other.getUser())
+                .collect(Collectors.toList());
 
-//    채팅방 하나 불러오기 paging 사용.
+    }
+
+    //    채팅방 하나 불러오기 paging 사용.
     public List<ChatMessage> getRoom(String roomId) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
         List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoom(chatRoom)
@@ -77,33 +92,39 @@ public class ChatService {
     public String createRoom(ChatRoomDto chatRoomDto) {
         String userId = AuthenticationToken.getUserId();
         // 먼저 생성된 채팅 방이 있으면 그 채팅방 리턴.
-        String alias = createAlias(userId, chatRoomDto.getOtherId());
-        Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
-        return createRoomIfAbsent(oldChatRoom, chatRoomDto, userId, alias);
+        List<String> participantIds = mergeParticipantIds(userId,chatRoomDto.getOtherIds());
+        String alias = createAlias(participantIds);
+        return createRoomIfAbsent(chatRoomDto, participantIds, alias);
     }
 
-    private String createRoomIfAbsent(Optional<ChatRoom> oldChatRoom, ChatRoomDto chatRoomDto, String userId, String alias) {
-        if (oldChatRoom.isPresent()) return oldChatRoom.get().getRoomId();
-        return createNewRoom(chatRoomDto, userId, alias);
+    private List<String> mergeParticipantIds(String userId, List<String> otherIds) {
+        otherIds.add(userId);
+        return Collections.unmodifiableList(otherIds);
     }
-    private String createNewRoom(ChatRoomDto chatRoomDto, String userId, String alias) {
-        User me = userRepository.findByUserId(userId).get();
-        User other = userRepository.findByUserId(chatRoomDto.getOtherId()).get();
+
+    private String createRoomIfAbsent(ChatRoomDto chatRoomDto, List<String> participantIds, String alias) {
+        Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
+        if (oldChatRoom.isPresent()) return oldChatRoom.get().getRoomId();
+        return createNewRoom(chatRoomDto, participantIds, alias);
+    }
+
+    private String createNewRoom(ChatRoomDto chatRoomDto, List<String> participantIds, String alias) {
         ChatRoom chatRoom = ChatRoom.builder()
                 .roomId(chatRoomDto.getRoomId())
                 .alias(alias)
                 .build();
-        ChatRoomUsers chatRoomUsersMe = ChatRoomUsers.builder()
-                .room(chatRoom)
-                .user(me)
-                .lastChatMessage(defaultChatMessage)
-                .build();
-        ChatRoomUsers chatRoomUsersOther = ChatRoomUsers.builder()
-                .room(chatRoom)
-                .user(other)
-                .build();
+        List<ChatRoomUsers> chatRoomUsers = new ArrayList<>();
+        for (String id : participantIds) {
+            User participant = userRepository.findByUserId(id).get();
+            ChatRoomUsers chatRoomUser = ChatRoomUsers.builder()
+                    .room(chatRoom)
+                    .user(participant)
+                    .lastChatMessage(defaultChatMessage)
+                    .build();
+            chatRoomUsers.add(chatRoomUser);
+        }
         chatRoomRepository.save(chatRoom);
-        chatRoomUsersRepository.saveAll(List.of(chatRoomUsersMe, chatRoomUsersOther));
+        chatRoomUsersRepository.saveAll(chatRoomUsers);
         return chatRoomDto.getRoomId();
     }
 
@@ -145,8 +166,8 @@ public class ChatService {
 
     }
 
-    private String createAlias(String userId, String otherId) {
-        return List.of(userId, otherId).stream()
+    private String createAlias(List<String> participantIds) {
+        return participantIds.stream()
                 .sorted()
                 .collect(Collectors.joining(","));
     }
