@@ -32,12 +32,12 @@ public class RoomController {
     private final ChatService chatService;
     private final UserRepository repository;
 
-    //채팅방 조회
-//    @GetMapping("/room/{roomId}")
-//    public ResponseEntity<List<ChatMessage>> getRoom(@PathVariable String roomId) {
-//        return new ResponseEntity(chatService.getRoom(roomId)
-//                , HttpStatus.OK);
-//    }
+//    채팅방 조회
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<List<ChatMessage>> getRoom(@PathVariable String roomId) {
+        return new ResponseEntity(chatService.getRoom(roomId)
+                , HttpStatus.OK);
+    }
 
 
     //유저에 대한 채팅방 목록 조회

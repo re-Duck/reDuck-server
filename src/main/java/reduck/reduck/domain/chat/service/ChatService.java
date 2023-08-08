@@ -70,13 +70,13 @@ public class ChatService {
                 .collect(Collectors.toList());
     }
 
-    //채팅방 하나 불러오기 paging 사용.
-//    public List<ChatMessage> getRoom(String roomId) {
-//        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
-//        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoom(chatRoom)
-//                .orElseThrow(() -> new CommonException(CommonErrorCode.RESOURCE_NOT_FOUND));
-//        return chatMessages;
-//    }
+//    채팅방 하나 불러오기 paging 사용.
+    public List<ChatMessage> getRoom(String roomId) {
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
+        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoom(chatRoom)
+                .orElseThrow(() -> new CommonException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        return chatMessages;
+    }
 
     //채팅방 생성
     @Transactional
