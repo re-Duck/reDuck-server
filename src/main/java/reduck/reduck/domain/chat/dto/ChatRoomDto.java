@@ -16,9 +16,7 @@ import java.util.UUID;
 public class ChatRoomDto {
 
     private String roomId; // 클라에서 지정 후 전달.
-//    private User owner; // 채팅 신청(만든) 사람.
     private String otherId; // 1:1 대화에서 상대방.
-    private String name;
 
 
 }

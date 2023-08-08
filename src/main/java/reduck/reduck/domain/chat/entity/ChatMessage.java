@@ -32,4 +32,5 @@ public class ChatMessage extends BaseEntity {
     //내용
     private String message;
 
+
 }

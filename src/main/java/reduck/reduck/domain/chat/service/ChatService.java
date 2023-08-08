@@ -16,6 +16,7 @@ import reduck.reduck.domain.chat.entity.ChatRoomUsers;
 import reduck.reduck.domain.chat.repository.ChatMessageRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomUsersRepository;
+import reduck.reduck.domain.chat.repository.UserOnly;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
@@ -25,76 +26,88 @@ import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.util.Predicates.negate;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class ChatService {
     private final static int UN_READ_MESSAGE_MAX_SIZE = 300;
-
+    private final static ChatMessage defaultChatMessage = null;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUsersRepository chatRoomUsersRepository;
 
     public List<ChatRoomListDto> getRooms() {
+        // 얘도 paging으로 바꿔야함.
 
         String userId = AuthenticationToken.getUserId();
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
         List<ChatRoomUsers> chatRoomUsers = chatRoomUsersRepository.findAllByUser(user);
         Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
-        return chatRoomUsers.stream().map(chatRoomUser -> {
-                    ChatRoom room = chatRoomUser.getRoom();
-                    Long chatMessageId = room.getLastChatMessage().getId();
-                    List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(room, pageable).get();
-                    long unReadMessageCount = chatMessages.stream().filter(chatId -> chatId.getId() > chatMessageId).count();
-                    ChatMessage lastChatMessage = chatMessages.get(0); // 마지막 chatMessage
-                    return ChatRoomListDtoMapper.of(user, room, lastChatMessage, unReadMessageCount);
+
+        return chatRoomUsers.stream()
+                .map(myChatRoomInfo -> {
+                    if (myChatRoomInfo.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
+                    ChatRoom chatRoom = myChatRoomInfo.getRoom();
+                    List<ChatRoomUsers> othersChatRoomInfo = chatRoomUsersRepository.findAllByRoomAndUserNot(chatRoom, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
+                    List<User> others = othersChatRoomInfo.stream().map(other -> other.getUser()).collect(Collectors.toList());
+                    Long chatMessageId = myChatRoomInfo.getLastChatMessage().getId(); // 마지막 메시지.
+                    List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable).get(); // 채팅방 최신 300개 메시지 내역
+                    long unReadMessageCount = chatMessages.stream()
+                            .filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId))) // 내가 보낸 메시지가 아니고,
+                            .filter(chatMessage -> chatMessage.getId() > chatMessageId) // 더 오래된 메시지
+                            .count(); // 안읽은 메시지 수
+
+                    return ChatRoomListDtoMapper.of(others, chatRoom, chatMessages.get(0), unReadMessageCount);
                 })
+                .filter(chatRoomListDto -> chatRoomListDto != null) // 대화 내역이 있는 채팅방만.
+                .sorted((o1, o2) -> o2.getLastChatMessageTime().compareTo(o1.getLastChatMessageTime())) // 마지막 메시지 시간으로 정렬.
                 .collect(Collectors.toList());
     }
-//    //채팅방 불러오기
-//    public List<ChatRoom> findAllRoom(String userId) {
-//        List<ChatRoom> chatRooms = chatRoomRepository.findAllByUserId(userId)
-//                .orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
-//
-//        return chatRooms;
+
+    //채팅방 하나 불러오기 paging 사용.
+//    public List<ChatMessage> getRoom(String roomId) {
+//        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
+//        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoom(chatRoom)
+//                .orElseThrow(() -> new CommonException(CommonErrorCode.RESOURCE_NOT_FOUND));
+//        return chatMessages;
 //    }
 
-    //채팅방 하나 불러오기
-    public List<ChatMessage> getRoom(String roomId) {
-        roomId += "#1";
-        System.out.println(roomId);
-        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
-        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoom(chatRoom)
-                .orElseThrow(() -> new CommonException(CommonErrorCode.RESOURCE_NOT_FOUND));
-        System.out.println("=========");
-        return chatMessages;
-    }
-
     //채팅방 생성
-    @Transactional
-    public void createRoom(ChatRoomDto chatRoomDto) {
-        String userId = AuthenticationToken.getUserId();
-        // for dev
-        userId = "test1234";
-        System.out.println("userId = " + userId);
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
-
-        ChatRoom chatRoom = ChatRoom.builder()
-                .roomId(chatRoomDto.getRoomId())
-//                .lastChatMessage("")
-                .build();
-
-        ChatRoomUsers chatRoomUsers = ChatRoomUsers.builder()
-                .room(chatRoom)
-                .user(user)
-                .build();
-        chatRoomRepository.save(chatRoom);
-        chatRoomUsersRepository.save(chatRoomUsers);
-
-    }
+//    @Transactional
+//    public String createRoom(ChatRoomDto chatRoomDto) {
+//        String userId = AuthenticationToken.getUserId();
+//
+//        // 먼저 생성된 채팅 방이 있으면 그 채팅방 리턴.
+//        String alias = createAlias(userId, chatRoomDto.getOtherId());
+//        Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
+//        if (oldChatRoom.isPresent()) return oldChatRoom.get().getRoomId();
+//
+//        // 처음 생성 시.
+//        User me = userRepository.findByUserId(userId).get();
+//        User other = userRepository.findByUserId(chatRoomDto.getOtherId()).get();
+//
+//        ChatRoom build = ChatRoom.builder()
+//                .roomId(chatRoomDto.getRoomId())
+//                .alias(alias)
+//                .build();
+//        ChatRoomUsers chatRoomUsersMe = ChatRoomUsers.builder()
+//                .room(build)
+//                .user(me)
+//                .lastChatMessage(defaultChatMessage)
+//                .build();
+//        ChatRoomUsers chatRoomUsersOther = ChatRoomUsers.builder()
+//                .room(build)
+//                .user(other).build();
+//        chatRoomRepository.save(build);
+//        chatRoomUsersRepository.saveAll(List.of(chatRoomUsersMe, chatRoomUsersOther));
+//        return chatRoomDto.getRoomId();
+//    }
 
     //채팅 저장.
     public void sendMessage(ChatMessageDto chatMessageDto) {
@@ -108,7 +121,6 @@ public class ChatService {
                 .build();
 
         chatMessageRepository.save(chat);
-        System.out.println("=======================");
     }
 
     /**
@@ -134,4 +146,11 @@ public class ChatService {
         chatRoomUsersRepository.save(chatRoomUsers);
 
     }
+
+    private String createAlias(String userId, String otherId) {
+        return List.of(userId, otherId).stream()
+                .sorted()
+                .collect(Collectors.joining(","));
+    }
+
 }

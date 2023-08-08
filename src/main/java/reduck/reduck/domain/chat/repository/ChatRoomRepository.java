@@ -12,4 +12,7 @@ import java.util.*;
 @Repository
 public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     Optional<ChatRoom> findByRoomId(String roomId);
+
+    Optional<ChatRoom> findByAlias(String alias);
+
 }
