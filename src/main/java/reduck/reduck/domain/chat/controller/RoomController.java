@@ -51,14 +51,14 @@ public class RoomController {
 
     // 채팅방 개설
     // 유저 선택 후 채팅 신청.
-//    @PostMapping("/room")
-//    public ResponseEntity<Void> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomDto chatRoomDto) {
-//
-//        log.info("# Create Chat Room , roomId: " + chatRoomDto.getRoomId());
-//        String redirectUrl = chatService.createRoom(chatRoomDto);
-//        headers.setLocation(URI.create("/chat/room/" + redirectUrl));
-//        return new ResponseEntity(headers, HttpStatus.FOUND);
-//    }
+    @PostMapping("/room")
+    public ResponseEntity<Void> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomDto chatRoomDto) {
+
+        log.info("# Create Chat Room , roomId: " + chatRoomDto.getRoomId());
+        String redirectUrl = chatService.createRoom(chatRoomDto);
+        headers.setLocation(URI.create("/chat/room/" + redirectUrl));
+        return new ResponseEntity(headers, HttpStatus.FOUND);
+    }
 
     @GetMapping("/random")
     public ResponseEntity<List<RecommendUserDto>> recommendUsers() {

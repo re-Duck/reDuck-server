@@ -79,35 +79,39 @@ public class ChatService {
 //    }
 
     //채팅방 생성
-//    @Transactional
-//    public String createRoom(ChatRoomDto chatRoomDto) {
-//        String userId = AuthenticationToken.getUserId();
-//
-//        // 먼저 생성된 채팅 방이 있으면 그 채팅방 리턴.
-//        String alias = createAlias(userId, chatRoomDto.getOtherId());
-//        Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
-//        if (oldChatRoom.isPresent()) return oldChatRoom.get().getRoomId();
-//
-//        // 처음 생성 시.
-//        User me = userRepository.findByUserId(userId).get();
-//        User other = userRepository.findByUserId(chatRoomDto.getOtherId()).get();
-//
-//        ChatRoom build = ChatRoom.builder()
-//                .roomId(chatRoomDto.getRoomId())
-//                .alias(alias)
-//                .build();
-//        ChatRoomUsers chatRoomUsersMe = ChatRoomUsers.builder()
-//                .room(build)
-//                .user(me)
-//                .lastChatMessage(defaultChatMessage)
-//                .build();
-//        ChatRoomUsers chatRoomUsersOther = ChatRoomUsers.builder()
-//                .room(build)
-//                .user(other).build();
-//        chatRoomRepository.save(build);
-//        chatRoomUsersRepository.saveAll(List.of(chatRoomUsersMe, chatRoomUsersOther));
-//        return chatRoomDto.getRoomId();
-//    }
+    @Transactional
+    public String createRoom(ChatRoomDto chatRoomDto) {
+        String userId = AuthenticationToken.getUserId();
+        // 먼저 생성된 채팅 방이 있으면 그 채팅방 리턴.
+        String alias = createAlias(userId, chatRoomDto.getOtherId());
+        Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
+        return createRoomIfAbsent(oldChatRoom, chatRoomDto, userId, alias);
+    }
+
+    private String createRoomIfAbsent(Optional<ChatRoom> oldChatRoom, ChatRoomDto chatRoomDto, String userId, String alias) {
+        if (oldChatRoom.isPresent()) return oldChatRoom.get().getRoomId();
+        return createNewRoom(chatRoomDto, userId, alias);
+    }
+    private String createNewRoom(ChatRoomDto chatRoomDto, String userId, String alias) {
+        User me = userRepository.findByUserId(userId).get();
+        User other = userRepository.findByUserId(chatRoomDto.getOtherId()).get();
+        ChatRoom chatRoom = ChatRoom.builder()
+                .roomId(chatRoomDto.getRoomId())
+                .alias(alias)
+                .build();
+        ChatRoomUsers chatRoomUsersMe = ChatRoomUsers.builder()
+                .room(chatRoom)
+                .user(me)
+                .lastChatMessage(defaultChatMessage)
+                .build();
+        ChatRoomUsers chatRoomUsersOther = ChatRoomUsers.builder()
+                .room(chatRoom)
+                .user(other)
+                .build();
+        chatRoomRepository.save(chatRoom);
+        chatRoomUsersRepository.saveAll(List.of(chatRoomUsersMe, chatRoomUsersOther));
+        return chatRoomDto.getRoomId();
+    }
 
     //채팅 저장.
     public void sendMessage(ChatMessageDto chatMessageDto) {
