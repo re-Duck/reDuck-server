@@ -32,7 +32,7 @@ import static org.springframework.data.util.Predicates.negate;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SimpleChatService {
+public class SimpleChatService implements ChatService {
     private final static int UN_READ_MESSAGE_MAX_SIZE = 300;
     private final static ChatMessage defaultChatMessage = null;
     private final UserRepository userRepository;
@@ -40,6 +40,7 @@ public class SimpleChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUsersRepository chatRoomUsersRepository;
 
+    @Override
     public List<ChatRoomListDto> getRooms() {
         // 얘도 paging으로 바꿔야함.
 
@@ -80,6 +81,7 @@ public class SimpleChatService {
     }
 
     //    채팅방 하나 불러오기 paging 사용.
+    @Override
     public List<ChatMessage> getRoom(String roomId) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
         List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoom(chatRoom)
@@ -88,6 +90,7 @@ public class SimpleChatService {
     }
 
     //채팅방 생성
+    @Override
     @Transactional
     public String createRoom(ChatRoomDto chatRoomDto) {
         String userId = AuthenticationToken.getUserId();
@@ -136,6 +139,7 @@ public class SimpleChatService {
     }
 
     //채팅 저장.
+    @Override
     public void sendMessage(ChatMessageDto chatMessageDto) {
         Optional<ChatRoom> byRoomId = chatRoomRepository.findByRoomId(chatMessageDto.getRoomId());
         User user = userRepository.findByUserId(chatMessageDto.getUserId()).get();
@@ -152,6 +156,7 @@ public class SimpleChatService {
     /**
      * 채팅방 입장 시 등록됨.
      */
+    @Override
     @Transactional
     public void joinUser(ChatMessageDto message) {
         String roomId = message.getRoomId();

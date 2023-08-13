@@ -11,7 +11,9 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
-@Table(indexes = @Index(name = "idx_user", columnList = "user_id"))
+@Table(indexes = {
+        @Index(name = "idx_chat_room_id", columnList = "chat_room_id"),
+        @Index(name = "idx_user_id", columnList = "user_id")})
 public class ChatRoomUsers extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
