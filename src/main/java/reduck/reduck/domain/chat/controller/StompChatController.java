@@ -1,20 +1,15 @@
 package reduck.reduck.domain.chat.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.event.EventListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.socket.messaging.SessionConnectEvent;
-import org.springframework.web.socket.messaging.StompSubProtocolHandler;
 import reduck.reduck.domain.chat.dto.ChatMessageDto;
 import reduck.reduck.domain.chat.entity.MessageType;
-import reduck.reduck.domain.chat.service.ChatService;
-import reduck.reduck.util.AuthenticationToken;
+import reduck.reduck.domain.chat.service.SimpleChatService;
 
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +27,7 @@ public class StompChatController {
 //        template.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 //    }
     private final SimpMessageSendingOperations messagingTemplate;
-    private final ChatService chatService;
+    private final SimpleChatService simpleChatService;
 
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message, Message<?> m, MessageHeaderAccessor accessor) {
@@ -48,9 +43,9 @@ public class StompChatController {
         if (message.getType().equals(MessageType.ENTER)) {
             message.setMessage(message.getUserId() + "님이 입장하셨습니다.");
             // 입장시, ChatRoomUsers에 등록 필요.
-            chatService.joinUser(message);
+            simpleChatService.joinUser(message);
         } else if (message.getType().equals(MessageType.CHAT)) {
-            chatService.sendMessage(message); // save mysql
+            simpleChatService.sendMessage(message); // save mysql
         }
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 

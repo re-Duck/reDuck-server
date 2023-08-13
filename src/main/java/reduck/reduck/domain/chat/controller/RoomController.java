@@ -3,19 +3,13 @@ package reduck.reduck.domain.chat.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.*;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 import reduck.reduck.domain.chat.dto.ChatRoomDto;
 import reduck.reduck.domain.chat.dto.ChatRoomListDto;
 import reduck.reduck.domain.chat.dto.RecommendUserDto;
 import reduck.reduck.domain.chat.dto.mapper.RecommendUserDtoMapper;
 import reduck.reduck.domain.chat.entity.ChatMessage;
-import reduck.reduck.domain.chat.entity.ChatRoom;
-import reduck.reduck.domain.chat.service.ChatService;
-import reduck.reduck.domain.user.dto.UserInfoDtoRes;
-import reduck.reduck.domain.user.dto.mapper.UserInfoDtoResMapper;
+import reduck.reduck.domain.chat.service.SimpleChatService;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.util.AuthenticationToken;
@@ -29,13 +23,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/chat")
 @Log4j2
 public class RoomController {
-    private final ChatService chatService;
+    private final SimpleChatService simpleChatService;
     private final UserRepository repository;
 
 //    채팅방 조회
     @GetMapping("/room/{roomId}")
     public ResponseEntity<List<ChatMessage>> getRoom(@PathVariable String roomId) {
-        return new ResponseEntity(chatService.getRoom(roomId)
+        return new ResponseEntity(simpleChatService.getRoom(roomId)
                 , HttpStatus.OK);
     }
 
@@ -46,7 +40,7 @@ public class RoomController {
 
         log.info("# All Chat Rooms By User : " + userId);
 
-        return new ResponseEntity(chatService.getRooms(), HttpStatus.OK);
+        return new ResponseEntity(simpleChatService.getRooms(), HttpStatus.OK);
     }
 
     // 채팅방 개설
@@ -55,7 +49,7 @@ public class RoomController {
     public ResponseEntity<Void> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomDto chatRoomDto) {
 
         log.info("# Create Chat Room , roomId: " + chatRoomDto.getRoomId());
-        String redirectUrl = chatService.createRoom(chatRoomDto);
+        String redirectUrl = simpleChatService.createRoom(chatRoomDto);
         headers.setLocation(URI.create("/chat/room/" + redirectUrl));
         return new ResponseEntity(headers, HttpStatus.FOUND);
     }

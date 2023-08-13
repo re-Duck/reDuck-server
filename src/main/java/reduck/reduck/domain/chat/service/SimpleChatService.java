@@ -16,7 +16,6 @@ import reduck.reduck.domain.chat.entity.ChatRoomUsers;
 import reduck.reduck.domain.chat.repository.ChatMessageRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomUsersRepository;
-import reduck.reduck.domain.chat.repository.UserOnly;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
@@ -26,7 +25,6 @@ import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
 
 import java.util.*;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.util.Predicates.negate;
@@ -34,7 +32,7 @@ import static org.springframework.data.util.Predicates.negate;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class ChatService {
+public class SimpleChatService {
     private final static int UN_READ_MESSAGE_MAX_SIZE = 300;
     private final static ChatMessage defaultChatMessage = null;
     private final UserRepository userRepository;
