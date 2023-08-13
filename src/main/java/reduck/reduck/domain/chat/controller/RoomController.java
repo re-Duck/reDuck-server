@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import reduck.reduck.domain.chat.dto.ChatMessagesResDto;
 import reduck.reduck.domain.chat.dto.ChatRoomDto;
 import reduck.reduck.domain.chat.dto.ChatRoomListDto;
 import reduck.reduck.domain.chat.dto.RecommendUserDto;
@@ -28,7 +29,7 @@ public class RoomController {
 
 //    채팅방 조회
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<List<ChatMessage>> getRoom(@PathVariable String roomId) {
+    public ResponseEntity<List<ChatMessagesResDto>> getRoom(@PathVariable String roomId) {
         return new ResponseEntity(simpleChatService.getRoom(roomId)
                 , HttpStatus.OK);
     }

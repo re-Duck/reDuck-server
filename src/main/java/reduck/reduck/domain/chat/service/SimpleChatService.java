@@ -7,8 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.chat.dto.ChatMessageDto;
+import reduck.reduck.domain.chat.dto.ChatMessagesResDto;
 import reduck.reduck.domain.chat.dto.ChatRoomDto;
 import reduck.reduck.domain.chat.dto.ChatRoomListDto;
+import reduck.reduck.domain.chat.dto.mapper.ChatMessagesResDtoMapper;
 import reduck.reduck.domain.chat.dto.mapper.ChatRoomListDtoMapper;
 import reduck.reduck.domain.chat.entity.ChatMessage;
 import reduck.reduck.domain.chat.entity.ChatRoom;
@@ -34,6 +36,7 @@ import static org.springframework.data.util.Predicates.negate;
 @Service
 public class SimpleChatService implements ChatService {
     private final static int UN_READ_MESSAGE_MAX_SIZE = 300;
+    private final static int SHOWABLE_MESSAGE_MAX_SIZE = 20;
     private final static ChatMessage defaultChatMessage = null;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -82,11 +85,14 @@ public class SimpleChatService implements ChatService {
 
     //    채팅방 하나 불러오기 paging 사용.
     @Override
-    public List<ChatMessage> getRoom(String roomId) {
+    public List<ChatMessagesResDto> getRoom(String roomId) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
-        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoom(chatRoom)
+        Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
+        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable)
                 .orElseThrow(() -> new CommonException(CommonErrorCode.RESOURCE_NOT_FOUND));
-        return chatMessages;
+
+        return ChatMessagesResDtoMapper.from(chatMessages);
+
     }
 
     //채팅방 생성
