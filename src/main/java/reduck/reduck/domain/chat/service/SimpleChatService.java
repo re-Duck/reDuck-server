@@ -4,6 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.GenericMessage;
+import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.chat.dto.ChatMessageDto;
@@ -34,7 +38,7 @@ import static org.springframework.data.util.Predicates.negate;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class SimpleChatService implements ChatService {
+public class SimpleChatService extends ChatService {
     private final static int UN_READ_MESSAGE_MAX_SIZE = 300;
     private final static int SHOWABLE_MESSAGE_MAX_SIZE = 20;
     private final static ChatMessage defaultChatMessage = null;
@@ -158,31 +162,31 @@ public class SimpleChatService implements ChatService {
 
         chatMessageRepository.save(chat);
     }
+    private final HashMap<String, String> sessions = new HashMap<>();
+
+    @Override
+    public void preSend(Message<?> message, MessageHeaderAccessor accessor, ChatMessageDto dto) {
+        // Session 테이블에 각 room별로 user의 session Id는 고정.
+
+        StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+        String sessionId = headerAccessor.getSessionId();
+        System.out.println("SimpleChatService.preSend");
+        System.out.println("### sessionId = " + sessionId);
+        sessions.put(dto.getUserId(), sessionId);
+        System.out.println("sessions = " + sessions);
+
+        // roomId에 대한 참여 user Id목록을 가져오고,
+        // map에 상대방 id가 있다면
+        // 접속 중 : 상대방의 마지막 읽은 메시지 를 현재 message로 업데이트
+
+        // id가 없다면
+        // 채팅방에 없는 상태 : 그대로 둠.
+    }
 
     /**
      * 채팅방 입장 시 등록됨.
      */
-    @Override
-    @Transactional
-    public void joinUser(ChatMessageDto message) {
-        String roomId = message.getRoomId();
-        String userId = message.getUserId();
-        User user = userRepository.findByUserId(userId).get();
-        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
-        Optional<ChatRoomUsers> byRoomIdAndUserId = chatRoomUsersRepository.findByRoomAndUser(chatRoom, user);
-        if (byRoomIdAndUserId.isPresent()) {
-            // 이미 존재 = 이미 채팅방에 접속한 적이 있는 사용자.
-            System.out.println(" 이미 존재. ");
-            return;
-        }
-        ChatRoomUsers chatRoomUsers = ChatRoomUsers.builder()
-                .user(user)
-                .room(chatRoom)
-                .build();
 
-        chatRoomUsersRepository.save(chatRoomUsers);
-
-    }
 
     private String createAlias(List<String> participantIds) {
         Objects.requireNonNull(participantIds);
