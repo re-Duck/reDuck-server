@@ -20,6 +20,8 @@ public class ChatRoomUsers extends BaseEntity {
     @JoinColumn(name = "chat_room_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private ChatRoom room;
 
+    private String room_name;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
     private User user;

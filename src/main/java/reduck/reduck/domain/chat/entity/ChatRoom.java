@@ -20,7 +20,7 @@ public class ChatRoom extends BaseEntity {
     /**
      * format : "{userId1},{userId2},,,"
      */
-    @Column(unique = true)
+
     private String alias; // 1:1의 경우, 기존 채팅방의 존재 유무가 중요.
 
 

@@ -107,7 +107,7 @@ public class SimpleChatService extends ChatService {
         String roomId = chatRoomDto.getRoomId();
         // 먼저 생성된 채팅 방이 있으면 그 채팅방 리턴.
         List<String> participantIds = mergeParticipantIds(userId, chatRoomDto.getOtherIds());
-        return createRoomIfAbsent(roomId, participantIds);
+        return createRoomIfAbsent(chatRoomDto, participantIds);
     }
 
     private List<String> mergeParticipantIds(String userId, List<String> otherIds) {
@@ -119,18 +119,18 @@ public class SimpleChatService extends ChatService {
         return Collections.unmodifiableList(participantIds);
     }
 
-    private String createRoomIfAbsent(String roomId, List<String> participantIds) {
+    private String createRoomIfAbsent(ChatRoomDto chatRoomDto, List<String> participantIds) {
         String alias = createAlias(participantIds);
         Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
         return oldChatRoom.isPresent() ?
                 oldChatRoom.get().getRoomId() :
-                createNewRoom(roomId, participantIds, alias);
+                createNewRoom(chatRoomDto, participantIds, alias);
 
     }
 
-    private String createNewRoom(String roomId, List<String> participantIds, String alias) {
+    private String createNewRoom(ChatRoomDto chatRoomDto, List<String> participantIds, String alias) {
         ChatRoom chatRoom = ChatRoom.builder()
-                .roomId(roomId)
+                .roomId(chatRoomDto.getRoomId())
                 .alias(alias)
                 .build();
         List<ChatRoomUsers> chatRoomUsers = new ArrayList<>();
@@ -138,6 +138,7 @@ public class SimpleChatService extends ChatService {
             User participant = userRepository.findByUserId(id).get();
             ChatRoomUsers chatRoomUser = ChatRoomUsers.builder()
                     .room(chatRoom)
+                    .room_name(chatRoomDto.getRoom_name().isEmpty() ? alias : chatRoomDto.getRoom_name())
                     .user(participant)
                     .lastChatMessage(defaultChatMessage)
                     .build();
@@ -145,7 +146,7 @@ public class SimpleChatService extends ChatService {
         }
         chatRoomRepository.save(chatRoom);
         chatRoomUsersRepository.saveAll(chatRoomUsers);
-        return roomId;
+        return chatRoomDto.getRoomId();
     }
 
     //채팅 저장.
