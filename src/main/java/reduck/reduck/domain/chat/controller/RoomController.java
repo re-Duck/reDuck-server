@@ -24,13 +24,6 @@ public class RoomController {
     private final SimpleChatService simpleChatService;
     private final UserRepository repository;
 
-//    채팅방 조회
-    @GetMapping("/room/{roomId}")
-    public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId) {
-        return new ResponseEntity(simpleChatService.getRoom(roomId)
-                , HttpStatus.OK);
-    }
-
 
     //유저에 대한 채팅방 목록 조회
     @GetMapping(value = "/rooms/{userId}")
@@ -39,6 +32,13 @@ public class RoomController {
         log.info("# All Chat Rooms By User : " + userId);
 
         return new ResponseEntity(simpleChatService.getRooms(), HttpStatus.OK);
+    }
+
+//    채팅방 조회
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId) {
+        return new ResponseEntity(simpleChatService.getRoom(roomId)
+                , HttpStatus.OK);
     }
 
     // 채팅방 개설

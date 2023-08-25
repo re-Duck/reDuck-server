@@ -5,6 +5,7 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,8 +36,9 @@ public class StompChatController {
     private final SimpMessageSendingOperations messagingTemplate;
     private final ChatService simpleChatService;
     @MessageMapping("/chat/message")
-    public void message(ChatMessageDto message, Message<?> m, MessageHeaderAccessor accessor) {
-        System.out.println("message.getType() = " + message.getType());
+    public void message(ChatMessageDto message, Message<?> m, StompHeaderAccessor accessor) {
+        System.out.println("############## message.getType() = " + message.getType());
+        System.out.println("세션Id 고정 후 = " + accessor.getSessionId());
         // 입장 알림 메시지를 저장 할 필요 X
         if (message.getType().equals(MessageType.ENTER)) {
             message.setMessage(message.getUserId() + "님이 입장하셨습니다.");

@@ -50,7 +50,8 @@ public class StompInterceptorService {
                 .orElseGet(() -> Session.init(simpSessionId, userId, simpDestination));
         System.out.println(session);
         session.on();
-
+        String holdSession = session.getSessionId();
+        headerAccessor.setSessionId(holdSession);
         sessionRepository.save(session);
     }
 

@@ -45,6 +45,7 @@ public class SimpleChatService extends ChatService {
     private final ChatRoomUsersRepository chatRoomUsersRepository;
 
     @Override
+    @Transactional
     public List<ChatRoomListDto> getRooms() {
         // 얘도 paging으로 바꿔야함.
 
@@ -55,11 +56,11 @@ public class SimpleChatService extends ChatService {
 
         return chatRoomUsers.stream()
                 .map(myChatRoomInfo -> {
-                    if (myChatRoomInfo.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
                     ChatRoom chatRoom = myChatRoomInfo.getRoom();
+                    if (chatRoom.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
                     List<User> others = getOtherUsersInChatRoom(chatRoom, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
                     List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable).get(); // 채팅방 최신 300개 메시지 내역
-                    Long unreadMessageCount = countOfUnreadMessages(myChatRoomInfo, chatMessages, userId); // 안읽은 메시지 수
+                    Long unreadMessageCount = countOfUnreadMessages(chatRoom, myChatRoomInfo, chatMessages, userId); // 안읽은 메시지 수
                     return ChatRoomListDtoMapper.of(others, chatRoom, chatMessages.get(0), unreadMessageCount);
                 })
                 .filter(chatRoomListDto -> chatRoomListDto != null) // 대화 내역이 있는 채팅방만.
@@ -67,7 +68,11 @@ public class SimpleChatService extends ChatService {
                 .collect(Collectors.toList());
     }
 
-    private Long countOfUnreadMessages(ChatRoomUsers myChatRoomInfo, List<ChatMessage> chatMessages, String userId) {
+    private Long countOfUnreadMessages(ChatRoom chatRoom, ChatRoomUsers myChatRoomInfo, List<ChatMessage> chatMessages, String userId) {
+        if (chatRoom.getLastChatMessage().getSender().getUserId().equals(userId)) {
+            //  채팅방에 마지막으로 보낸 사람이 나 : 안읽은 메시지 수 = 0
+            return 0L;
+        }
         Long chatMessageId = myChatRoomInfo.getLastChatMessage().getId(); // 마지막 메시지.
         return chatMessages.stream()
                 .filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId))) // 내가 보낸 메시지가 아니고,
@@ -97,7 +102,6 @@ public class SimpleChatService extends ChatService {
         return ChatRoomResDto.builder()
                 .chatMessages(chatMessagesResDtos)
                 .build();
-
     }
 
     //채팅방 생성
@@ -164,6 +168,7 @@ public class SimpleChatService extends ChatService {
 
         chatMessageRepository.save(chat);
     }
+
     private final HashMap<String, String> sessions = new HashMap<>();
 
     @Override
@@ -183,6 +188,9 @@ public class SimpleChatService extends ChatService {
 
         // id가 없다면
         // 채팅방에 없는 상태 : 그대로 둠.
+
+        // =====
+        // 메시지를 보낸 후 chatRoom의 마지막 메시지를 업데이트해야함.
     }
 
     /**

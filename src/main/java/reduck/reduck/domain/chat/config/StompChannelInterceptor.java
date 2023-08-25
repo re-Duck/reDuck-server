@@ -78,8 +78,10 @@ public class StompChannelInterceptor implements ChannelInterceptor {
             return;
         } else if (command == StompCommand.SUBSCRIBE) {
             System.out.println("command = " + command);
-
+            System.out.println("headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
             interceptorService.subscribe(headerAccessor);
+            System.out.println("headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
+
             return;
         }
 
