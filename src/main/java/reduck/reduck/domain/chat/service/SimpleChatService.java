@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,9 +56,9 @@ public class SimpleChatService extends ChatService {
         return chatRoomUsers.stream()
                 .map(myChatRoomInfo -> {
                     ChatRoom chatRoom = myChatRoomInfo.getRoom();
-                    if (chatRoom.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
+                    List<ChatMessage> chatMessages = getRecentChatHistory(chatRoom, pageable);
+                    if (chatMessages.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
                     List<User> others = getOtherUsersInChatRoom(chatRoom, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
-                    List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable).get(); // 채팅방 최신 300개 메시지 내역
                     Long unreadMessageCount = countOfUnreadMessages(chatRoom, myChatRoomInfo, chatMessages, userId); // 안읽은 메시지 수
                     return ChatRoomListDtoMapper.of(others, chatRoom, chatMessages.get(0), unreadMessageCount);
                 })
@@ -68,10 +67,18 @@ public class SimpleChatService extends ChatService {
                 .collect(Collectors.toList());
     }
 
+    private List<ChatMessage> getRecentChatHistory(ChatRoom chatRoom, Pageable pageable) {
+
+        return chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable).get(); // 채팅방 최신 300개 메시지 내역
+
+    }
+
     private Long countOfUnreadMessages(ChatRoom chatRoom, ChatRoomUsers myChatRoomInfo, List<ChatMessage> chatMessages, String userId) {
-        if (chatRoom.getLastChatMessage().getSender().getUserId().equals(userId)) {
-            //  채팅방에 마지막으로 보낸 사람이 나 : 안읽은 메시지 수 = 0
-            return 0L;
+        if (chatMessages.get(0).getSender().getUserId().equals(userId)) return 0L;
+        if (myChatRoomInfo.getLastChatMessage() == null) {
+            // 채팅방이 생성 된 후, 한번도 들어가본적이 없다.
+            // 채팅방의 모든 내역들이 안 읽은 메시지다.
+            return (long) chatMessages.size();
         }
         Long chatMessageId = myChatRoomInfo.getLastChatMessage().getId(); // 마지막 메시지.
         return chatMessages.stream()
