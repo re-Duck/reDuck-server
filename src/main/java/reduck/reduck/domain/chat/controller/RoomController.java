@@ -37,6 +37,7 @@ public class RoomController {
 //    채팅방 조회
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId) {
+        log.info("# get chat room By id : " + roomId);
         return new ResponseEntity(simpleChatService.getRoom(roomId)
                 , HttpStatus.OK);
     }

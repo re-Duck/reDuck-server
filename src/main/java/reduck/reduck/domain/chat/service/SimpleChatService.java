@@ -20,8 +20,10 @@ import reduck.reduck.domain.chat.repository.ChatRoomRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomUsersRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.ChatErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
+import reduck.reduck.global.exception.exception.ChatException;
 import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
@@ -69,7 +71,7 @@ public class SimpleChatService extends ChatService {
 
     private List<ChatMessage> getRecentChatHistory(ChatRoom chatRoom, Pageable pageable) {
 
-        return chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable).get(); // 채팅방 최신 300개 메시지 내역
+        return chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable); // 채팅방 최신 300개 메시지 내역
 
     }
 
@@ -99,10 +101,9 @@ public class SimpleChatService extends ChatService {
     //    채팅방 하나 불러오기 paging 사용.
     @Override
     public ChatRoomResDto getRoom(String roomId) {
-        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
         Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
-        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable)
-                .orElseThrow(() -> new CommonException(CommonErrorCode.RESOURCE_NOT_FOUND));
+        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable);
 
         List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
 
