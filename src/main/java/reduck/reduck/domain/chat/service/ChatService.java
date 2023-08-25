@@ -18,7 +18,7 @@ public abstract class ChatService {
     //채팅 저장.
     abstract public void sendMessage(ChatMessageDto chatMessageDto);
 
-    abstract public void preSend(Message<?> m, MessageHeaderAccessor accessor, ChatMessageDto dto) ;
 
+    abstract public void postSend(Message<?> m, ChatMessageDto message) ;
 
 }

@@ -1,5 +1,6 @@
 package reduck.reduck.domain.chat.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -12,12 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.chat.dto.*;
 import reduck.reduck.domain.chat.dto.mapper.ChatMessagesResDtoMapper;
 import reduck.reduck.domain.chat.dto.mapper.ChatRoomListDtoMapper;
-import reduck.reduck.domain.chat.entity.ChatMessage;
-import reduck.reduck.domain.chat.entity.ChatRoom;
-import reduck.reduck.domain.chat.entity.ChatRoomUsers;
+import reduck.reduck.domain.chat.entity.*;
 import reduck.reduck.domain.chat.repository.ChatMessageRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomUsersRepository;
+import reduck.reduck.domain.chat.repository.SessionRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.ChatErrorCode;
@@ -28,6 +28,8 @@ import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -44,6 +46,7 @@ public class SimpleChatService extends ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomUsersRepository chatRoomUsersRepository;
+    private final SessionRepository sessionRepository;
 
     @Override
     @Transactional
@@ -172,30 +175,73 @@ public class SimpleChatService extends ChatService {
                 .room(byRoomId.get())
                 .sender(user)
                 .message(chatMessageDto.getMessage())
+                .messageId(chatMessageDto.getMessageId())
                 .build();
 
         chatMessageRepository.save(chat);
     }
 
 
+    @Transactional
     @Override
-    public void preSend(Message<?> message, ChatMessageDto dto) {
+    public void postSend(Message<?> message, ChatMessageDto dto) {
         // Session 테이블에 각 room별로 user의 session Id는 고정.
+        System.out.println(message.toString());
+        byte[] jsonData = (byte[]) message.getPayload(); // 바이트 배열
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> resultMap = null;
+        try {
+            resultMap = objectMapper.readValue(jsonData, Map.class);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println("resultMap = " + resultMap);
+        String messageId = (String) resultMap.get("messageId");
 
+        System.out.println("!@#$!@$!@!$!$!#$!$!@$!@$!#@$#!$!#@!#$!#$");
         StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         String sessionId = headerAccessor.getSessionId();
         System.out.println("SimpleChatService.preSend");
         System.out.println("### sessionId = " + sessionId);
 
+        // 현재 세션에 해당되는 roomId
+        Session mySession = sessionRepository.findBySessionId(sessionId).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+
         // roomId에 대한 참여 user Id목록을 가져오고,
-        // map에 상대방 id가 있다면
-        // 접속 중 : 상대방의 마지막 읽은 메시지 를 현재 message로 업데이트
+        ChatRoom room = mySession.getRoom();
+        String userId = mySession.getUserId();
+        User user = userRepository.findByUserId(userId).get();
+        List<User> others = getOtherUsersInChatRoom(room, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
+        for (User other : others) {
+            Session otherSession = sessionRepository.findByUserIdAndRoom(other.getUserId(), room).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+            SessionStatus otherSessionStatus = otherSession.getStatus();
+            if (otherSessionStatus == SessionStatus.ON) {
+                // 접속 중 : 상대방의 마지막 읽은 메시지 를 현재 message로 업데이트
+                ChatMessage chatMessage = chatMessageRepository.findByMessageId(messageId).get();
+
+                ChatRoomUsers chatRoomInfoOfOther = chatRoomUsersRepository.findByUserAndRoom(other, room);
+                chatRoomInfoOfOther.updateLastChatMessage(chatMessage);
+                chatRoomUsersRepository.save(chatRoomInfoOfOther);
+            }
+        }
+        // 상대에 해당되는 session상태로 접속 여부 파악.
+//        others.stream().map(other -> {
+//            Session otherSession = sessionRepository.findByUserIdAndRoom(other.getUserId(), room).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+//            SessionStatus otherSessionStatus = otherSession.getStatus();
+//            if (otherSessionStatus == SessionStatus.ON) {
+//                // 접속 중 : 상대방의 마지막 읽은 메시지 를 현재 message로 업데이트
+//                ChatMessage chatMessage = chatMessageRepository.findByMessageId(messageId).get();
+//
+//                ChatRoomUsers chatRoomInfoOfOther = chatRoomUsersRepository.findByUserAndRoom(other, room);
+//                chatRoomInfoOfOther.updateLastChatMessage(chatMessage);
+//                chatRoomUsersRepository.save(chatRoomInfoOfOther);
+//            }
+//            return null;
+//        });
 
         // id가 없다면
         // 채팅방에 없는 상태 : 그대로 둠.
 
-        // =====
-        // 메시지를 보낸 후 chatRoom의 마지막 메시지를 업데이트해야함.
     }
 
     /**

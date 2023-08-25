@@ -16,16 +16,18 @@ public class Session extends BaseEntity {
 
     private String userId;
 
-    private String roomId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id", foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private ChatRoom room;
 
     @Enumerated(EnumType.STRING)
     private SessionStatus status;
 
-    public static Session init(String sessionId, String userId, String roomId) {
+    public static Session init(String sessionId, String userId, ChatRoom room) {
         return Session.builder()
                 .sessionId(sessionId)
                 .userId(userId)
-                .roomId(roomId)
+                .room(room)
                 .status(SessionStatus.ON)
                 .build();
     }
@@ -34,8 +36,8 @@ public class Session extends BaseEntity {
     public String toString() {
         return "{sessionId : " + this.sessionId +
                 "\nuserId : " + this.userId +
-                "\nroomId : " + this.roomId +
-                "\nstatus : " + this.status +"}";
+                "\nroomId : " + this.room +
+                "\nstatus : " + this.status + "}";
     }
 
     public void off() {
@@ -44,6 +46,10 @@ public class Session extends BaseEntity {
 
     public void on() {
         this.status = SessionStatus.ON;
+    }
+
+    public void update(String sessionId) {
+        this.sessionId = sessionId;
     }
 }
 

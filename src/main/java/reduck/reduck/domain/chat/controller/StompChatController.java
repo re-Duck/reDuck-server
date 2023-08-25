@@ -1,6 +1,8 @@
 package reduck.reduck.domain.chat.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.server.ServerHttpRequest;
+import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -37,8 +39,9 @@ public class StompChatController {
     private final ChatService simpleChatService;
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message, Message<?> m, StompHeaderAccessor accessor) {
+
         System.out.println("############## message.getType() = " + message.getType());
-        System.out.println("세션Id 고정 후 = " + accessor.getSessionId());
+        System.out.println("세션Id 매핑 후 = " + accessor.getSessionId());
         // 입장 알림 메시지를 저장 할 필요 X
         if (message.getType().equals(MessageType.ENTER)) {
             message.setMessage(message.getUserId() + "님이 입장하셨습니다.");
@@ -46,8 +49,9 @@ public class StompChatController {
             // 입장시, ChatRoomUsers에 등록 필요    .
 //            simpleChatService.joinUser(message);// 그룹 챗 인 경우 필요.
         } else if (message.getType().equals(MessageType.CHAT)) {
-            simpleChatService.preSend(m, accessor, message);
             simpleChatService.sendMessage(message); // save mysql
+            simpleChatService.postSend(m, message);
+
 //            simpleChatService.joinUser();
         }
         messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);

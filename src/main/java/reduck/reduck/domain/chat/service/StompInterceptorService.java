@@ -36,7 +36,6 @@ public class StompInterceptorService {
     }
 
     @Transactional
-
     public void subscribe(StompHeaderAccessor headerAccessor) {
         // sessionId를 update.
 //        if (headerAccessor.getCommand() == StompCommand.SUBSCRIBE) { // 연결 시에한 header 확인
@@ -52,7 +51,7 @@ public class StompInterceptorService {
         ChatRoom chatRoom = getChatRoom(headerAccessor);
         System.out.println("chatRoom = " + chatRoom);
 
-        Session session = sessionRepository.findByUserIdAndRoomId(userId, chatRoom)
+        Session session = sessionRepository.findByUserIdAndRoom(userId, chatRoom)
                 .orElseGet(() -> Session.init(simpSessionId, userId, chatRoom));
         System.out.println(session);
         session.on();

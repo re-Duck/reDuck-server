@@ -9,7 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface SessionRepository extends JpaRepository<Session,Long> {
-    Optional<Session> findByUserIdAndRoomId(String userId, ChatRoom room);
+    Optional<Session> findByUserIdAndRoom(String userId, ChatRoom room);
 
     Optional<Session> findBySessionId(String sessionId);
 }
