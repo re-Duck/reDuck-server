@@ -7,8 +7,10 @@ import org.springframework.http.HttpStatus;
 @Getter
 @RequiredArgsConstructor
 public enum ChatErrorCode implements ErrorCode {
+    // session
+    SESSION_NOT_EXIST(HttpStatus.BAD_REQUEST, "Session isn't exist"),
     // chat room
-    CHAT_ROOM_NOT_EXIST(HttpStatus.BAD_REQUEST, "Comment isn't exist")
+    CHAT_ROOM_NOT_EXIST(HttpStatus.BAD_REQUEST, "ChatRoom isn't exist")
     // chat message
     // chat room user
     ,;

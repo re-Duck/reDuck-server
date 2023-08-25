@@ -46,10 +46,6 @@ public class StompChannelInterceptor implements ChannelInterceptor {
 
         operatedOf(command, headerAccessor);
 
-        if (command == StompCommand.DISCONNECT) {
-            // 정상 || 비정상 소켓 끊김.
-            System.out.println("소켓 끊김.");
-        }
 //        if (headerAccessor.getCommand() == StompCommand.CONNECT) { // 연결 시에한 header 확인
 //            // JWT 토큰 검증 로직 chat서비스에 달린 JWT검증.
 //            String token = String.valueOf(headerAccessor.getNativeHeader("Authorization").get(0));
@@ -64,27 +60,25 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     }
 
     private void operatedOf(StompCommand command, StompHeaderAccessor headerAccessor) {
-        if (command == StompCommand.CONNECT) {
-            System.out.println("command = " + command);
-
-            return;
-        } else if (command == StompCommand.MESSAGE) {
-            System.out.println("command = " + command);
-
-            return;
-        } else if (command == StompCommand.DISCONNECT) {
-            System.out.println("command = " + command);
-            interceptorService.disconnect(headerAccessor);
-            return;
-        } else if (command == StompCommand.SUBSCRIBE) {
-            System.out.println("command = " + command);
-            System.out.println("headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
-            interceptorService.subscribe(headerAccessor);
-            System.out.println("headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
-
-            return;
+        switch (command) {
+            case CONNECT:
+                System.out.println("command = " + command);
+                break;
+            case DISCONNECT: // 정상 || 비정상 소켓 끊김.
+                System.out.println("소켓 끊김.");
+                System.out.println("command = " + command);
+                interceptorService.disconnect(headerAccessor);
+                break;
+            case SUBSCRIBE:
+                System.out.println("command = " + command);
+                System.out.println("변경 전 headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
+                interceptorService.subscribe(headerAccessor);
+                System.out.println("변경 후 headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
+                break;
+            case SEND:
+                System.out.println("command = " + command);
+                break;
         }
-
     }
 
     @Override
