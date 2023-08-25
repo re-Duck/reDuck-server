@@ -10,10 +10,7 @@ import org.springframework.messaging.support.GenericMessage;
 import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reduck.reduck.domain.chat.dto.ChatMessageDto;
-import reduck.reduck.domain.chat.dto.ChatMessagesResDto;
-import reduck.reduck.domain.chat.dto.ChatRoomDto;
-import reduck.reduck.domain.chat.dto.ChatRoomListDto;
+import reduck.reduck.domain.chat.dto.*;
 import reduck.reduck.domain.chat.dto.mapper.ChatMessagesResDtoMapper;
 import reduck.reduck.domain.chat.dto.mapper.ChatRoomListDtoMapper;
 import reduck.reduck.domain.chat.entity.ChatMessage;
@@ -89,13 +86,17 @@ public class SimpleChatService extends ChatService {
 
     //    채팅방 하나 불러오기 paging 사용.
     @Override
-    public List<ChatMessagesResDto> getRoom(String roomId) {
+    public ChatRoomResDto getRoom(String roomId) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).get();
         Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
         List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable)
                 .orElseThrow(() -> new CommonException(CommonErrorCode.RESOURCE_NOT_FOUND));
 
-        return ChatMessagesResDtoMapper.from(chatMessages);
+        List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
+
+        return ChatRoomResDto.builder()
+                .chatMessages(chatMessagesResDtos)
+                .build();
 
     }
 
@@ -138,7 +139,7 @@ public class SimpleChatService extends ChatService {
             User participant = userRepository.findByUserId(id).get();
             ChatRoomUsers chatRoomUser = ChatRoomUsers.builder()
                     .room(chatRoom)
-                    .room_name(chatRoomDto.getRoom_name().isEmpty() ? alias : chatRoomDto.getRoom_name())
+                    .roomName(chatRoomDto.getRoomName().isEmpty() ? alias : chatRoomDto.getRoomName())
                     .user(participant)
                     .lastChatMessage(defaultChatMessage)
                     .build();

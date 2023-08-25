@@ -21,12 +21,12 @@ public class ChatRoomListDto {
     public static class OtherUserDto implements Serializable {
         private String name;
         private String userId;
-        private String userProfileImagePath;
+        private String userProfileImgPath;
 
-        public OtherUserDto(String name, String userId, String userProfileImagePath) {
+        public OtherUserDto(String name, String userId, String userProfileImgPath) {
             this.name = name;
             this.userId = userId;
-            this.userProfileImagePath = userProfileImagePath;
+            this.userProfileImgPath = userProfileImgPath;
         }
     }
 

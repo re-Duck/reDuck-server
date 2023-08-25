@@ -13,7 +13,7 @@ public class RecommendUserDtoMapper {
                 .company(user.getCompany())
                 .companyEmailAuthentication(user.isCompanyEmailAuthentication())
                 .developAnnual(DevelopAnnualCalculation.calculate(user.getDevelopYear()))
-                .userProfileImagePath(user.getProfileImgPath())
+                .userProfileImgPath(user.getProfileImgPath())
                 .build();
     }
 }

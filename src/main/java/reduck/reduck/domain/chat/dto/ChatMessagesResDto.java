@@ -10,11 +10,10 @@ import reduck.reduck.domain.chat.entity.MessageType;
 public class ChatMessagesResDto {
     private MessageType type;
     private String messageId;
-    private ChatRoom chatRoom;
 
     private String userId;
     private String name;
-    private String userProfileImagePath;
+    private String userProfileImgPath;
 
     private String message;
 }

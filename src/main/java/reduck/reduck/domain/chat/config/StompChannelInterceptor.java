@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import reduck.reduck.domain.chat.service.StompInterceptorService;
 
 import java.security.Principal;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -20,12 +21,9 @@ public class StompChannelInterceptor implements ChannelInterceptor {
     private final StompInterceptorService interceptorService;
 
 
-
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         System.out.println(" 메시지 발신 전 인터셉트 ==============================================");
-
-
 
 
         // 메시지를 가로채서 처리할 로직 작성
@@ -45,21 +43,46 @@ public class StompChannelInterceptor implements ChannelInterceptor {
         System.out.println("messageType = " + messageType);
         MessageHeaders messageHeaders = headerAccessor.getMessageHeaders();
         System.out.println("messageHeaders = " + messageHeaders);
+
+        operatedOf(command, headerAccessor);
+
         if (command == StompCommand.DISCONNECT) {
             // 정상 || 비정상 소켓 끊김.
             System.out.println("소켓 끊김.");
-            interceptorService.disscribe();
         }
 //        if (headerAccessor.getCommand() == StompCommand.CONNECT) { // 연결 시에한 header 확인
 //            // JWT 토큰 검증 로직 chat서비스에 달린 JWT검증.
 //            String token = String.valueOf(headerAccessor.getNativeHeader("Authorization").get(0));
 //
 //            System.out.println("token = " + token);
-//        }else{
+//        }
+//        else{
 //
 //        }
 //        channel.send(message);
         return message;
+    }
+
+    private void operatedOf(StompCommand command, StompHeaderAccessor headerAccessor) {
+        if (command == StompCommand.CONNECT) {
+            System.out.println("command = " + command);
+
+            return;
+        } else if (command == StompCommand.MESSAGE) {
+            System.out.println("command = " + command);
+
+            return;
+        } else if (command == StompCommand.DISCONNECT) {
+            System.out.println("command = " + command);
+            interceptorService.disconnect(headerAccessor);
+            return;
+        } else if (command == StompCommand.SUBSCRIBE) {
+            System.out.println("command = " + command);
+
+            interceptorService.subscribe(headerAccessor);
+            return;
+        }
+
     }
 
     @Override

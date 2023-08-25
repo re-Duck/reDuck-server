@@ -8,16 +8,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class RecommendUserDto {
     private String userId;
     private String name;
-    private String userProfileImagePath;
+    private String userProfileImgPath;
     private String company;
     private boolean companyEmailAuthentication;
     private String developAnnual;
 
     @Builder
-    public RecommendUserDto(String userId, String name,String userProfileImagePath, String company, boolean companyEmailAuthentication, String developAnnual) {
+    public RecommendUserDto(String userId, String name,String userProfileImgPath, String company, boolean companyEmailAuthentication, String developAnnual) {
         this.userId = userId;
         this.name = name;
-        this.userProfileImagePath = userProfileImagePath;
+        this.userProfileImgPath = userProfileImgPath;
         this.company = company;
         this.companyEmailAuthentication = companyEmailAuthentication;
         this.developAnnual = developAnnual;
