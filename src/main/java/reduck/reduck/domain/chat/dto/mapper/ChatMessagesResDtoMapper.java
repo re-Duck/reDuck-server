@@ -12,14 +12,15 @@ public class ChatMessagesResDtoMapper {
             return ChatMessagesResDto.builder()
                     .type(chatMessage.getType())
                     .messageId(chatMessage.getMessageId())
+                    .message(chatMessage.getMessage())
+                    .messageTime(chatMessage.getUpdatedAt())
 
                     .userId(chatMessage.getSender().getUserId())
                     .name(chatMessage.getSender().getName())
                     .userProfileImgPath(chatMessage.getSender().getProfileImgPath())
-
-                    .message(chatMessage.getMessage())
                     .build();
         }).collect(Collectors.toList());
+
     }
 
 }

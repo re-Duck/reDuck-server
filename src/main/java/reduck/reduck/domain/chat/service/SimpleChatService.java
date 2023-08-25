@@ -102,8 +102,8 @@ public class SimpleChatService extends ChatService {
     @Override
     public ChatRoomResDto getRoom(String roomId) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
-        Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
-        List<ChatMessage> chatMessages = chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable);
+        Pageable pageable = PageRequest.of(0, SHOWABLE_MESSAGE_MAX_SIZE);
+        List<ChatMessage> chatMessages = getRecentChatHistory(chatRoom, pageable);
 
         List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
 
@@ -177,18 +177,15 @@ public class SimpleChatService extends ChatService {
         chatMessageRepository.save(chat);
     }
 
-    private final HashMap<String, String> sessions = new HashMap<>();
 
     @Override
-    public void preSend(Message<?> message, MessageHeaderAccessor accessor, ChatMessageDto dto) {
+    public void preSend(Message<?> message, ChatMessageDto dto) {
         // Session 테이블에 각 room별로 user의 session Id는 고정.
 
         StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         String sessionId = headerAccessor.getSessionId();
         System.out.println("SimpleChatService.preSend");
         System.out.println("### sessionId = " + sessionId);
-        sessions.put(dto.getUserId(), sessionId);
-        System.out.println("sessions = " + sessions);
 
         // roomId에 대한 참여 user Id목록을 가져오고,
         // map에 상대방 id가 있다면
