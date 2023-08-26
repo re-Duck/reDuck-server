@@ -40,7 +40,7 @@ public class StompChatController {
     @MessageMapping("/chat/message")
     public void message(ChatMessageDto message, Message<?> m, StompHeaderAccessor accessor) {
 
-        System.out.println("############## message.getType() = " + message.getType());
+        System.out.println("메시지매핑 컨트롤러 ==========================================" + message.getType());
         System.out.println("세션Id 매핑 후 = " + accessor.getSessionId());
         // 입장 알림 메시지를 저장 할 필요 X
         if (message.getType().equals(MessageType.ENTER)) {

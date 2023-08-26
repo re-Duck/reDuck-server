@@ -18,6 +18,7 @@ public class ChatMessage extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private MessageType type;
 
+    @Column(unique = true)
     private String messageId;
 
     //채팅방 ID

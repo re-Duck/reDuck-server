@@ -20,6 +20,13 @@ import java.util.List;
 public class StompChannelInterceptor implements ChannelInterceptor {
     private final StompInterceptorService interceptorService;
 
+    @Override
+    public void postSend(Message<?> message, MessageChannel channel, boolean sent) {
+        System.out.println();
+        System.out.println("메시지 발신 후 인터셉트@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+        System.out.println();
+
+    }
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
@@ -72,7 +79,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
             case SUBSCRIBE:
                 System.out.println("command = " + command);
                 System.out.println("변경 전 headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
-                interceptorService.subscribe(headerAccessor);
+                interceptorService.subscribe(headerAccessor); // 새로 할당된 sessionId 로 업데이트 (socket session id는 웹 핸드쉐이크 하는 과정의 session으로 copy됨)
                 System.out.println("변경 후 headerAccessor.getSessionId() = " + headerAccessor.getSessionId());
                 break;
             case SEND:
