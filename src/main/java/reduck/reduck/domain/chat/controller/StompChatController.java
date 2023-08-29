@@ -39,8 +39,8 @@ public class StompChatController {
             // 입장시, ChatRoomUsers에 등록 필요    .
 //            simpleChatService.joinUser(message);// 그룹 챗 인 경우 필요.
         } else if (message.getType().equals(MessageType.CHAT)) {
-            simpleChatService.sendMessage(message); // save mysql
-            simpleChatService.postSend(m, message);
+            simpleChatService.sendMessage(message, m); // save mysql
+//            simpleChatService.postSend(m, message);
 
 //            simpleChatService.joinUser();
         }

@@ -166,7 +166,8 @@ public class SimpleChatService extends ChatService {
 
     //채팅 저장.
     @Override
-    public void sendMessage(ChatMessageReqDto chatMessageReqDto) {
+    @Transactional
+    public void sendMessage(ChatMessageReqDto chatMessageReqDto, Message<?> m) {
         Optional<ChatRoom> byRoomId = chatRoomRepository.findByRoomId(chatMessageReqDto.getRoomId());
         User user = userRepository.findByUserId(chatMessageReqDto.getUserId()).get();
         ChatMessage chat = ChatMessage.builder()
@@ -178,12 +179,12 @@ public class SimpleChatService extends ChatService {
                 .build();
 
         chatMessageRepository.save(chat);
+        postSend(m, chatMessageReqDto);
     }
 
 
-    @Transactional
-    @Override
-    public void postSend(Message<?> message, ChatMessageReqDto dto) {
+//    @Override
+    private void postSend(Message<?> message, ChatMessageReqDto dto) {
         // Session 테이블에 각 room별로 user의 session Id는 고정.
         System.out.println(message.toString());
         byte[] jsonData = (byte[]) message.getPayload(); // 바이트 배열
@@ -197,10 +198,11 @@ public class SimpleChatService extends ChatService {
         System.out.println("resultMap = " + resultMap);
         String messageId = (String) resultMap.get("messageId");
 
+        ChatMessage chatMessage = chatMessageRepository.findByMessageId(messageId).get(); // 현재 전송 된 메시지.
+
         System.out.println("!@#$!@$!@!$!$!#$!$!@$!@$!#@$#!$!#@!#$!#$");
         StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
         String sessionId = headerAccessor.getSessionId();
-        System.out.println("SimpleChatService.preSend");
         System.out.println("### sessionId = " + sessionId);
 
         // 현재 세션에 해당되는 roomId
@@ -216,7 +218,6 @@ public class SimpleChatService extends ChatService {
             SessionStatus otherSessionStatus = otherSession.getStatus();
             if (otherSessionStatus == SessionStatus.ON) {
                 // 접속 중 : 상대방의 마지막 읽은 메시지 를 현재 message로 업데이트
-                ChatMessage chatMessage = chatMessageRepository.findByMessageId(messageId).get();
 
                 ChatRoomUsers chatRoomInfoOfOther = chatRoomUsersRepository.findByUserAndRoom(other, room);
                 chatRoomInfoOfOther.updateLastChatMessage(chatMessage);

@@ -15,9 +15,9 @@ public abstract class ChatService {
     abstract public String createRoom(ChatRoomReqDto chatRoomReqDto);
 
     //채팅 저장.
-    abstract public void sendMessage(ChatMessageReqDto chatMessageReqDto);
+    abstract public void sendMessage(ChatMessageReqDto chatMessageReqDto, Message<?> m);
 
 
-    abstract public void postSend(Message<?> m, ChatMessageReqDto message) ;
+//    abstract public void postSend(Message<?> m, ChatMessageReqDto message) ;
 
 }
