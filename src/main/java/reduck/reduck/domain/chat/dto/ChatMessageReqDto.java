@@ -6,7 +6,7 @@ import reduck.reduck.domain.chat.entity.MessageType;
 
 @Getter
 @Setter
-public class ChatMessageDto {
+public class ChatMessageReqDto {
 
     private String roomId;
     private String userId;

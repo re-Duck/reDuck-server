@@ -1,24 +1,14 @@
 package reduck.reduck.domain.chat.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.server.ServerHttpRequest;
-import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
-import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
-import reduck.reduck.domain.chat.dto.ChatMessageDto;
+import reduck.reduck.domain.chat.dto.ChatMessageReqDto;
 import reduck.reduck.domain.chat.entity.MessageType;
 import reduck.reduck.domain.chat.service.ChatService;
-import reduck.reduck.domain.chat.service.SimpleChatService;
-
-import java.util.HashMap;
-import java.util.Objects;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,7 +28,7 @@ public class StompChatController {
     private final SimpMessageSendingOperations messagingTemplate;
     private final ChatService simpleChatService;
     @MessageMapping("/chat/message")
-    public void message(ChatMessageDto message, Message<?> m, StompHeaderAccessor accessor) {
+    public void message(ChatMessageReqDto message, Message<?> m, StompHeaderAccessor accessor) {
 
         System.out.println("메시지매핑 컨트롤러 ==========================================" + message.getType());
         System.out.println("세션Id 매핑 후 = " + accessor.getSessionId());

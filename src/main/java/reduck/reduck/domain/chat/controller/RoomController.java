@@ -5,8 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.chat.dto.*;
-import reduck.reduck.domain.chat.dto.mapper.RecommendUserDtoMapper;
-import reduck.reduck.domain.chat.entity.ChatMessage;
+import reduck.reduck.domain.chat.dto.mapper.RecommendUserResDtoMapper;
 import reduck.reduck.domain.chat.service.SimpleChatService;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
@@ -27,7 +26,7 @@ public class RoomController {
 
     //유저에 대한 채팅방 목록 조회
     @GetMapping(value = "/rooms/{userId}")
-    public ResponseEntity<List<ChatRoomListDto>> getRooms(@PathVariable String userId) {
+    public ResponseEntity<List<ChatRoomListResDto>> getRooms(@PathVariable String userId) {
 
         log.info("# All Chat Rooms By User : " + userId);
 
@@ -45,20 +44,20 @@ public class RoomController {
     // 채팅방 개설
     // 유저 선택 후 채팅 신청.
     @PostMapping("/room")
-    public ResponseEntity<Void> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomDto chatRoomDto) {
+    public ResponseEntity<Void> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomReqDto chatRoomReqDto) {
 
-        log.info("# Create Chat Room , roomId: " + chatRoomDto.getRoomId());
-        String redirectUrl = simpleChatService.createRoom(chatRoomDto);
+        log.info("# Create Chat Room , roomId: " + chatRoomReqDto.getRoomId());
+        String redirectUrl = simpleChatService.createRoom(chatRoomReqDto);
         headers.setLocation(URI.create("/chat/room/" + redirectUrl));
         return new ResponseEntity(headers, HttpStatus.FOUND);
     }
 
     @GetMapping("/random")
-    public ResponseEntity<List<RecommendUserDto>> recommendUsers() {
+    public ResponseEntity<List<RecommendUserResDto>> recommendUsers() {
         List<User> users = repository.findAll();
-        List<RecommendUserDto> recommendUsers = users.stream()
+        List<RecommendUserResDto> recommendUsers = users.stream()
                 .filter(user -> !AuthenticationToken.getUserId().equals(user.getUserId()))
-                .map(user -> RecommendUserDtoMapper.from(user))
+                .map(user -> RecommendUserResDtoMapper.from(user))
                 .limit(2)
                 .collect(Collectors.toList());
         return new ResponseEntity<>(recommendUsers, HttpStatus.OK);

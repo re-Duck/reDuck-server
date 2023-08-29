@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.chat.dto.*;
 import reduck.reduck.domain.chat.dto.mapper.ChatMessagesResDtoMapper;
-import reduck.reduck.domain.chat.dto.mapper.ChatRoomListDtoMapper;
+import reduck.reduck.domain.chat.dto.mapper.ChatRoomListResDtoMapper;
 import reduck.reduck.domain.chat.entity.*;
 import reduck.reduck.domain.chat.repository.ChatMessageRepository;
 import reduck.reduck.domain.chat.repository.ChatRoomRepository;
@@ -21,15 +21,12 @@ import reduck.reduck.domain.chat.repository.SessionRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.ChatErrorCode;
-import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.ChatException;
-import reduck.reduck.global.exception.exception.CommonException;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,7 +47,7 @@ public class SimpleChatService extends ChatService {
 
     @Override
     @Transactional
-    public List<ChatRoomListDto>
+    public List<ChatRoomListResDto>
     getRooms() {
         // 얘도 paging으로 바꿔야함.
 
@@ -66,9 +63,9 @@ public class SimpleChatService extends ChatService {
                     if (chatMessages.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
                     List<User> others = getOtherUsersInChatRoom(chatRoom, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
                     Long unreadMessageCount = countOfUnreadMessages(chatRoom, myChatRoomInfo, chatMessages, userId); // 안읽은 메시지 수
-                    return ChatRoomListDtoMapper.of(others, chatRoom, chatMessages.get(0), unreadMessageCount);
+                    return ChatRoomListResDtoMapper.of(others, chatRoom, chatMessages.get(0), unreadMessageCount);
                 })
-                .filter(chatRoomListDto -> chatRoomListDto != null) // 대화 내역이 있는 채팅방만.
+                .filter(chatRoomListResDto -> chatRoomListResDto != null) // 대화 내역이 있는 채팅방만.
                 .sorted((o1, o2) -> o2.getLastChatMessageTime().compareTo(o1.getLastChatMessageTime())) // 마지막 메시지 시간으로 정렬.
                 .collect(Collectors.toList());
     }
@@ -119,12 +116,12 @@ public class SimpleChatService extends ChatService {
     //채팅방 생성
     @Override
     @Transactional
-    public String createRoom(ChatRoomDto chatRoomDto) {
+    public String createRoom(ChatRoomReqDto chatRoomReqDto) {
         String userId = AuthenticationToken.getUserId();
-        String roomId = chatRoomDto.getRoomId();
+        String roomId = chatRoomReqDto.getRoomId();
         // 먼저 생성된 채팅 방이 있으면 그 채팅방 리턴.
-        List<String> participantIds = mergeParticipantIds(userId, chatRoomDto.getOtherIds());
-        return createRoomIfAbsent(chatRoomDto, participantIds);
+        List<String> participantIds = mergeParticipantIds(userId, chatRoomReqDto.getOtherIds());
+        return createRoomIfAbsent(chatRoomReqDto, participantIds);
     }
 
     private List<String> mergeParticipantIds(String userId, List<String> otherIds) {
@@ -136,19 +133,19 @@ public class SimpleChatService extends ChatService {
         return Collections.unmodifiableList(participantIds);
     }
 
-    private String createRoomIfAbsent(ChatRoomDto chatRoomDto, List<String> participantIds) {
+    private String createRoomIfAbsent(ChatRoomReqDto chatRoomReqDto, List<String> participantIds) {
         String alias = createAlias(participantIds);
         Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
         return oldChatRoom.isPresent() ?
                 oldChatRoom.get().getRoomId() :
-                createNewRoom(chatRoomDto, participantIds, alias);
+                createNewRoom(chatRoomReqDto, participantIds, alias);
 
     }
 
-    private String createNewRoom(ChatRoomDto chatRoomDto, List<String> participantIds, String alias) {
+    private String createNewRoom(ChatRoomReqDto chatRoomReqDto, List<String> participantIds, String alias) {
         ChatRoom chatRoom = ChatRoom.builder()
-                .roomId(chatRoomDto.getRoomId())
-                .roomName(chatRoomDto.getRoomName().isEmpty() ? alias : chatRoomDto.getRoomName())
+                .roomId(chatRoomReqDto.getRoomId())
+                .roomName(chatRoomReqDto.getRoomName().isEmpty() ? alias : chatRoomReqDto.getRoomName())
                 .alias(alias)
                 .build();
         List<ChatRoomUsers> chatRoomUsers = new ArrayList<>();
@@ -156,7 +153,7 @@ public class SimpleChatService extends ChatService {
             User participant = userRepository.findByUserId(id).get();
             ChatRoomUsers chatRoomUser = ChatRoomUsers.builder()
                     .room(chatRoom)
-                    .roomName(chatRoomDto.getRoomName().isEmpty() ? alias : chatRoomDto.getRoomName())
+                    .roomName(chatRoomReqDto.getRoomName().isEmpty() ? alias : chatRoomReqDto.getRoomName())
                     .user(participant)
                     .lastChatMessage(defaultChatMessage)
                     .build();
@@ -164,20 +161,20 @@ public class SimpleChatService extends ChatService {
         }
         chatRoomRepository.save(chatRoom);
         chatRoomUsersRepository.saveAll(chatRoomUsers);
-        return chatRoomDto.getRoomId();
+        return chatRoomReqDto.getRoomId();
     }
 
     //채팅 저장.
     @Override
-    public void sendMessage(ChatMessageDto chatMessageDto) {
-        Optional<ChatRoom> byRoomId = chatRoomRepository.findByRoomId(chatMessageDto.getRoomId());
-        User user = userRepository.findByUserId(chatMessageDto.getUserId()).get();
+    public void sendMessage(ChatMessageReqDto chatMessageReqDto) {
+        Optional<ChatRoom> byRoomId = chatRoomRepository.findByRoomId(chatMessageReqDto.getRoomId());
+        User user = userRepository.findByUserId(chatMessageReqDto.getUserId()).get();
         ChatMessage chat = ChatMessage.builder()
-                .type(chatMessageDto.getType())
+                .type(chatMessageReqDto.getType())
                 .room(byRoomId.get())
                 .sender(user)
-                .message(chatMessageDto.getMessage())
-                .messageId(chatMessageDto.getMessageId())
+                .message(chatMessageReqDto.getMessage())
+                .messageId(chatMessageReqDto.getMessageId())
                 .build();
 
         chatMessageRepository.save(chat);
@@ -186,7 +183,7 @@ public class SimpleChatService extends ChatService {
 
     @Transactional
     @Override
-    public void postSend(Message<?> message, ChatMessageDto dto) {
+    public void postSend(Message<?> message, ChatMessageReqDto dto) {
         // Session 테이블에 각 room별로 user의 session Id는 고정.
         System.out.println(message.toString());
         byte[] jsonData = (byte[]) message.getPayload(); // 바이트 배열

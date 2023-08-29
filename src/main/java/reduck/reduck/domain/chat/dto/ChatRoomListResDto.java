@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Builder
-public class ChatRoomListDto {
+public class ChatRoomListResDto {
     private String roomId;
     private List<OtherUserDto> otherUserDto;
     private String lastChatMessage;
