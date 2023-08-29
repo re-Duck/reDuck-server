@@ -50,7 +50,8 @@ public class SimpleChatService extends ChatService {
 
     @Override
     @Transactional
-    public List<ChatRoomListDto> getRooms() {
+    public List<ChatRoomListDto>
+    getRooms() {
         // 얘도 paging으로 바꿔야함.
 
         String userId = AuthenticationToken.getUserId();
@@ -147,6 +148,7 @@ public class SimpleChatService extends ChatService {
     private String createNewRoom(ChatRoomDto chatRoomDto, List<String> participantIds, String alias) {
         ChatRoom chatRoom = ChatRoom.builder()
                 .roomId(chatRoomDto.getRoomId())
+                .roomName(chatRoomDto.getRoomName().isEmpty() ? alias : chatRoomDto.getRoomName())
                 .alias(alias)
                 .build();
         List<ChatRoomUsers> chatRoomUsers = new ArrayList<>();
