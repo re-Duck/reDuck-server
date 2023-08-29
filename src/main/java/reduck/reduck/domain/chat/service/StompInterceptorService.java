@@ -11,6 +11,7 @@ import reduck.reduck.domain.chat.repository.SessionRepository;
 import reduck.reduck.global.exception.errorcode.ChatErrorCode;
 import reduck.reduck.global.exception.exception.ChatException;
 import reduck.reduck.util.AuthenticationToken;
+import reduck.reduck.util.StompAuth;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
@@ -20,9 +21,17 @@ import java.util.Optional;
 public class StompInterceptorService {
     private final SessionRepository sessionRepository;
     private final ChatRoomRepository chatRoomRepository;
+    private String account;
+    public void connect(StompHeaderAccessor headerAccessor) {
+        if (headerAccessor.getCommand() == StompCommand.CONNECT) { // 연결 시에한 header 확인
+//            // JWT 토큰 검증 로직 chat서비스에 달린 JWT검증.
+            String token = String.valueOf(headerAccessor.getNativeHeader("Authorization").get(0));
+            System.out.println("token = " + token);
+            String jwt = token.split(" ")[1];
+            account = StompAuth.getAccount(jwt);
+            System.out.println("account = " + account);
 
-    public void connect(StompHeaderAccessor sessionId) {
-
+        }
     }
 
     @Transactional
@@ -41,11 +50,10 @@ public class StompInterceptorService {
 //        if (headerAccessor.getCommand() == StompCommand.SUBSCRIBE) { // 연결 시에한 header 확인
 ////            // JWT 토큰 검증 로직 chat서비스에 달린 JWT검증.
 //            String token = String.valueOf(headerAccessor.getNativeHeader("Authorization").get(0));
-////
 //            System.out.println("token = " + token);
-////        }
+//        }
 //            String userId = AuthenticationToken.getUserId();
-        String userId = "test";
+        String userId = account;
         String simpSessionId = headerAccessor.getMessageHeaders().get("simpSessionId").toString();
         System.out.println("simpSessionId = " + simpSessionId);
         ChatRoom chatRoom = getChatRoom(headerAccessor);

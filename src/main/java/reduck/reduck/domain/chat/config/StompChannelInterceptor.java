@@ -70,6 +70,7 @@ public class StompChannelInterceptor implements ChannelInterceptor {
         switch (command) {
             case CONNECT:
                 System.out.println("command = " + command);
+                interceptorService.connect(headerAccessor);
                 break;
             case DISCONNECT: // 정상 || 비정상 소켓 끊김.
                 System.out.println("소켓 끊김.");
