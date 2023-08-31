@@ -167,7 +167,7 @@ public class SimpleChatService extends ChatService {
     //채팅 저장.
     @Override
     @Transactional
-    public void sendMessage(ChatMessageReqDto chatMessageReqDto, Message<?> m) {
+    public void sendMessage(ChatMessageReqDto chatMessageReqDto, Message<?> payload) {
         Optional<ChatRoom> byRoomId = chatRoomRepository.findByRoomId(chatMessageReqDto.getRoomId());
         User user = userRepository.findByUserId(chatMessageReqDto.getUserId()).get();
         ChatMessage chat = ChatMessage.builder()
@@ -179,13 +179,13 @@ public class SimpleChatService extends ChatService {
                 .build();
 
         chatMessageRepository.save(chat);
-        postSend(m, chatMessageReqDto);
+        postSend(payload, chatMessageReqDto);
     }
 
 
     //    @Override
-    private void postSend(Message<?> message, ChatMessageReqDto dto) {
-        StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
+    private void postSend(Message<?> payload, ChatMessageReqDto dto) {
+        StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(payload, StompHeaderAccessor.class);
         String sessionId = headerAccessor.getSessionId();
 
         // 현재 세션에 해당되는 roomId
@@ -197,7 +197,7 @@ public class SimpleChatService extends ChatService {
         User user = userRepository.findByUserId(userId).get();
 
         // Send된 message를 json으로 변환 후 messageId 가져옴.
-        String messageId = resolveMessage(message);
+        String messageId = resolveMessage(payload);
         ChatMessage chatMessage = chatMessageRepository.findByMessageId(messageId).get(); // 현재 전송 된 메시지.
 
         List<User> others = getOtherUsersInChatRoom(room, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
