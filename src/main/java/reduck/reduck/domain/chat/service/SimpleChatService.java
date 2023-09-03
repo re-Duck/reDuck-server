@@ -101,13 +101,15 @@ public class SimpleChatService extends ChatService {
 
     //    채팅방 하나 불러오기 paging 사용.
     @Override
+    @Transactional
     public ChatRoomResDto getRoom(String roomId) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
         Pageable pageable = PageRequest.of(0, SHOWABLE_MESSAGE_MAX_SIZE);
         List<ChatMessage> chatMessages = getRecentChatHistory(chatRoom, pageable);
 
         List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
-
+        String userId = AuthenticationToken.getUserId();
+        updateLastChatMessage(chatRoom,userId, chatMessages);
         return ChatRoomResDto.builder()
                 .roomId(roomId)
                 .chatMessages(chatMessagesResDtos)
@@ -227,6 +229,13 @@ public class SimpleChatService extends ChatService {
 
     }
 
+    /** 메시지를 전송 후, session 상태에 따른 update
+     *
+     * @param otherSession
+     * @param other
+     * @param room
+     * @param chatMessage
+     */
     private void updateLastChatMessage(Session otherSession, User other, ChatRoom room, ChatMessage chatMessage) {
         SessionStatus otherSessionStatus = otherSession.getStatus();
         if (otherSessionStatus == SessionStatus.ON) {
@@ -236,6 +245,23 @@ public class SimpleChatService extends ChatService {
             chatRoomUsersRepository.save(chatRoomInfoOfOther);
         }
     }
+
+    /**
+     * 채팅방 입장 시, update
+     *
+     * @param chatRoom
+     * @param userId
+     * @param chatMessage
+     */
+
+    private void updateLastChatMessage(ChatRoom chatRoom, String userId, List<ChatMessage> chatMessage) {
+        if(chatMessage.isEmpty()) return;
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        ChatRoomUsers chatRoomUsers = chatRoomUsersRepository.findByRoomAndUser(chatRoom, user).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
+        chatRoomUsers.updateLastChatMessage(chatMessage.get(0));
+        chatRoomUsersRepository.save(chatRoomUsers);
+    }
+
     /**
      * 채팅방 입장 시 등록됨.
      */
