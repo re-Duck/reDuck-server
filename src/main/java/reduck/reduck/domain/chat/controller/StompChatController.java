@@ -8,6 +8,7 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.GenericMessage;
 import org.springframework.stereotype.Controller;
 import reduck.reduck.domain.chat.dto.ChatMessageReqDto;
+import reduck.reduck.domain.chat.dto.ChatMessageResDto;
 import reduck.reduck.domain.chat.entity.MessageType;
 import reduck.reduck.domain.chat.service.ChatService;
 
@@ -42,12 +43,13 @@ public class StompChatController {
             // 입장시, ChatRoomUsers에 등록 필요    .
 //            simpleChatService.joinUser(message);// 그룹 챗 인 경우 필요.
         } else if (message.getType().equals(MessageType.CHAT)) {
-            simpleChatService.sendMessage(message, payload); // save mysql
+            ChatMessageResDto chatMessageResDto = simpleChatService.sendMessage(message, payload);// save mysql
 //            simpleChatService.postSend(m, message);
 
 //            simpleChatService.joinUser();
+            messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), chatMessageResDto);
+
         }
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.getRoomId(), message);
 
     }
 

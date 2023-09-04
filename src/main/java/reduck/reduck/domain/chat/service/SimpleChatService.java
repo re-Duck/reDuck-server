@@ -11,6 +11,7 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.chat.dto.*;
+import reduck.reduck.domain.chat.dto.mapper.ChatMessageResDtoMapper;
 import reduck.reduck.domain.chat.dto.mapper.ChatMessagesResDtoMapper;
 import reduck.reduck.domain.chat.dto.mapper.ChatRoomListResDtoMapper;
 import reduck.reduck.domain.chat.entity.*;
@@ -47,8 +48,7 @@ public class SimpleChatService extends ChatService {
 
     @Override
     @Transactional
-    public List<ChatRoomListResDto>
-    getRooms() {
+    public List<ChatRoomListResDto> getRooms() {
         // 얘도 paging으로 바꿔야함.
 
         String userId = AuthenticationToken.getUserId();
@@ -77,16 +77,29 @@ public class SimpleChatService extends ChatService {
     }
 
     private Long countOfUnreadMessages(ChatRoom chatRoom, ChatRoomUsers myChatRoomInfo, List<ChatMessage> chatMessages, String userId) {
+        // 내가 마지막을 보냄 -> 모든 메시지 읽음.
         if (chatMessages.get(0).getSender().getUserId().equals(userId)) return 0L;
+
+        // 상대방이 보낸 채팅 목록
+        List<ChatMessage> chatMessagesNotMe = chatMessages.stream()
+                .filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId)))
+                .collect(Collectors.toList());
+
         if (myChatRoomInfo.getLastChatMessage() == null) {
+            // case 1:
             // 채팅방이 생성 된 후, 한번도 들어가본적이 없다.
             // 채팅방의 모든 내역들이 안 읽은 메시지다.
-            return (long) chatMessages.size();
+
+            // case 2:
+            // 내가 채팅방 생성 후, 나만 메시지를 보낸 이력이 있음.
+            // 내가 보낸 거는 빼고해야함.
+
+            // => 둘다 상대방이 마지막으로 보낸 이후에 들어가본적이 없는 상태.
+            return (long) chatMessagesNotMe.size();
         }
         Long chatMessageId = myChatRoomInfo.getLastChatMessage().getId(); // 마지막 메시지.
-        return chatMessages.stream()
-                .filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId))) // 내가 보낸 메시지가 아니고,
-                .filter(chatMessage -> chatMessage.getId() > chatMessageId) // 더 오래된 메시지
+        return chatMessagesNotMe.stream()
+                .filter(chatMessage -> chatMessage.getId() > chatMessageId)
                 .count();
     }
 
@@ -109,7 +122,12 @@ public class SimpleChatService extends ChatService {
 
         List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
         String userId = AuthenticationToken.getUserId();
-        updateLastChatMessage(chatRoom,userId, chatMessages);
+        updateLastChatMessage(chatRoom, userId, chatMessages);
+
+//        // 세션 ON
+//        Session session = sessionRepository.findByUserIdAndRoom(userId, chatRoom).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+//        session.on();
+//        sessionRepository.save(session);
         return ChatRoomResDto.builder()
                 .roomId(roomId)
                 .chatMessages(chatMessagesResDtos)
@@ -169,7 +187,7 @@ public class SimpleChatService extends ChatService {
     //채팅 저장.
     @Override
     @Transactional
-    public void sendMessage(ChatMessageReqDto chatMessageReqDto, Message<?> payload) {
+    public ChatMessageResDto sendMessage(ChatMessageReqDto chatMessageReqDto, Message<?> payload) {
         Optional<ChatRoom> byRoomId = chatRoomRepository.findByRoomId(chatMessageReqDto.getRoomId());
         User user = userRepository.findByUserId(chatMessageReqDto.getUserId()).get();
         ChatMessage chat = ChatMessage.builder()
@@ -181,12 +199,14 @@ public class SimpleChatService extends ChatService {
                 .build();
 
         chatMessageRepository.save(chat);
-        postSend(payload, chatMessageReqDto);
+
+        postSend(payload);
+        return ChatMessageResDtoMapper.from(chat);
     }
 
 
     //    @Override
-    private void postSend(Message<?> payload, ChatMessageReqDto dto) {
+    private void postSend(Message<?> payload) {
         StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(payload, StompHeaderAccessor.class);
         String sessionId = headerAccessor.getSessionId();
 
@@ -229,7 +249,8 @@ public class SimpleChatService extends ChatService {
 
     }
 
-    /** 메시지를 전송 후, session 상태에 따른 update
+    /**
+     * 메시지를 전송 후, session 상태에 따른 update
      *
      * @param otherSession
      * @param other
@@ -255,7 +276,7 @@ public class SimpleChatService extends ChatService {
      */
 
     private void updateLastChatMessage(ChatRoom chatRoom, String userId, List<ChatMessage> chatMessage) {
-        if(chatMessage.isEmpty()) return;
+        if (chatMessage.isEmpty()) return;
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
         ChatRoomUsers chatRoomUsers = chatRoomUsersRepository.findByRoomAndUser(chatRoom, user).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
         chatRoomUsers.updateLastChatMessage(chatMessage.get(0));
