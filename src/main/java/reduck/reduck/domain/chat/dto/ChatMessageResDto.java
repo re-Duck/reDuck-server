@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 public class ChatMessageResDto {
 
     private String roomId;
-    private String sender;
+    private String name;
+    private String userProfileImagePath;
     private String message;
     private String messageId;
     private LocalDateTime messageTime;

@@ -14,7 +14,8 @@ public class ChatMessageResDtoMapper {
                 .message(chatMessage.getMessage())
                 .messageId(chatMessage.getMessageId())
                 .messageTime(chatMessage.getUpdatedAt())
-                .sender(chatMessage.getSender().getUserId())
+                .name(chatMessage.getSender().getName())
+                .userProfileImagePath(chatMessage.getSender().getProfileImgPath())
                 .type(chatMessage.getType())
                 .build();
     }
