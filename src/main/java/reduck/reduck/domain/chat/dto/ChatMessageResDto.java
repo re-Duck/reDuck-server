@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatMessageResDto {
 
-    private String roomId;
+    private String userId;
     private String name;
     private String userProfileImagePath;
     private String message;
