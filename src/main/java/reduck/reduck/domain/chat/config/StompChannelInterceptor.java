@@ -86,6 +86,11 @@ public class StompChannelInterceptor implements ChannelInterceptor {
             case SEND:
                 System.out.println("command = " + command);
                 break;
+            case UNSUBSCRIBE:
+                System.out.println("소켓 끊김2.");
+                System.out.println("command2 = " + command);
+                interceptorService.disconnect(headerAccessor);
+                break;
         }
     }
 
