@@ -10,11 +10,8 @@ import reduck.reduck.domain.chat.repository.ChatRoomRepository;
 import reduck.reduck.domain.chat.repository.SessionRepository;
 import reduck.reduck.global.exception.errorcode.ChatErrorCode;
 import reduck.reduck.global.exception.exception.ChatException;
-import reduck.reduck.util.AuthenticationToken;
 import reduck.reduck.util.StompAuth;
-
 import javax.transaction.Transactional;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +19,7 @@ public class StompInterceptorService {
     private final SessionRepository sessionRepository;
     private final ChatRoomRepository chatRoomRepository;
     private String account;
+
     public void connect(StompHeaderAccessor headerAccessor) {
         if (headerAccessor.getCommand() == StompCommand.CONNECT) { // 연결 시에한 header 확인
 //            // JWT 토큰 검증 로직 chat서비스에 달린 JWT검증.
@@ -37,8 +35,10 @@ public class StompInterceptorService {
     @Transactional
     public void disconnect(StompHeaderAccessor headerAccessor) {
         String sessionId = headerAccessor.getSessionId();
+        ChatRoom chatRoom = getChatRoom(headerAccessor);
+
         // 소켓 끊김 시, DB의 세션 관리.
-        Session session = sessionRepository.findBySessionId(sessionId).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+        Session session = sessionRepository.findBySeesionIdAndRoom(sessionId, chatRoom).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
         session.off();
         sessionRepository.save(session);
 
@@ -72,8 +72,11 @@ public class StompInterceptorService {
     }
 
     private ChatRoom getChatRoom(StompHeaderAccessor headerAccessor) {
-        String roomId = headerAccessor.getMessageHeaders().get("simpDestination").toString().split("room/")[1];
-        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
-        return chatRoom;
+        String roomId = getChatRoomId(headerAccessor);
+        return chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
+    }
+
+    private String getChatRoomId(StompHeaderAccessor headerAccessor) {
+        return headerAccessor.getMessageHeaders().get("simpDestination").toString().split("room/")[1];
     }
 }
