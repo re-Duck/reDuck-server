@@ -12,8 +12,9 @@ import java.time.LocalDateTime;
 @Builder
 public class ChatMessageResDto {
 
-    private String roomId;
-    private String sender;
+    private String userId;
+    private String name;
+    private String userProfileImagePath;
     private String message;
     private String messageId;
     private LocalDateTime messageTime;

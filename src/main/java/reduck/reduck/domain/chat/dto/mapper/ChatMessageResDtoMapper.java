@@ -10,11 +10,12 @@ import java.util.stream.Collectors;
 public class ChatMessageResDtoMapper {
     public static ChatMessageResDto from(ChatMessage chatMessage) {
         return ChatMessageResDto.builder()
-                .roomId(chatMessage.getRoom().getRoomId())
                 .message(chatMessage.getMessage())
                 .messageId(chatMessage.getMessageId())
                 .messageTime(chatMessage.getUpdatedAt())
-                .sender(chatMessage.getSender().getUserId())
+                .userId(chatMessage.getSender().getUserId())
+                .name(chatMessage.getSender().getName())
+                .userProfileImagePath(chatMessage.getSender().getProfileImgPath())
                 .type(chatMessage.getType())
                 .build();
     }
