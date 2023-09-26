@@ -207,11 +207,16 @@ public class SimpleChatService extends ChatService {
 
     //    @Override
     private void postSend(Message<?> payload) {
+        //구취시, sessionId + attribute의 roomId 사용 -> 세션 상태 업데이트해야할 세션 특정.
+
         StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(payload, StompHeaderAccessor.class);
         String sessionId = headerAccessor.getSessionId();
-
+        Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
+        String targetRoomId = (String) sessionAttributes.get(sessionId);
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(targetRoomId).get();
         // 현재 세션에 해당되는 roomId
-        Session mySession = sessionRepository.findBySessionId(sessionId).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+//        Session mySession = sessionRepository.findBySessionId(sessionId).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+        Session mySession = sessionRepository.findBySessionIdAndRoom(sessionId, chatRoom).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
 
         // roomId에 대한 참여 user Id목록을 가져오고,
         ChatRoom room = mySession.getRoom();

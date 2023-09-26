@@ -14,5 +14,5 @@ public interface SessionRepository extends JpaRepository<Session,Long> {
 
     Optional<Session> findBySessionId(String sessionId);
 
-    Optional<Session> findBySeesionIdAndRoom(String sessionId, ChatRoom room);
+    Optional<Session> findBySessionIdAndRoom(String sessionId, ChatRoom room);
 }

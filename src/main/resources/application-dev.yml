@@ -1,4 +1,7 @@
 spring:
+  logging:
+    level:
+      root: INFO
   config:
     activate:
       on-profile: dev
