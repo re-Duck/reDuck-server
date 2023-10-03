@@ -33,8 +33,8 @@ public class ChatGptLogService {
             chatGptLogRepository.save(chatGptLog);
             return true;
         }
+        throw new IllegalStateException("사용가능 횟수를 모두 소진하였습니다.");
         // 사용가능횟수 초과
-        return false;
 
     }
 }

@@ -19,18 +19,21 @@ public class ChatGptController {
 
 
     @GetMapping("/remain-usage")
-    public GptUsableCountResponse getRemainingUsage(){
+    public GptUsableCountResponse getRemainingUsage() {
         return chatGptService.getRemainingUsage();
     }
-    @PostMapping()
-    public ResponseEntity<Boolean> log(
-            @RequestBody ChatGptLogRequest chatGptLogRequest
-    ){
-        Boolean log = chatGptLogService.createLog(chatGptLogRequest);
-        if(log){
-            return new ResponseEntity<>(log, HttpStatus.CREATED);
 
+    @PostMapping()
+    public ResponseEntity<Void> log(
+            @RequestBody ChatGptLogRequest chatGptLogRequest
+    ) {
+        try {
+            chatGptLogService.createLog(chatGptLogRequest);
+            return new ResponseEntity<>(HttpStatus.CREATED);
+
+        } catch (IllegalStateException e) {
+            return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
         }
-        return new ResponseEntity<>(log, HttpStatus.FORBIDDEN);
+
     }
 }
