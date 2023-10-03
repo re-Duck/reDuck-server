@@ -2,6 +2,8 @@ package reduck.reduck.domain.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.chat.dto.*;
@@ -26,18 +28,20 @@ public class RoomController {
 
     //유저에 대한 채팅방 목록 조회
     @GetMapping(value = "/rooms/{userId}")
-    public ResponseEntity<List<ChatRoomListResDto>> getRooms(@PathVariable String userId) {
+    public ResponseEntity<List<ChatRoomListResDto>> getRooms(@PathVariable String userId,
+                                                             @PageableDefault(size = 20) Pageable pageable) {
 
         log.info("# All Chat Rooms By User : " + userId);
 
-        return new ResponseEntity(simpleChatService.getRooms(), HttpStatus.OK);
+        return new ResponseEntity(simpleChatService.getRooms(pageable), HttpStatus.OK);
     }
 
-//    채팅방 조회 = 채팅방 입장
+    //    채팅방 조회 = 채팅방 입장
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId) {
+    public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId,
+                                                  @PageableDefault(size = 20) Pageable pageable) {
         log.info("# enter chat room By id : " + roomId);
-        return new ResponseEntity(simpleChatService.getRoom(roomId)
+        return new ResponseEntity(simpleChatService.getRoom(roomId, pageable)
                 , HttpStatus.OK);
     }
 

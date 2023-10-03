@@ -3,6 +3,7 @@ package reduck.reduck.domain.chat.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.Message;
@@ -48,12 +49,12 @@ public class SimpleChatService extends ChatService {
 
     @Override
     @Transactional
-    public List<ChatRoomListResDto> getRooms() {
+    public List<ChatRoomListResDto> getRooms(Pageable roomsPageable) {
         // 얘도 paging으로 바꿔야함.
 
         String userId = AuthenticationToken.getUserId();
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
-        List<ChatRoomUsers> chatRoomUsers = chatRoomUsersRepository.findAllByUser(user);
+        List<ChatRoomUsers> chatRoomUsers = chatRoomUsersRepository.findAllByUser(user, roomsPageable);
         Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
 
         return chatRoomUsers.stream()
@@ -71,7 +72,6 @@ public class SimpleChatService extends ChatService {
     }
 
     private List<ChatMessage> getRecentChatHistory(ChatRoom chatRoom, Pageable pageable) {
-
         return chatMessageRepository.findAllByRoomOrderByIdDesc(chatRoom, pageable); // 채팅방 최신 300개 메시지 내역
 
     }
@@ -115,9 +115,9 @@ public class SimpleChatService extends ChatService {
     //    채팅방 하나 불러오기 paging 사용.
     @Override
     @Transactional
-    public ChatRoomResDto getRoom(String roomId) {
+    public ChatRoomResDto getRoom(String roomId, Pageable pageable) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
-        Pageable pageable = PageRequest.of(0, SHOWABLE_MESSAGE_MAX_SIZE);
+//        Pageable pageable = PageRequest.of(0, SHOWABLE_MESSAGE_MAX_SIZE);
         List<ChatMessage> chatMessages = getRecentChatHistory(chatRoom, pageable);
 
         List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
