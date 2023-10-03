@@ -11,4 +11,5 @@ public enum ChatGptPolicy {
     public int getLimitUsage() {
         return this.limitUsage;
     }
+
 }

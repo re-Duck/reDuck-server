@@ -15,4 +15,8 @@ public class ChatGpt extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private ChatGptPolicy policy;
+
+    public boolean isUsable(int usage) {
+        return this.policy.getLimitUsage() > usage;
+    }
 }
