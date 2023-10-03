@@ -1,11 +1,11 @@
 package reduck.reduck.domain.chatgpt.entity;
 
-public enum ChatGptPolicy {
+public enum ChatGptMembership {
     STANDARD(10), ULTIMATE(100),
     ;
     private int limitUsage;
 
-    ChatGptPolicy(int limitUsage) {
+    ChatGptMembership(int limitUsage) {
         this.limitUsage = limitUsage;
     }
     public int getLimitUsage() {

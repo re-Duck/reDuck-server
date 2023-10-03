@@ -22,7 +22,7 @@ public class ChatGptService {
         String userId = AuthenticationToken.getUserId();
         User user = userRepository.findByUserId(userId).get();
         ChatGpt chatGpt = chatGptRepository.findByUser(user).get();
-        int limitUsage = chatGpt.getPolicy().getLimitUsage();
+        int limitUsage = chatGpt.getGptMembership().getLimitUsage();
 
         int usage = chatGptLogRepository.findAllByChatGpt(chatGpt).size();
         int usableCount = limitUsage - usage;
