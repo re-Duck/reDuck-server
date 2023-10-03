@@ -173,7 +173,7 @@ public class UserService {
         String extension = originalFilename.split("\\.")[1];
         String storageFileName = UUID.randomUUID() + "." + extension;
         long size = multipartFile.getSize();
-        String path = PATH + "/" + userId; //폴더 경로
+        String path = DEV_PATH + "/" + userId; //폴더 경로
         File Folder = new File(path);
         // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
         if (!Folder.exists()) {

@@ -13,13 +13,15 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@Table(indexes = @Index(name = "idx_alias", columnList = "alias"))
 public class ChatRoom extends BaseEntity {
     private String roomId;
 
-//    @OneToOne
-//    @JoinColumn(name = "chat_message_id", foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-//    private ChatMessage lastChatMessage;
+    /**
+     * format : "{userId1},{userId2},,,"
+     */
+    private String roomName;
+    private String alias; // 1:1의 경우, 기존 채팅방의 존재 유무가 중요.
 
-    private String lastChatMessage;
 
 }

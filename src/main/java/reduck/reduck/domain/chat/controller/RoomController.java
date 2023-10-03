@@ -2,78 +2,65 @@ package reduck.reduck.domain.chat.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-import reduck.reduck.domain.chat.dto.ChatRoomDto;
-import reduck.reduck.domain.chat.entity.ChatMessage;
-import reduck.reduck.domain.chat.entity.ChatRoom;
-import reduck.reduck.domain.chat.service.ChatService;
+import reduck.reduck.domain.chat.dto.*;
+import reduck.reduck.domain.chat.dto.mapper.RecommendUserResDtoMapper;
+import reduck.reduck.domain.chat.service.SimpleChatService;
+import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.util.AuthenticationToken;
 
+import java.net.URI;
 import java.util.List;
+import java.util.stream.Collectors;
 
-@Controller
+@RestController
 @RequiredArgsConstructor
 @RequestMapping("/chat")
 @Log4j2
 public class RoomController {
-    private final ChatService chatService;
+    private final SimpleChatService simpleChatService;
+    private final UserRepository repository;
 
-    // 채팅 리스트 화면
-    @GetMapping("/room")
-    public String rooms(Model model) {
-        return "chat/room";
+
+    //유저에 대한 채팅방 목록 조회
+    @GetMapping(value = "/rooms/{userId}")
+    public ResponseEntity<List<ChatRoomListResDto>> getRooms(@PathVariable String userId) {
+
+        log.info("# All Chat Rooms By User : " + userId);
+
+        return new ResponseEntity(simpleChatService.getRooms(), HttpStatus.OK);
     }
 
-// 모든 채팅방 목록 반환
-    @GetMapping("/rooms")
-    @ResponseBody
-    public List<ChatRoom> room() {
-        return chatService.findAllRoom();
-    }
-
-    //채팅방 조회
+//    채팅방 조회 = 채팅방 입장
     @GetMapping("/room/{roomId}")
-    @ResponseBody
-    public ResponseEntity<List<ChatMessage>> getRoom(@PathVariable String roomId) {
-        return new ResponseEntity(chatService.findById(roomId)
+    public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId) {
+        log.info("# enter chat room By id : " + roomId);
+        return new ResponseEntity(simpleChatService.getRoom(roomId)
                 , HttpStatus.OK);
     }
 
-// 채팅방 입장 화면
-    @GetMapping("/room/enter/{roomId}")
-    public String roomDetail(Model model, @PathVariable String roomId) {
-
-        model.addAttribute("roomId", roomId);
-
-        return "chat/roomdetail";
-
-    }
-    //유저에 대한 채팅방 목록 조회
-    @GetMapping(value = "/rooms/{userId}")
-    @ResponseBody
-
-    public ResponseEntity<ChatRoom> rooms(@PathVariable String userId) {
-
-        log.info("# All Chat Rooms Ny User : " + userId);
-
-        return new ResponseEntity(chatService.findAllRoom(), HttpStatus.OK);
-    }
-
-    //채팅방 개설
+    // 채팅방 개설
     // 유저 선택 후 채팅 신청.
     @PostMapping("/room")
-    @ResponseBody
-    public ResponseEntity<Void> create(@RequestBody ChatRoomDto chatRoomDto) {
+    public ResponseEntity<Void> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomReqDto chatRoomReqDto) {
 
-        log.info("# Create Chat Room , roomId: " + chatRoomDto.getRoomId());
-        chatService.createRoom(chatRoomDto);
-        //        rttr.addFlashAttribute("roomName", repository.createChatRoomDTO(name));
+        log.info("# Create Chat Room , roomId: " + chatRoomReqDto.getRoomId());
+        String redirectUrl = simpleChatService.createRoom(chatRoomReqDto);
+        headers.setLocation(URI.create("/chat/room/" + redirectUrl));
+        return new ResponseEntity(headers, HttpStatus.FOUND);
+    }
 
-        return new ResponseEntity(HttpStatus.CREATED);
+    @GetMapping("/random")
+    public ResponseEntity<List<RecommendUserResDto>> recommendUsers() {
+        List<User> users = repository.findAll();
+        List<RecommendUserResDto> recommendUsers = users.stream()
+                .filter(user -> !AuthenticationToken.getUserId().equals(user.getUserId()))
+                .map(user -> RecommendUserResDtoMapper.from(user))
+                .limit(2)
+                .collect(Collectors.toList());
+        return new ResponseEntity<>(recommendUsers, HttpStatus.OK);
     }
 
 
