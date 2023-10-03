@@ -19,4 +19,8 @@ public class ChatGpt extends BaseEntity {
     public boolean isUsable(int usage) {
         return this.gptMembership.getLimitUsage() > usage;
     }
+
+    public void upgradeMembership(ChatGptMembership membership) {
+        this.gptMembership = membership;
+    }
 }

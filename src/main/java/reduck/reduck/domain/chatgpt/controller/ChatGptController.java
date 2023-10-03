@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.function.EntityResponse;
 import reduck.reduck.domain.chatgpt.dto.ChatGptLogRequest;
 import reduck.reduck.domain.chatgpt.dto.GptUsableCountResponse;
+import reduck.reduck.domain.chatgpt.entity.ChatGptMembership;
 import reduck.reduck.domain.chatgpt.service.ChatGptLogService;
 import reduck.reduck.domain.chatgpt.service.ChatGptService;
 
@@ -35,5 +36,11 @@ public class ChatGptController {
             return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
         }
 
+    }
+
+    @PutMapping("/membership")
+    public ResponseEntity<Void> changeMembership(@RequestParam ChatGptMembership membership) {
+        chatGptService.changeMembership(membership);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
