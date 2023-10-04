@@ -1,6 +1,10 @@
 package reduck.reduck.domain.chatgpt.dto;
 
+import lombok.Getter;
+
+@Getter
 public class ChatGptLogRequest {
-    public String gptMessage;
-    public String userMessage;
+    private String userCode;
+    private String userQuestion;
+    private String gptAnswer;
 }

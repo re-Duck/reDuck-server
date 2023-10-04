@@ -6,5 +6,5 @@ import lombok.Getter;
 @Builder
 @Getter
 public class GptUsableCountResponse {
-    private int remainUsageCount;
+    private Long remainUsageCount;
 }
