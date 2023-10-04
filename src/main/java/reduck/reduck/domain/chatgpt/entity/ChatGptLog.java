@@ -8,6 +8,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Entity
 @Getter
@@ -19,16 +22,24 @@ public class ChatGptLog extends BaseEntity {
     private ChatGpt chatGpt;
 
     @Column(columnDefinition = "MEDIUMTEXT")
-    private String userMessage;
+    private String userCode;
 
     @Column(columnDefinition = "MEDIUMTEXT")
-    private String gptMessage;
+    private String userQuestion;
 
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String gptAnswer;
+
+    private String date;
+    private String detailTime;
     public static ChatGptLog of(ChatGptLogRequest chatGptLogRequest, ChatGpt policy) {
-       return ChatGptLog.builder()
+        return ChatGptLog.builder()
                 .chatGpt(policy)
-                .gptMessage(chatGptLogRequest.gptMessage)
-                .userMessage(chatGptLogRequest.userMessage)
+                .userQuestion(chatGptLogRequest.getUserQuestion())
+                .userCode(chatGptLogRequest.getUserCode())
+                .gptAnswer(chatGptLogRequest.getGptAnswer())
+                .date(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                .detailTime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
     }
 }
