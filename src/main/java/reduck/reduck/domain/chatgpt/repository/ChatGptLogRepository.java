@@ -12,4 +12,5 @@ import java.util.Optional;
 @Repository
 public interface ChatGptLogRepository extends JpaRepository<ChatGptLog, Long> {
     List<ChatGptLog> findAllByChatGpt(ChatGpt chatGpt);
+    Long countByChatGptAndDate(ChatGpt chatGpt, String date);
 }

@@ -10,6 +10,7 @@ import reduck.reduck.domain.chatgpt.dto.GptUsableCountResponse;
 import reduck.reduck.domain.chatgpt.entity.ChatGptMembership;
 import reduck.reduck.domain.chatgpt.service.ChatGptLogService;
 import reduck.reduck.domain.chatgpt.service.ChatGptService;
+import reduck.reduck.global.entity.Response;
 
 @RestController
 @RequiredArgsConstructor
@@ -18,29 +19,29 @@ public class ChatGptController {
     private final ChatGptService chatGptService;
     private final ChatGptLogService chatGptLogService;
 
-
     @GetMapping("/remain-usage")
-    public GptUsableCountResponse getRemainingUsage() {
-        return chatGptService.getRemainingUsage();
+    public Response<GptUsableCountResponse> getRemainingUsage() {
+        GptUsableCountResponse remainingUsage = chatGptService.getRemainingUsage();
+        return Response.successResponse(remainingUsage);
     }
 
     @PostMapping()
-    public ResponseEntity<Void> log(
+    public ResponseEntity<Response<GptUsableCountResponse>> log(
             @RequestBody ChatGptLogRequest chatGptLogRequest
     ) {
         try {
-            chatGptLogService.createLog(chatGptLogRequest);
-            return new ResponseEntity<>(HttpStatus.CREATED);
+            GptUsableCountResponse remainingUsage = chatGptLogService.createLog(chatGptLogRequest);
+            return new ResponseEntity<>(Response.successResponse(remainingUsage), HttpStatus.CREATED);
 
         } catch (IllegalStateException e) {
-            return new ResponseEntity(e.getMessage(), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(Response.errorResponse(e.getMessage()), HttpStatus.FORBIDDEN);
         }
 
     }
 
     @PutMapping("/membership")
-    public ResponseEntity<Void> changeMembership(@RequestParam ChatGptMembership membership) {
+    public ResponseEntity<Response<Void>> changeMembership(@RequestParam ChatGptMembership membership) {
         chatGptService.changeMembership(membership);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(Response.successResponse(null), HttpStatus.OK);
     }
 }

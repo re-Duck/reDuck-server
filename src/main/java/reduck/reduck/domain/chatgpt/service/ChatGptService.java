@@ -12,6 +12,9 @@ import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.util.AuthenticationToken;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 @Service
 @RequiredArgsConstructor
 public class ChatGptService {
@@ -25,8 +28,10 @@ public class ChatGptService {
         ChatGpt chatGpt = chatGptRepository.findByUser(user).get();
         int limitUsage = chatGpt.getGptMembership().getLimitUsage();
 
-        int usage = chatGptLogRepository.findAllByChatGpt(chatGpt).size();
-        int usableCount = limitUsage - usage;
+//        int usage = chatGptLogRepository.findAllByChatGpt(chatGpt).size();
+        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        Long usage = chatGptLogRepository.countByChatGptAndDate(chatGpt, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        Long usableCount = limitUsage - usage;
         return GptUsableCountResponse.builder().remainUsageCount(usableCount).build();
 
     }
