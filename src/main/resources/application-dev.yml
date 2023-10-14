@@ -23,7 +23,7 @@ spring:
       max-request-size: 10MB
   thymeleaf:
     cache: false
-    suffix: .ftl
+#    suffix: .ftl
   datasource:
     url: jdbc:mysql://${ip}:3306/${database}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterSetResults=UTF-8&characterEncoding=UTF-8
     username: root
