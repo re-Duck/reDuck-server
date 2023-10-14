@@ -4,6 +4,10 @@ plugins {
 	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
 }
 
+javadoc{
+	source= sourceSets.main.java.srcDirs
+	options.encoding='UTF-8'
+}
 group = 'reduck'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
