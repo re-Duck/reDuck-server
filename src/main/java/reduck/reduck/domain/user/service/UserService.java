@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.auth.entity.EmailType;
+import reduck.reduck.domain.chatgpt.entity.ChatGpt;
+import reduck.reduck.domain.chatgpt.entity.ChatGptMembership;
+import reduck.reduck.domain.chatgpt.repository.ChatGptRepository;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
 import reduck.reduck.domain.user.dto.UserInfoDtoRes;
@@ -45,6 +48,7 @@ public class UserService {
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage/profile";
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
+    private final ChatGptRepository chatGptRepository;
 
     @Transactional
     public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
@@ -58,6 +62,10 @@ public class UserService {
                 user.updateProfileImg(userProfileImg);
             }
             User userEntity = userRepository.save(user);
+            //gpt 멤버십 등록
+            ChatGpt defaultChatGptMembership = ChatGpt.builder().user(user).build();
+            chatGptRepository.save(defaultChatGptMembership);
+
             return userEntity;
         } catch (CommonException | AuthException | DataIntegrityViolationException e) {
             log.error("회원가입 에러", e);
