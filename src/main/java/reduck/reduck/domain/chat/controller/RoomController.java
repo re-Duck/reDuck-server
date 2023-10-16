@@ -15,6 +15,7 @@ import reduck.reduck.util.AuthenticationToken;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -39,9 +40,10 @@ public class RoomController {
     //    채팅방 조회 = 채팅방 입장
     @GetMapping("/room/{roomId}")
     public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId,
-                                                  @PageableDefault(size = 20) Pageable pageable) {
+                                                  @PageableDefault(size = 20) Pageable pageable,
+                                                  @RequestParam Optional<String> messageId) {
         log.info("# enter chat room By id : " + roomId);
-        return new ResponseEntity(simpleChatService.getRoom(roomId, pageable)
+        return new ResponseEntity(simpleChatService.getRoom(roomId, pageable, messageId)
                 , HttpStatus.OK);
     }
 

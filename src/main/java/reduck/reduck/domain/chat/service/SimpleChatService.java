@@ -115,11 +115,18 @@ public class SimpleChatService extends ChatService {
     //    채팅방 하나 불러오기 paging 사용.
     @Override
     @Transactional
-    public ChatRoomResDto getRoom(String roomId, Pageable pageable) {
+    public ChatRoomResDto getRoom(String roomId, Pageable pageable, Optional<String> messageId) {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
 //        Pageable pageable = PageRequest.of(0, SHOWABLE_MESSAGE_MAX_SIZE);
-        List<ChatMessage> chatMessages = getRecentChatHistory(chatRoom, pageable);
+        List<ChatMessage> chatMessages;
+//        = getRecentChatHistory(chatRoom, pageable);
+        if(!messageId.isPresent()){
+            // 첫 조회.
+                  chatMessages = getRecentChatHistory(chatRoom, pageable);
+        }else{
+            chatMessages = chatMessageRepository.find2(messageId.get(), pageable,chatRoom);
 
+        }
         List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
         String userId = AuthenticationToken.getUserId();
         updateLastChatMessage(chatRoom, userId, chatMessages);
