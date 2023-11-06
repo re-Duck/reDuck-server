@@ -21,7 +21,7 @@ import java.util.List;
 @Builder
 @Table(indexes = @Index(name = "idx_userId", columnList = "userId", unique = true))
 @Where(clause = "del_yn=false")
-@SQLDelete(sql = "UPDATE USER SET del_yn=true, user_id=null where id=?")
+@SQLDelete(sql = "UPDATE user SET del_yn=true, user_id=null where id=?")
 public class User extends BaseEntity {
 
     private String password;

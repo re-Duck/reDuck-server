@@ -32,6 +32,7 @@ import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.security.JwtProvider;
+import reduck.reduck.util.Encoder;
 
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
@@ -89,12 +90,14 @@ class UserServiceTest {
     @Test
     void 유저정보변경() throws Exception {
         String accessToken = getAccessToken();
-        String schoolEmailToken = createEmailToken("zhfptm12@o.cnu.ac.kr", EmailType.school, 111111);
-        String companyToken = createEmailToken("zhfptm12@naver.com", EmailType.company, 111111);
-        String userToken = createEmailToken("zhfptm12@gmail.com", EmailType.user, 111111);
+        String schoolEmailToken = createEmailToken("zhfptm12@o.cnu.ac.kr", EmailType.SCHOOL, 111111);
+        String companyToken = createEmailToken("zhfptm12@naver.com", EmailType.COMPANY, 111111);
+        String userToken = createEmailToken("zhfptm12@gmail.com", EmailType.USER, 111111);
 
         ModifyUserDto build = ModifyUserDto.builder()
                 .name("new name")
+                .password("p39pwt12!")
+                .newPassword("")
                 .email("zhfptm12@gmail.com")
                 .emailAuthToken(userToken)
                 .company("no")
@@ -128,16 +131,18 @@ class UserServiceTest {
     @DisplayName("유저 정보 변경 예외테스트")
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideModifyDtoObject")
-    void 유저정보변경예외테스트(String testName,String name, String email, String company, String companyEmail, String school, String schoolEmail
+    void 유저정보변경예외테스트(String testName,String name, String password, String newPassword,String email, String company, String companyEmail, String school, String schoolEmail
             , int developYear, MockMultipartFile file, Class obj) throws Exception {
         String accessToken = getAccessToken();
 
-        String schoolEmailToken =  createEmailToken("zhfptm12not@o.cnu.ac.kr", EmailType.school, 111111);
-        String companyToken = createEmailToken("zhfptm12not@naver.com", EmailType.company, 111111);
-        String userToken = createEmailToken("zhfptm12not@naver.com", EmailType.user, 111111);
+        String schoolEmailToken =  createEmailToken("zhfptm12not@o.cnu.ac.kr", EmailType.SCHOOL, 111111);
+        String companyToken = createEmailToken("zhfptm12not@naver.com", EmailType.COMPANY, 111111);
+        String userToken = createEmailToken("zhfptm12not@naver.com", EmailType.USER, 111111);
 
         ModifyUserDto build = ModifyUserDto.builder()
                 .name(name)
+                .password(password)
+                .newPassword(newPassword)
                 .email(email)
                 .emailAuthToken(userToken)
                 .company(company)
@@ -172,7 +177,7 @@ class UserServiceTest {
         );
 
         return Stream.of(
-                Arguments.of("user email token 유효성", "donghun", "zhfptm12@gmail.com"
+                Arguments.of("user email token 유효성", "donghun", "p39pwt12!", "","zhfptm12@gmail.com"
                         , "naver", "zhfptm12@naver.com", "CNU","zhfptm12@o.cnu.ac.kr"
                         ,2020,file, AuthException.class)
         );
@@ -184,13 +189,13 @@ class UserServiceTest {
     void 아이디중복확인(String userId) throws Exception {
         mockMvc.perform(get("/user/duplicate/" + userId))
                 .andExpect(status().isOk())
-                .andExpect(content().string("false"));
+                .andExpect(content().string("true"));
     }
 
     @Transactional
     @DisplayName("정상 회원가입")
     @ParameterizedTest
-    @CsvSource("test2, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
+    @CsvSource("test3, p39pwt12!, donghun, zhfptm12@naver.com,2022,naver,CNU")
     void 정상회원가입(String userId, String password, String name, String email, int developYear, String company, String school) throws Exception {
 
         MockMultipartFile file
@@ -200,7 +205,7 @@ class UserServiceTest {
                 MediaType.TEXT_PLAIN_VALUE,
                 "Hello, World!".getBytes()
         );
-        String emailToken = createEmailToken(email, EmailType.user, 111111);
+        String emailToken = createEmailToken(email, EmailType.USER, 111111);
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)
                 .password(password)
@@ -222,7 +227,7 @@ class UserServiceTest {
     @ParameterizedTest(name = "{index}:{0}")
     @MethodSource("provideUserObject")
     void 회원가입유효성검사(String testName, String userId, String password, String name, String email, int developYear, String company, String school, MockMultipartFile file, Class obj) throws Exception {
-        String emailToken = createEmailToken(email, EmailType.user, 111111);
+        String emailToken = createEmailToken(email, EmailType.USER, 111111);
 
         SignUpDto signUpDto = SignUpDto.builder()
                 .userId(userId)

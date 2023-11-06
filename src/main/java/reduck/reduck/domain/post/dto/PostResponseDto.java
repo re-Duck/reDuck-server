@@ -30,21 +30,6 @@ public class PostResponseDto {
     private LocalDateTime postUpdatedAt;
 
     //comment
-    private List<CommentResponseDto> comments;
+    private int commentsCount;
 
-    @Override
-    public String toString() {
-        return "PostResponseDto{" +
-                "postAuthorId='" + postAuthorId + '\'' +
-                ", postAuthorProfileImgPath=" + postAuthorProfileImgPath +
-                ", postAuthorName='" + postAuthorName + '\'' +
-                ", postTitle='" + postTitle + '\'' +
-                ", postContent='" + postContent + '\'' +
-                ", postOriginId='" + postOriginId + '\'' +
-                ", postType=" + postType +
-                ", postCreatedAt=" + postCreatedAt +
-                ", postUpdatedAt=" + postUpdatedAt +
-                 +
-                '}';
-    }
 }

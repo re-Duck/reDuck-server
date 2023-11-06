@@ -1,4 +1,7 @@
 spring:
+  logging:
+    level:
+      root: INFO
   config:
     activate:
       on-profile: dev
@@ -18,16 +21,18 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  mvc:
-    pathmatch:
-      matching-strategy: ant_path_matcher
+  thymeleaf:
+    cache: false
+#    suffix: .ftl
   datasource:
-    url: jdbc:mysql://${ip}:3306/${database}?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul&characterSetResults=UTF-8&characterEncoding=UTF-8
+    url: jdbc:mysql://${ip}:3306/${database}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterSetResults=UTF-8&characterEncoding=UTF-8
     username: root
     password: ${password}
     driver-class-name: com.mysql.cj.jdbc.Driver
+  redis:
+    host: ${ip}
+    port: 6379
   jpa:
-
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     generate-ddl: true
@@ -40,6 +45,14 @@ spring:
     hibernate:
       ddl-auto: update
 
+  #static파일을 개발할때 서버를 재시작 하지 않고도 수정한 내용이 반영
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: false
+    freemarker:
+      cache: false
 jwt:
   secret: ${secret_key}
 ## local
@@ -49,3 +62,11 @@ database: reduck
 password: p39pwt12!
 ip: localhost
 secret_key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+##aws
+#mail_username: donghunkim1101@gmail.com
+#mail_password: utgoumexcfqezlfd
+#database: reduck
+#password: p39pwt12!
+#username: admin
+#ip: reduckdb.clhum1zhqpie.ap-northeast-2.rds.amazonaws.com
+#secret_key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa

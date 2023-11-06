@@ -10,29 +10,8 @@ import java.util.*;
 
 public class PostResponseDtoMapper {
 
-    public static PostResponseDto excludeCommentsFrom(Post post) {
-        String developAnnual = DevelopAnnualCalculation.calculate(post.getUser().getDevelopYear());
-
-        PostResponseDto postResponseDto = PostResponseDto.builder()
-                //user
-                .postAuthorId(post.getUser().getUserId())
-                .postAuthorName(post.getUser().getName())
-                .postAuthorProfileImgPath(post.getUser().getProfileImgPath())
-                .postAuthorDevelopAnnual(developAnnual)
-                //post
-                .postTitle(post.getPostTitle())
-                .postContent(post.getContent())
-                .postOriginId(post.getPostOriginId())
-                .postType(post.getPostType())
-                .postCreatedAt(post.getCreatedAt())
-                .postUpdatedAt(post.getUpdatedAt())
-                .build();
-        return postResponseDto;
-    }
-
     public static PostResponseDto from(Post post) {
         String developAnnual = DevelopAnnualCalculation.calculate(post.getUser().getDevelopYear());
-        List<CommentResponseDto> comments = CommentResponseDtoMapper.from(post);
 
         PostResponseDto postResponseDto = PostResponseDto.builder()
                 //user
@@ -47,10 +26,10 @@ public class PostResponseDtoMapper {
                 .postType(post.getPostType())
                 .postCreatedAt(post.getCreatedAt())
                 .postUpdatedAt(post.getUpdatedAt())
-                //comment
-                .comments(comments)
-                .build();
 
+                .commentsCount(post.getComments().size())
+                .build();
         return postResponseDto;
     }
+
 }

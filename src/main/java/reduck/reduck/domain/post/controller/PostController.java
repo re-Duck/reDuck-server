@@ -1,20 +1,14 @@
 package reduck.reduck.domain.post.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
-import reduck.reduck.domain.post.dto.pathDto;
 import reduck.reduck.domain.post.service.PostService;
-
 import javax.validation.Valid;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -36,7 +30,7 @@ public class PostController {
 
     // 게시글 하나
     @GetMapping("/detail/{postOriginId}")
-    public ResponseEntity<PostResponseDto> getPost(@PathVariable String postOriginId) {
+    public ResponseEntity<PostDetailResponseDto> getPost(@PathVariable String postOriginId) {
         return new ResponseEntity(postService.findByPostOriginId(postOriginId), HttpStatus.OK);
     }
 
