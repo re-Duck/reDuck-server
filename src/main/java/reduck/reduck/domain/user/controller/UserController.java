@@ -2,6 +2,7 @@ package reduck.reduck.domain.user.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,13 @@ import javax.validation.Valid;
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
+
+    @PostMapping("/mayack/{account}")
+    public ResponseEntity<String> mayackImgaeCreate(
+            @PathVariable("account") String account,
+            @RequestPart(required = false) MultipartFile file) {
+        return new ResponseEntity<>(userService.mayackImage(account,file), HttpStatus.OK);
+    }
 
     @PostMapping()
     public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile file) throws Exception {
@@ -45,7 +53,7 @@ public class UserController {
     @PutMapping("/{userId}")
     public ResponseEntity<UserInfoDtoRes> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile file) {
 
-        return new ResponseEntity(userService.modifyUserInfo(modifyUserDto, file),HttpStatus.CREATED);
+        return new ResponseEntity(userService.modifyUserInfo(modifyUserDto, file), HttpStatus.CREATED);
     }
 
 }
