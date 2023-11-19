@@ -17,6 +17,7 @@ import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
 import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
@@ -45,6 +46,42 @@ public class PostService {
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/nuhgnod/develup/storage/post";
 
+    public String mayackImage(String account, MultipartFile file) {
+        String mayackPath = DEV_PATH + "/mayack";
+        return saveMayackPostImage(mayackPath,file, account);
+    }
+    private String saveMayackPostImage(String myackPath, MultipartFile multipartFile, String userId) {
+        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = originalFilename.split("\\.")[1];
+        String storageFileName = UUID.randomUUID() + "." + extension;
+        long size = multipartFile.getSize();
+        String path = myackPath + "/" + userId; //폴더 경로
+        File Folder = new File(path);
+        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+        if (!Folder.exists()) {
+            try {
+                Folder.mkdir(); //폴더 생성합니다.
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+        }
+        Path imagePath = Paths.get(path, storageFileName);
+        try {
+            UserProfileImg userProfileImg = UserProfileImg.builder()
+                    .storagedFileName(storageFileName)
+                    .uploadedFileName(originalFilename)
+                    .path(String.valueOf(imagePath))
+                    .extension(extension)
+                    .size(size)
+                    .build();
+            Files.write(imagePath, multipartFile.getBytes());
+            return String.valueOf(imagePath);
+
+        } catch (Exception e) {
+            log.error("이미지 저장 실패", e);
+            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
     @Transactional
     public void createPost(PostDto postDto) {
         String userId = AuthenticationToken.getUserId();
