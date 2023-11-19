@@ -48,4 +48,20 @@ public class ImageController {
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
+    @GetMapping("/home/nuhgnod/develup/{storage}/{type}/mayack/{userId}/{name}")
+    public ResponseEntity<Resource> getMayackImage(@PathVariable String storage,@PathVariable String type, @PathVariable String userId,@PathVariable String name) throws IOException {
+        System.out.println(storage);
+        System.out.println(type);
+        System.out.println(userId);
+        System.out.println(name);
+//        return ResponseEntity.ok().build();
+        Path path = Paths.get("/home/nuhgnod/develup/" + storage + "/" +type+ "/mayack/" +userId+ "/" +name);
+        String contentType = Files.probeContentType(path);
+
+        HttpHeaders headers = new HttpHeaders();
+        Resource resource = new InputStreamResource(Files.newInputStream(path));
+
+        headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
+    }
 }

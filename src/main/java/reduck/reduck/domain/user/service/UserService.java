@@ -53,7 +53,7 @@ public class UserService {
 
 
     public String mayackImage(String account, MultipartFile file) {
-        String mayackPath = PATH + "\\";
+        String mayackPath = DEV_PATH + "/mayack";
         return saveMayackProfileImage(mayackPath,file, account);
     }
     private String saveMayackProfileImage(String myackPath, MultipartFile multipartFile, String userId) {
