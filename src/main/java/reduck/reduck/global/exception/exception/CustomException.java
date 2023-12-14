@@ -9,4 +9,10 @@ import reduck.reduck.global.exception.errorcode.ErrorCode;
 public class CustomException extends RuntimeException {
     private final ErrorCode errorCode;
 
+    private final String param;
+
+    public CustomException(ErrorCode code){
+        this.errorCode = code;
+        this.param = "";
+    }
 }

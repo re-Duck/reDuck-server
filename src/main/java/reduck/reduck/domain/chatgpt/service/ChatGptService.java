@@ -10,6 +10,9 @@ import reduck.reduck.domain.chatgpt.repository.ChatGptLogRepository;
 import reduck.reduck.domain.chatgpt.repository.ChatGptRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.CommonErrorCode;
+import reduck.reduck.global.exception.errorcode.GptMembershipErrorCode;
+import reduck.reduck.global.exception.exception.NotFoundException;
 import reduck.reduck.util.AuthenticationToken;
 
 import java.time.LocalDateTime;
@@ -25,7 +28,8 @@ public class ChatGptService {
     public GptUsableCountResponse getRemainingUsage() {
         String userId = AuthenticationToken.getUserId();
         User user = userRepository.findByUserId(userId).get();
-        ChatGpt chatGpt = chatGptRepository.findByUser(user).get();
+        ChatGpt chatGpt = chatGptRepository.findByUser(user)
+                .orElseThrow(() -> new NotFoundException(GptMembershipErrorCode.MEMBERSHIP_NOT_FOUND, userId));
         int limitUsage = chatGpt.getGptMembership().getLimitUsage();
 
 //        int usage = chatGptLogRepository.findAllByChatGpt(chatGpt).size();
