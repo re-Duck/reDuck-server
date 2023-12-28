@@ -46,7 +46,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private static final String PATH = "C:\\reduckStorage\\profile";
-    private static final String DEV_PATH = "/home/nuhgnod/develup/storage/profile";
+    private static final String DEV_PATH = "/home/ubuntu/reduck/storage/profile";
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final ChatGptRepository chatGptRepository;

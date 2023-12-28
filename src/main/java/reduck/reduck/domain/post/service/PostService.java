@@ -44,7 +44,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
-    private static final String DEV_PATH = "/home/nuhgnod/develup/storage/post";
+    private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
 
     public String mayackImage(String account, MultipartFile file) {
         String mayackPath = DEV_PATH + "/mayack";
