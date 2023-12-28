@@ -32,14 +32,13 @@ public class ImageController {
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
         return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
-    @GetMapping("/home/nuhgnod/develup/{storage}/{type}/{userId}/{name}")
-    public ResponseEntity<Resource> getProdImage(@PathVariable String storage,@PathVariable String type, @PathVariable String userId,@PathVariable String name) throws IOException {
-        System.out.println(storage);
+    @GetMapping("/home/ubuntu/reduck/storage/{type}/{userId}/{name}")
+    public ResponseEntity<Resource> getProdImage(@PathVariable String type, @PathVariable String userId,@PathVariable String name) throws IOException {
         System.out.println(type);
         System.out.println(userId);
         System.out.println(name);
 //        return ResponseEntity.ok().build();
-        Path path = Paths.get("/home/nuhgnod/develup/" + storage + "/" +type+ "/" +userId+ "/" +name);
+        Path path = Paths.get("/home/ubuntu/reduck/storage" + "/" +type+ "/" +userId+ "/" +name);
         String contentType = Files.probeContentType(path);
 
         HttpHeaders headers = new HttpHeaders();
