@@ -27,27 +27,14 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private List<FieldError> fieldErrors;
-//
-//    @ExceptionHandler(UserException.class)
-//    public ResponseEntity<Object> handleCustomException(UserException e) {
-//        ErrorCode errorCode = e.getErrorCode();
-//        return handleExceptionInternal(errorCode);
-//    }
-//    @ExceptionHandler(CommonException.class)
-//    public ResponseEntity<Object> handleCustomException(CommonException e) {
-//        ErrorCode errorCode = e.getErrorCode();
-//        return handleExceptionInternal(errorCode);
-//    }
-//    @ExceptionHandler(AuthException.class)
-//    public ResponseEntity<Object> handleCustomException(AuthException e) {
-//        ErrorCode errorCode = e.getErrorCode();
-//        return handleExceptionInternal(errorCode);
-//    }
+
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<Object> handleCustomException(CustomException e) {
+        log.error(e.toString());
         ErrorCode errorCode = e.getErrorCode();
-        return handleExceptionInternal(errorCode);
+        return handleExceptionInternal(errorCode, e.getHandleMessage());
     }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
         log.warn("handleIllegalArgument", e);
@@ -73,7 +60,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllException(Exception ex) {
         log.warn("handleAllException", ex);
-        if(ex instanceof DataIntegrityViolationException){
+        if (ex instanceof DataIntegrityViolationException) {
             ErrorCode errorCode = CommonErrorCode.DATA_INTEGRITY_VIOLATION;
             return handleExceptionInternal(errorCode);
         }
@@ -97,15 +84,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .build();
     }
 
-    private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String message) {
+    private ResponseEntity<Object> handleExceptionInternal(ErrorCode errorCode, String handleMessage) {
         return ResponseEntity.status(errorCode.getHttpStatus())
-                .body(makeErrorResponse(errorCode, message));
+                .body(makeErrorResponse(errorCode, handleMessage));
     }
 
-    private ErrorResponse makeErrorResponse(ErrorCode errorCode, String message) {
+    private ErrorResponse makeErrorResponse(ErrorCode errorCode, String handleMessage) {
         return ErrorResponse.builder()
                 .code(errorCode.name())
-                .message(message)
+                .message(handleMessage != null ? handleMessage : errorCode.getMessage())
                 .build();
     }
 

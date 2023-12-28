@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -15,7 +16,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ErrorResponse {
     private final String code;
+    private final int status;
     private final String message;
+    private final LocalDateTime timestamp = LocalDateTime.now();
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<ValidationError> errors;

@@ -1,14 +1,26 @@
 package reduck.reduck.global.exception.exception;
 
+import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
 
 
+
 public class NotFoundException extends CustomException {
-    public NotFoundException(ErrorCode code) {
-        super(code, "");
+    private static final ErrorCode defaultErrorCode = CommonErrorCode.RESOURCE_NOT_FOUND;
+
+    public NotFoundException() {
+        super(defaultErrorCode);
     }
 
-    public NotFoundException(ErrorCode errorCode, String Param) {
-        super(errorCode, Param);
+    public NotFoundException(String handleMessage) {
+        super(defaultErrorCode, handleMessage);
+    }
+
+    public NotFoundException(ErrorCode errorCode) {
+        super(errorCode);
+    }
+
+    public NotFoundException(ErrorCode errorCode, String handleMessage) {
+        super(errorCode, handleMessage);
     }
 }

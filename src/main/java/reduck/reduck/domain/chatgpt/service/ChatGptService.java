@@ -29,11 +29,12 @@ public class ChatGptService {
         String userId = AuthenticationToken.getUserId();
         User user = userRepository.findByUserId(userId).get();
         ChatGpt chatGpt = chatGptRepository.findByUser(user)
-                .orElseThrow(() -> new NotFoundException(GptMembershipErrorCode.MEMBERSHIP_NOT_FOUND, userId));
+                .orElseThrow(() -> new NotFoundException(
+                        GptMembershipErrorCode.FORBIDDEN_MEMBERSHIP,
+                        "멤버십 등록 후 이용해 주세요.")
+                );
         int limitUsage = chatGpt.getGptMembership().getLimitUsage();
 
-//        int usage = chatGptLogRepository.findAllByChatGpt(chatGpt).size();
-        System.out.println(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Long usage = chatGptLogRepository.countByChatGptAndDate(chatGpt, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
         Long usableCount = limitUsage - usage;
         return GptUsableCountResponse.builder().remainUsageCount(usableCount).build();
@@ -44,8 +45,12 @@ public class ChatGptService {
     public void changeMembership(ChatGptMembership toMembership) {
         String userId = AuthenticationToken.getUserId();
         User user = userRepository.findByUserId(userId).get();
-        ChatGpt chatGpt = chatGptRepository.findByUser(user).get();
-        chatGpt.upgradeMembership(toMembership);
+        ChatGpt chatGpt = chatGptRepository.findByUser(user)
+                .orElseThrow(() -> new NotFoundException(
+                        GptMembershipErrorCode.FORBIDDEN_MEMBERSHIP,
+                        "멤버십 등록 후 이용해 주세요.")
+                );
+        chatGpt.modifyMembership(toMembership);
         chatGptRepository.save(chatGpt);
     }
 }
