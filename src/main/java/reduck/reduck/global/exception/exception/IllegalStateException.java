@@ -6,6 +6,10 @@ import reduck.reduck.global.exception.errorcode.ErrorCode;
 public class IllegalStateException extends CustomException {
     private static final ErrorCode defaultErrorCode = CommonErrorCode.ILLEGAL_STATE;
 
+    public IllegalStateException() {
+        super(defaultErrorCode);
+    }
+
     public IllegalStateException(ErrorCode code) {
         super(code);
     }
