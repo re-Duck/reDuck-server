@@ -99,7 +99,7 @@ public class EmailService {
             throw new AuthException(AuthErrorCode.EXPIRED_AUTHENTICATION_NUMBER);
         }
         //일치하지 않음.
-        throw new AuthException((AuthErrorCode.AUTHENTICATON_NUMBER_NOT_MATCH));
+        throw new AuthException(AuthErrorCode.AUTHENTICATON_NUMBER_NOT_MATCH);
     }
 
 }

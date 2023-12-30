@@ -18,6 +18,7 @@ import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
 import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
+import reduck.reduck.global.exception.exception.IllegalArgumentException;
 
 import java.util.List;
 import java.util.stream.Collectors;
