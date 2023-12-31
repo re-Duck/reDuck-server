@@ -25,6 +25,7 @@ import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.ChatErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.ChatException;
+import reduck.reduck.global.exception.exception.NotFoundException;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.util.AuthenticationToken;
 
@@ -53,20 +54,18 @@ public class SimpleChatService extends ChatService {
         // 얘도 paging으로 바꿔야함.
 
         String userId = AuthenticationToken.getUserId();
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
         List<ChatRoomUsers> chatRoomUsers = chatRoomUsersRepository.findAllByUser(user, roomsPageable);
         Pageable pageable = PageRequest.of(0, UN_READ_MESSAGE_MAX_SIZE);
 
-        return chatRoomUsers.stream()
-                .map(myChatRoomInfo -> {
+        return chatRoomUsers.stream().map(myChatRoomInfo -> {
                     ChatRoom chatRoom = myChatRoomInfo.getRoom();
                     List<ChatMessage> chatMessages = getRecentChatHistory(chatRoom, pageable);
                     if (chatMessages.isEmpty()) return null; // 채팅 신청 후 아무런 메시지도 보낸 기록 없는 경우(방이 비어있음) : 채팅방 안보여줌.
                     List<User> others = getOtherUsersInChatRoom(chatRoom, user);// 채팅 방 별, 나를 제외한 다른 사용자들.
                     Long unreadMessageCount = countOfUnreadMessages(chatRoom, myChatRoomInfo, chatMessages, userId); // 안읽은 메시지 수
                     return ChatRoomListResDtoMapper.of(others, chatRoom, chatMessages.get(0), unreadMessageCount);
-                })
-                .filter(chatRoomListResDto -> chatRoomListResDto != null) // 대화 내역이 있는 채팅방만.
+                }).filter(chatRoomListResDto -> chatRoomListResDto != null) // 대화 내역이 있는 채팅방만.
                 .sorted((o1, o2) -> o2.getLastChatMessageTime().compareTo(o1.getLastChatMessageTime())) // 마지막 메시지 시간으로 정렬.
                 .collect(Collectors.toList());
     }
@@ -81,34 +80,20 @@ public class SimpleChatService extends ChatService {
         if (chatMessages.get(0).getSender().getUserId().equals(userId)) return 0L;
 
         // 상대방이 보낸 채팅 목록
-        List<ChatMessage> chatMessagesNotMe = chatMessages.stream()
-                .filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId)))
-                .collect(Collectors.toList());
+        List<ChatMessage> chatMessagesNotMe = chatMessages.stream().filter(negate(chatMessage -> chatMessage.getSender().getUserId().equals(userId))).collect(Collectors.toList());
 
         if (myChatRoomInfo.getLastChatMessage() == null) {
-            // case 1:
-            // 채팅방이 생성 된 후, 한번도 들어가본적이 없다.
-            // 채팅방의 모든 내역들이 안 읽은 메시지다.
-
-            // case 2:
-            // 내가 채팅방 생성 후, 나만 메시지를 보낸 이력이 있음.
-            // 내가 보낸 거는 빼고해야함.
-
-            // => 둘다 상대방이 마지막으로 보낸 이후에 들어가본적이 없는 상태.
             return (long) chatMessagesNotMe.size();
         }
+
         Long chatMessageId = myChatRoomInfo.getLastChatMessage().getId(); // 마지막 메시지.
-        return chatMessagesNotMe.stream()
-                .filter(chatMessage -> chatMessage.getId() > chatMessageId)
-                .count();
+        return chatMessagesNotMe.stream().filter(chatMessage -> chatMessage.getId() > chatMessageId).count();
     }
 
     // 채팅 방 별, 나를 제외한 다른 사용자들.
     private List<User> getOtherUsersInChatRoom(ChatRoom chatRoom, User user) {
         List<ChatRoomUsers> othersChatRoomInfo = chatRoomUsersRepository.findAllByRoomAndUserNot(chatRoom, user);
-        return othersChatRoomInfo.stream()
-                .map(other -> other.getUser())
-                .collect(Collectors.toList());
+        return othersChatRoomInfo.stream().map(other -> other.getUser()).collect(Collectors.toList());
 
     }
 
@@ -116,15 +101,15 @@ public class SimpleChatService extends ChatService {
     @Override
     @Transactional
     public ChatRoomResDto getRoom(String roomId, Pageable pageable, Optional<String> messageId) {
-        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
+        ChatRoom chatRoom = chatRoomRepository.findByRoomId(roomId).orElseThrow(() -> new NotFoundException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
 //        Pageable pageable = PageRequest.of(0, SHOWABLE_MESSAGE_MAX_SIZE);
         List<ChatMessage> chatMessages;
 //        = getRecentChatHistory(chatRoom, pageable);
-        if(!messageId.isPresent()){
+        if (!messageId.isPresent()) {
             // 첫 조회.
-                  chatMessages = getRecentChatHistory(chatRoom, pageable);
-        }else{
-            chatMessages = chatMessageRepository.find2(messageId.get(), pageable,chatRoom);
+            chatMessages = getRecentChatHistory(chatRoom, pageable);
+        } else {
+            chatMessages = chatMessageRepository.find2(messageId.get(), pageable, chatRoom);
 
         }
         List<ChatMessagesResDto> chatMessagesResDtos = ChatMessagesResDtoMapper.from(chatMessages);
@@ -135,10 +120,7 @@ public class SimpleChatService extends ChatService {
 //        Session session = sessionRepository.findByUserIdAndRoom(userId, chatRoom).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
 //        session.on();
 //        sessionRepository.save(session);
-        return ChatRoomResDto.builder()
-                .roomId(roomId)
-                .chatMessages(chatMessagesResDtos)
-                .build();
+        return ChatRoomResDto.builder().roomId(roomId).chatMessages(chatMessagesResDtos).build();
     }
 
     //채팅방 생성
@@ -163,27 +145,16 @@ public class SimpleChatService extends ChatService {
     private String createRoomIfAbsent(ChatRoomReqDto chatRoomReqDto, List<String> participantIds) {
         String alias = createAlias(participantIds);
         Optional<ChatRoom> oldChatRoom = chatRoomRepository.findByAlias(alias);
-        return oldChatRoom.isPresent() ?
-                oldChatRoom.get().getRoomId() :
-                createNewRoom(chatRoomReqDto, participantIds, alias);
+        return oldChatRoom.isPresent() ? oldChatRoom.get().getRoomId() : createNewRoom(chatRoomReqDto, participantIds, alias);
 
     }
 
     private String createNewRoom(ChatRoomReqDto chatRoomReqDto, List<String> participantIds, String alias) {
-        ChatRoom chatRoom = ChatRoom.builder()
-                .roomId(chatRoomReqDto.getRoomId())
-                .roomName(chatRoomReqDto.getRoomName().isEmpty() ? alias : chatRoomReqDto.getRoomName())
-                .alias(alias)
-                .build();
+        ChatRoom chatRoom = ChatRoom.builder().roomId(chatRoomReqDto.getRoomId()).roomName(chatRoomReqDto.getRoomName().isEmpty() ? alias : chatRoomReqDto.getRoomName()).alias(alias).build();
         List<ChatRoomUsers> chatRoomUsers = new ArrayList<>();
         for (String id : participantIds) {
             User participant = userRepository.findByUserId(id).get();
-            ChatRoomUsers chatRoomUser = ChatRoomUsers.builder()
-                    .room(chatRoom)
-                    .roomName(chatRoomReqDto.getRoomName().isEmpty() ? alias : chatRoomReqDto.getRoomName())
-                    .user(participant)
-                    .lastChatMessage(defaultChatMessage)
-                    .build();
+            ChatRoomUsers chatRoomUser = ChatRoomUsers.builder().room(chatRoom).roomName(chatRoomReqDto.getRoomName().isEmpty() ? alias : chatRoomReqDto.getRoomName()).user(participant).lastChatMessage(defaultChatMessage).build();
             chatRoomUsers.add(chatRoomUser);
         }
         chatRoomRepository.save(chatRoom);
@@ -197,13 +168,7 @@ public class SimpleChatService extends ChatService {
     public ChatMessageResDto sendMessage(ChatMessageReqDto chatMessageReqDto, Message<?> payload) {
         Optional<ChatRoom> byRoomId = chatRoomRepository.findByRoomId(chatMessageReqDto.getRoomId());
         User user = userRepository.findByUserId(chatMessageReqDto.getUserId()).get();
-        ChatMessage chat = ChatMessage.builder()
-                .type(chatMessageReqDto.getType())
-                .room(byRoomId.get())
-                .sender(user)
-                .message(chatMessageReqDto.getMessage())
-                .messageId(chatMessageReqDto.getMessageId())
-                .build();
+        ChatMessage chat = ChatMessage.builder().type(chatMessageReqDto.getType()).room(byRoomId.get()).sender(user).message(chatMessageReqDto.getMessage()).messageId(chatMessageReqDto.getMessageId()).build();
 
         chatMessageRepository.save(chat);
 
@@ -223,7 +188,7 @@ public class SimpleChatService extends ChatService {
         ChatRoom chatRoom = chatRoomRepository.findByRoomId(targetRoomId).get();
         // 현재 세션에 해당되는 roomId
 //        Session mySession = sessionRepository.findBySessionId(sessionId).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
-        Session mySession = sessionRepository.findBySessionIdAndRoom(sessionId, chatRoom).orElseThrow(() -> new ChatException(ChatErrorCode.SESSION_NOT_EXIST));
+        Session mySession = sessionRepository.findBySessionIdAndRoom(sessionId, chatRoom).orElseThrow(() -> new NotFoundException(ChatErrorCode.SESSION_NOT_EXIST));
 
         // roomId에 대한 참여 user Id목록을 가져오고,
         ChatRoom room = mySession.getRoom();
@@ -247,7 +212,6 @@ public class SimpleChatService extends ChatService {
 
     private String resolveMessage(Message<?> message) {
         // Session 테이블에 각 room별로 user의 session Id는 고정.
-        System.out.println(message.toString());
         byte[] jsonData = (byte[]) message.getPayload(); // 바이트 배열
         ObjectMapper objectMapper = new ObjectMapper();
         Map<String, Object> resultMap = null;
@@ -256,24 +220,17 @@ public class SimpleChatService extends ChatService {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.out.println("resultMap = " + resultMap);
         return (String) resultMap.get("messageId");
-
     }
 
     /**
      * 메시지를 전송 후, session 상태에 따른 update
-     *
-     * @param otherSession
-     * @param other
-     * @param room
-     * @param chatMessage
      */
     private void updateLastChatMessage(Session otherSession, User other, ChatRoom room, ChatMessage chatMessage) {
-        SessionStatus otherSessionStatus = otherSession.getStatus();
-        if (otherSessionStatus == SessionStatus.ON) {
+        if (otherSession.isOn()) {
             // 접속 중 : 상대방의 마지막 읽은 메시지 를 현재 message로 업데이트
-            ChatRoomUsers chatRoomInfoOfOther = chatRoomUsersRepository.findByUserAndRoom(other, room);
+            ChatRoomUsers chatRoomInfoOfOther = chatRoomUsersRepository.findByUserAndRoom(other, room)
+                    .orElseThrow(() -> new NotFoundException("상대방을 찾을 수 없습니다."));
             chatRoomInfoOfOther.updateLastChatMessage(chatMessage);
             chatRoomUsersRepository.save(chatRoomInfoOfOther);
         }
@@ -281,16 +238,13 @@ public class SimpleChatService extends ChatService {
 
     /**
      * 채팅방 입장 시, update
-     *
-     * @param chatRoom
-     * @param userId
-     * @param chatMessage
      */
 
     private void updateLastChatMessage(ChatRoom chatRoom, String userId, List<ChatMessage> chatMessage) {
         if (chatMessage.isEmpty()) return;
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
-        ChatRoomUsers chatRoomUsers = chatRoomUsersRepository.findByRoomAndUser(chatRoom, user).orElseThrow(() -> new ChatException(ChatErrorCode.CHAT_ROOM_NOT_EXIST));
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
+        ChatRoomUsers chatRoomUsers = chatRoomUsersRepository.findByRoomAndUser(chatRoom, user)
+                .orElseThrow(() -> new NotFoundException("상대방을 찾을 수 없습니다."));
         chatRoomUsers.updateLastChatMessage(chatMessage.get(0));
         chatRoomUsersRepository.save(chatRoomUsers);
     }
@@ -300,9 +254,7 @@ public class SimpleChatService extends ChatService {
      */
     private String createAlias(List<String> participantIds) {
         Objects.requireNonNull(participantIds);
-        return participantIds.stream()
-                .sorted()
-                .collect(Collectors.joining(","));
+        return participantIds.stream().sorted().collect(Collectors.joining(","));
     }
 
 }

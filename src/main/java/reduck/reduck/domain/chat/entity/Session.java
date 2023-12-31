@@ -48,7 +48,11 @@ public class Session extends BaseEntity {
         this.status = SessionStatus.ON;
     }
 
-    public void update(String sessionId) {
+    public boolean isOn() {
+        return this.status == SessionStatus.ON;
+    }
+
+    public void updateSessionId(String sessionId) {
         this.sessionId = sessionId;
     }
 }

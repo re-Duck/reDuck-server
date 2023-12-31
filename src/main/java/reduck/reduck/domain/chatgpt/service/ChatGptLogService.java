@@ -11,11 +11,12 @@ import reduck.reduck.domain.chatgpt.repository.ChatGptLogRepository;
 import reduck.reduck.domain.chatgpt.repository.ChatGptRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.GptErrorCode;
+import reduck.reduck.global.exception.exception.IllegalArgumentException;
+import reduck.reduck.global.exception.exception.IllegalStateException;
 import reduck.reduck.util.AuthenticationToken;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -28,19 +29,19 @@ public class ChatGptLogService {
     public GptUsableCountResponse createLog(ChatGptLogRequest chatGptLogRequest) {
         String userId = AuthenticationToken.getUserId();
         User user = userRepository.findByUserId(userId).get();
-        ChatGpt userGptPolicy = chatGptRepository.findByUser(user).get();
-        int limitUsage = userGptPolicy.getGptMembership().getLimitUsage();
 
+        ChatGpt userGptPolicy = chatGptRepository.findByUser(user)
+                .orElseThrow(() -> new IllegalArgumentException(GptErrorCode.MEMBERSHIP_NOT_JOINED));
+
+        int limitUsage = userGptPolicy.getGptMembership().getLimitUsage();
         Long gptUsage = chatGptLogRepository.countByChatGptAndDate(userGptPolicy, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
 
         if (userGptPolicy.isUsable(gptUsage)) {
             ChatGptLog chatGptLog = ChatGptLog.of(chatGptLogRequest, userGptPolicy);
             chatGptLogRepository.save(chatGptLog);
-            Long usableCount = limitUsage - gptUsage -1;
-            return   GptUsableCountResponse.builder().remainUsageCount(usableCount).build();
+            Long usableCount = limitUsage - gptUsage - 1;
+            return GptUsableCountResponse.builder().remainUsageCount(usableCount).build();
         }
-        throw new IllegalStateException("사용가능 횟수를 모두 소진하였습니다.");
-        // 사용가능횟수 초과
-
+        throw new IllegalStateException("사용 가능 횟수를 초과했습니다.");
     }
 }

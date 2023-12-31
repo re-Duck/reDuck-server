@@ -12,15 +12,14 @@ import reduck.reduck.domain.auth.dto.SignInDto;
 import reduck.reduck.domain.auth.dto.SignInResponseDto;
 import reduck.reduck.domain.auth.dto.mapper.SignInResponseDtoMapper;
 import reduck.reduck.domain.user.entity.User;
-import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.domain.user.service.UserService;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.AuthException;
+import reduck.reduck.global.exception.exception.IllegalArgumentException;
 import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 import reduck.reduck.util.AuthenticationToken;
-
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
@@ -80,7 +79,7 @@ public class AuthService {
 
     private boolean validatePassword(String originPassword, String targetPassword) {
         if (!passwordEncoder.matches(originPassword,targetPassword)) {
-            throw new UserException(UserErrorCode.INVALID_PASSWORD);
+            throw new IllegalArgumentException(UserErrorCode.INVALID_PASSWORD);
         }
         return true;
     }

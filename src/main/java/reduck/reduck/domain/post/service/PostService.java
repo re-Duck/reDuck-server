@@ -23,10 +23,7 @@ import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.PostErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
-import reduck.reduck.global.exception.exception.AuthException;
-import reduck.reduck.global.exception.exception.CommonException;
-import reduck.reduck.global.exception.exception.PostException;
-import reduck.reduck.global.exception.exception.UserException;
+import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.util.AuthenticationToken;
 
 import java.io.File;
@@ -48,8 +45,9 @@ public class PostService {
 
     public String mayackImage(String account, MultipartFile file) {
         String mayackPath = DEV_PATH + "/mayack";
-        return saveMayackPostImage(mayackPath,file, account);
+        return saveMayackPostImage(mayackPath, file, account);
     }
+
     private String saveMayackPostImage(String myackPath, MultipartFile multipartFile, String userId) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extension = originalFilename.split("\\.")[1];
@@ -82,10 +80,11 @@ public class PostService {
             throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
+
     @Transactional
     public void createPost(PostDto postDto) {
         String userId = AuthenticationToken.getUserId();
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
         postRepository.save(postEntity);
@@ -114,10 +113,9 @@ public class PostService {
         File Folder = new File(path);
         // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
         if (!Folder.exists()) {
-            try{
+            try {
                 Folder.mkdir(); //폴더 생성합니다.
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 e.getStackTrace();
                 throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
             }
@@ -129,7 +127,7 @@ public class PostService {
     @Transactional
     public PostDetailResponseDto findByPostOriginId(String postOriginId) {
         Post post = postRepository.findByPostOriginId(postOriginId)
-                .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
         return postDetailResponseDto;
@@ -141,40 +139,41 @@ public class PostService {
     public List<PostResponseDto> getPosts(String postOriginId, List<String> types, int page) {
         List<PostType> postTypes = types
                 .stream()
-                .map(type -> PostType.getType(type))
+                .map(PostType::getType)
                 .collect(Collectors.toList());
         Pageable pageable = PageRequest.of(0, page);
         List<Post> posts;
         if (postOriginId == "") {
-           posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(postTypes, pageable)
-                   .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
-        }else{
-           posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
-                    .orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+            posts = postRepository.findAllByPostTypeOrderByIdDescLimitPage(postTypes, pageable)
+                    .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        } else {
+            posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
+                    .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         }
         return posts
                 .stream()
-                .map(post -> PostResponseDtoMapper.from(post))
+                .map(PostResponseDtoMapper::from)
                 .collect(Collectors.toList());
     }
 
     public void removePost(String postOriginId) {
-        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(
+                () -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post);
         postRepository.delete(post);
     }
 
     public void updatePost(String postOriginId, PostDto postDto) {
-        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post);
         post.updateFrom(postDto);
         postRepository.save(post);
     }
+
     private void validateAuthentication(Post post) {
         String userId = AuthenticationToken.getUserId();
         if (!post.getUser().getUserId().equals(userId)) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
     }
-
 }

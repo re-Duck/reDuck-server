@@ -29,7 +29,7 @@ public class ChatGpt extends BaseEntity {
         return this.gptMembership.getLimitUsage() > usage;
     }
 
-    public void upgradeMembership(ChatGptMembership membership) {
+    public void modifyMembership(ChatGptMembership membership) {
         this.gptMembership = membership;
     }
 }
