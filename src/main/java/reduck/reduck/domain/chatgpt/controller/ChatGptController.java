@@ -29,14 +29,8 @@ public class ChatGptController {
     public ResponseEntity<Response<GptUsableCountResponse>> log(
             @RequestBody ChatGptLogRequest chatGptLogRequest
     ) {
-        try {
-            GptUsableCountResponse remainingUsage = chatGptLogService.createLog(chatGptLogRequest);
-            return new ResponseEntity<>(Response.successResponse(remainingUsage), HttpStatus.CREATED);
-
-        } catch (IllegalStateException e) {
-            return new ResponseEntity(Response.errorResponse(e.getMessage()), HttpStatus.FORBIDDEN);
-        }
-
+        GptUsableCountResponse remainingUsage = chatGptLogService.createLog(chatGptLogRequest);
+        return new ResponseEntity<>(Response.successResponse(remainingUsage), HttpStatus.CREATED);
     }
 
     @PutMapping("/membership")

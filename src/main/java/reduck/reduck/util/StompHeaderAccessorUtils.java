@@ -16,7 +16,6 @@ public class StompHeaderAccessorUtils {
 
     public static String getSessionId(SimpMessageHeaderAccessor headerAccessor) {
        return headerAccessor.getMessageHeaders().get("simpSessionId").toString();
-
     }
 
     public static String resolveHeaderAccessor(SimpMessageHeaderAccessor headerAccessor) {

@@ -23,10 +23,9 @@ import reduck.reduck.domain.user.entity.mapper.UserMapper;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
-import reduck.reduck.global.exception.exception.AuthException;
-import reduck.reduck.global.exception.exception.CommonException;
+import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
-import reduck.reduck.global.exception.exception.UserException;
+import reduck.reduck.global.exception.exception.IllegalStateException;
 import reduck.reduck.global.security.JwtProvider;
 import reduck.reduck.util.AuthenticationToken;
 import reduck.reduck.util.Encoder;
@@ -36,6 +35,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,10 +45,49 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserService {
     private static final String PATH = "C:\\reduckStorage\\profile";
-    private static final String DEV_PATH = "/home/nuhgnod/develup/storage/profile";
+    private static final String DEV_PATH = "/home/ubuntu/reduck/storage/profile";
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final ChatGptRepository chatGptRepository;
+
+
+    public String mayackImage(String account, MultipartFile file) {
+        String mayackPath = DEV_PATH + "/mayack";
+        return saveMayackProfileImage(mayackPath, file, account);
+    }
+
+    private String saveMayackProfileImage(String myackPath, MultipartFile multipartFile, String userId) {
+        String originalFilename = multipartFile.getOriginalFilename();
+        String extension = originalFilename.split("\\.")[1];
+        String storageFileName = UUID.randomUUID() + "." + extension;
+        long size = multipartFile.getSize();
+        String path = myackPath + "/" + userId; //폴더 경로
+        File Folder = new File(path);
+        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
+        if (!Folder.exists()) {
+            try {
+                Folder.mkdir(); //폴더 생성합니다.
+            } catch (Exception e) {
+                e.getStackTrace();
+            }
+        }
+        Path imagePath = Paths.get(path, storageFileName);
+        try {
+            UserProfileImg userProfileImg = UserProfileImg.builder()
+                    .storagedFileName(storageFileName)
+                    .uploadedFileName(originalFilename)
+                    .path(String.valueOf(imagePath))
+                    .extension(extension)
+                    .size(size)
+                    .build();
+            Files.write(imagePath, multipartFile.getBytes());
+            return String.valueOf(imagePath);
+
+        } catch (Exception e) {
+            log.error("이미지 저장 실패", e);
+            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @Transactional
     public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
@@ -69,6 +108,9 @@ public class UserService {
             return userEntity;
         } catch (CommonException | AuthException | DataIntegrityViolationException e) {
             log.error("회원가입 에러", e);
+            if (e instanceof DataIntegrityViolationException) {
+                throw new IllegalStateException("중복된 사용자 id 입니다.");
+            }
             throw e;
         }
     }
@@ -126,7 +168,7 @@ public class UserService {
 
     @Transactional
     public User findByUserId(String userId) {
-        return userRepository.findByUserId(userId).orElseThrow(() -> new UserException(UserErrorCode.USER_NOT_EXIST));
+        return userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
     }
 
     private void validateSignUpDto(SignUpDto signUpDto) {

@@ -17,6 +17,12 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
+    @PostMapping("/mayack/{account}")
+    public ResponseEntity<String> mayackImgaeCreate(
+            @PathVariable("account") String account,
+            @RequestPart(required = false) MultipartFile file) {
+        return new ResponseEntity<>(postService.mayackImage(account,file), HttpStatus.OK);
+    }
     @PostMapping()
     public ResponseEntity<Void> createPost(@RequestBody @Valid PostDto postDto) {
         postService.createPost(postDto);
