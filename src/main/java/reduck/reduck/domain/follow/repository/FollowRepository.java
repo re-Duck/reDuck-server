@@ -6,10 +6,13 @@ import reduck.reduck.domain.follow.Entity.Follow;
 import reduck.reduck.domain.user.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FollowRepository extends JpaRepository<Follow, Long> {
     List<Follow> findAllByUser(User user);
 
     List<Follow> findAllByFollowingUser(User user);
+
+    Optional<Follow> findByUserAndFollowingUser(User user, User followingUser);
 }

@@ -60,14 +60,38 @@ class FollowTest {
                             .header("Authorization", accessToken)
                     )
                     .andExpect(status().isCreated());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-            String accessToken1 = getAccessToken("test3");
-
-
-            mockMvc.perform(get("/follow")
-                            .header("Authorization", accessToken1))
+    @Transactional
+    @Test
+    @DisplayName("팔로워 목록 조회")
+    void getFollowers() {
+        following();
+        String accessToken = getAccessToken("test3");
+        try {
+            mockMvc.perform(get("/follow/followers")
+                            .header("Authorization", accessToken))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("data[0].userId", Matchers.is("test1")));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Transactional
+    @Test
+    @DisplayName("팔로잉 목록 조회")
+    void getFollowings() {
+        following();
+        String accessToken = getAccessToken("test1");
+        try {
+            mockMvc.perform(get("/follow/followings")
+                            .header("Authorization", accessToken))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("data[0].userId", Matchers.is("test3")));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

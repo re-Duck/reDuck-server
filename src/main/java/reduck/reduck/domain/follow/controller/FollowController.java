@@ -24,10 +24,17 @@ public class FollowController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @GetMapping
+    @GetMapping("/followers")
     public ResponseEntity<Response<List<FollowerResponse>>> getFollowers() {
         List<FollowerResponse> followers = followService.getFollowers();
         Response<List<FollowerResponse>> response = Response.successResponse(followers);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/followings")
+    public ResponseEntity<Response<List<FollowerResponse>>> getFollowings() {
+        List<FollowerResponse> followings = followService.getFollowings();
+        Response<List<FollowerResponse>> response = Response.successResponse(followings);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

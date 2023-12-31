@@ -38,9 +38,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException e) {
-        log.warn("handleIllegalArgument", e);
-        ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
-        return handleExceptionInternal(errorCode);
+        log.error(e.toString());
+        ErrorCode errorCode = e.getErrorCode();
+        return handleExceptionInternal(errorCode, e.getHandleMessage());
     }
 
     @Override
