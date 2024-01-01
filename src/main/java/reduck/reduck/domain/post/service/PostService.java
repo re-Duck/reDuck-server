@@ -11,11 +11,13 @@ import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
 import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.post.entity.PostHit;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
+import reduck.reduck.domain.post.repository.PostHitRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.repository.UserRepository;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final PostHitRepository postHitRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
@@ -88,6 +91,14 @@ public class PostService {
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
         postRepository.save(postEntity);
+
+        // 조회수 테이블 초기화.
+        PostHit readCount = PostHit.builder()
+                .hits(0)
+                .post(postEntity)
+                .build();
+
+        postHitRepository.save(readCount);
     }
 
     @Transactional
@@ -129,6 +140,8 @@ public class PostService {
         Post post = postRepository.findByPostOriginId(postOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
+
+        postHitRepository.updateHits(post);
 
         return postDetailResponseDto;
     }
