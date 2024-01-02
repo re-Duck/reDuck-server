@@ -29,4 +29,6 @@ public class PostDetailResponseDto {
     //comment
     private List<CommentResponseDto> comments;
 
+    private int hits;
+    private int likse;
 }

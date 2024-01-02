@@ -11,11 +11,13 @@ import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
 import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.post.entity.PostHit;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
+import reduck.reduck.domain.post.repository.PostHitRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.repository.UserRepository;
@@ -39,6 +41,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final PostHitRepository postHitRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
@@ -88,6 +91,14 @@ public class PostService {
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
         postRepository.save(postEntity);
+
+        // 조회수 테이블 초기화.
+        PostHit readCount = PostHit.builder()
+                .hits(0)
+                .post(postEntity)
+                .build();
+
+        postHitRepository.save(readCount);
     }
 
     @Transactional
@@ -130,6 +141,13 @@ public class PostService {
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
+        postHitRepository.updateHits(post);
+
+        PostHit postHit = postHitRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+
+        postDetailResponseDto.setHits(postHit.getHits());
+
         return postDetailResponseDto;
     }
 
@@ -150,10 +168,20 @@ public class PostService {
             posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
                     .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         }
-        return posts
-                .stream()
-                .map(PostResponseDtoMapper::from)
-                .collect(Collectors.toList());
+
+        List<Long> ids = posts.stream().map(post -> post.getId()).collect(Collectors.toList());
+        List<PostHit> postHits = postHitRepository.findAllByIds(ids);
+        List<PostResponseDto> result = new ArrayList<>();
+        for(PostHit postHit : postHits) {
+            for (Post post : posts) {
+                if(post.getId() == postHit.getPost().getId()) {
+                    PostResponseDto postResponseDto = PostResponseDtoMapper.of(post, postHit.getHits(), 0);
+                    result.add(postResponseDto);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 
     public void removePost(String postOriginId) {
