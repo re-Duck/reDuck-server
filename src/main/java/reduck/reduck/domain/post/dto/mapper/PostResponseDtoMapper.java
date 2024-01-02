@@ -32,4 +32,11 @@ public class PostResponseDtoMapper {
         return postResponseDto;
     }
 
+    public static PostResponseDto of(Post post, int hits, int likes) {
+        PostResponseDto from = from(post);
+        from.setHits(hits);
+        from.setLikes(likes);
+        return from;
+    }
+
 }
