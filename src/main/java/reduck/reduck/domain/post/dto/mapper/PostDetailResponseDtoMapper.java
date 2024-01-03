@@ -28,6 +28,8 @@ public class PostDetailResponseDtoMapper {
                 .postUpdatedAt(post.getUpdatedAt())
                 //comment
                 .comments(comments)
+                .hits(post.getPostHit().getHits())
+                .likse(-1)
                 .build();
 
         return postDetailResponseDto;

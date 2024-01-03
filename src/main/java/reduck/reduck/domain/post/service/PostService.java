@@ -139,15 +139,9 @@ public class PostService {
     public PostDetailResponseDto findByPostOriginId(String postOriginId) {
         Post post = postRepository.findByPostOriginId(postOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
         postHitRepository.updateHits(post);
-
-        PostHit postHit = postHitRepository.findByPost(post)
-                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-
-        postDetailResponseDto.setHits(postHit.getHits());
-
+        PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
         return postDetailResponseDto;
     }
 
@@ -169,19 +163,9 @@ public class PostService {
                     .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         }
 
-        List<Long> ids = posts.stream().map(post -> post.getId()).collect(Collectors.toList());
-        List<PostHit> postHits = postHitRepository.findAllByIds(ids);
-        List<PostResponseDto> result = new ArrayList<>();
-        for(PostHit postHit : postHits) {
-            for (Post post : posts) {
-                if(post.getId() == postHit.getPost().getId()) {
-                    PostResponseDto postResponseDto = PostResponseDtoMapper.of(post, postHit.getHits(), 0);
-                    result.add(postResponseDto);
-                    break;
-                }
-            }
-        }
-        return result;
+        return posts.stream()
+                .map(PostResponseDtoMapper::from)
+                .collect(Collectors.toList());
     }
 
     public void removePost(String postOriginId) {

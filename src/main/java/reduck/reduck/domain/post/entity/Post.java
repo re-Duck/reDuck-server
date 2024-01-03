@@ -36,6 +36,9 @@ public class Post extends BaseEntity {
     @OneToMany(mappedBy = "post", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     List<Comment> comments= new ArrayList(); //양방향 매핑 순환참조 문제 발생.
 
+    @OneToOne(fetch = FetchType.LAZY)
+    private PostHit postHit;
+
     public void setUser(User user) {
         this.user = user;
     }
