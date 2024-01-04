@@ -90,13 +90,15 @@ public class PostService {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
-        postRepository.save(postEntity);
+
 
         // 조회수 테이블 초기화.
         PostHit readCount = PostHit.builder()
                 .hits(0)
                 .post(postEntity)
                 .build();
+        postEntity.setPostHit(readCount);
+        postRepository.save(postEntity);
 
         postHitRepository.save(readCount);
     }
