@@ -49,8 +49,7 @@ public class FollowService {
      *
      * @return
      */
-    public List<FollowerResponse> getFollowers() {
-        String userId = AuthenticationToken.getUserId();
+    public List<FollowerResponse> getFollowers(String userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
 
@@ -63,8 +62,7 @@ public class FollowService {
     /**
      * 팔로잉 목록 조회
      */
-    public List<FollowerResponse> getFollowings() {
-        String userId = AuthenticationToken.getUserId();
+    public List<FollowerResponse> getFollowings(String userId) {
         User user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
 
@@ -72,5 +70,15 @@ public class FollowService {
         return followings.stream()
                 .map(following -> FollowerResponse.from(following.getFollowingUser()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 팔로잉 취소 기능
+     */
+    public void cancel(User user, String followingUserId) {
+        User followingUser = userRepository.findByUserId(followingUserId)
+                .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
+        followRepository.findByUserAndFollowingUser(user, followingUser)
+                .ifPresent(followRepository::delete);
     }
 }
