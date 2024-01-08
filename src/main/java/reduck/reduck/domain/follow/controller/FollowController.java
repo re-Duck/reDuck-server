@@ -35,16 +35,20 @@ public class FollowController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @GetMapping("/followers")
-    public ResponseEntity<Response<List<FollowerResponse>>> getFollowers() {
-        List<FollowerResponse> followers = followService.getFollowers();
+    @GetMapping("/followers/{userId}")
+    public ResponseEntity<Response<List<FollowerResponse>>> getFollowers(
+            @PathVariable("userId") String userId
+    ) {
+        List<FollowerResponse> followers = followService.getFollowers(userId);
         Response<List<FollowerResponse>> response = Response.successResponse(followers);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/followings")
-    public ResponseEntity<Response<List<FollowerResponse>>> getFollowings() {
-        List<FollowerResponse> followings = followService.getFollowings();
+    @GetMapping("/followings/{userId}")
+    public ResponseEntity<Response<List<FollowerResponse>>> getFollowings(
+            @PathVariable("userId") String userId
+    ) {
+        List<FollowerResponse> followings = followService.getFollowings(userId);
         Response<List<FollowerResponse>> response = Response.successResponse(followings);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
