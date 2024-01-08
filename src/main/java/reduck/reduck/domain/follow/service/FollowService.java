@@ -73,4 +73,14 @@ public class FollowService {
                 .map(following -> FollowerResponse.from(following.getFollowingUser()))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * 팔로잉 취소 기능
+     */
+    public void cancel(User user, String followingUserId) {
+        User followingUser = userRepository.findByUserId(followingUserId)
+                .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
+        followRepository.findByUserAndFollowingUser(user, followingUser)
+                .ifPresent(followRepository::delete);
+    }
 }
