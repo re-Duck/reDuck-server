@@ -37,7 +37,5 @@ public class Comment extends BaseEntity {
 
     public void updateFrom(UpdateCommentDto commentDto) {
         this.commentContent = commentDto.getContent();
-
     }
-
 }
