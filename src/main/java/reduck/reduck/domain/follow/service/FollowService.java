@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.follow.Entity.Follow;
 import reduck.reduck.domain.follow.dto.FollowRequest;
+import reduck.reduck.domain.follow.dto.FollowStatusResponse;
 import reduck.reduck.domain.follow.dto.FollowerResponse;
 import reduck.reduck.domain.follow.repository.FollowRepository;
 import reduck.reduck.domain.user.entity.User;
@@ -80,5 +81,20 @@ public class FollowService {
                 .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
         followRepository.findByUserAndFollowingUser(user, followingUser)
                 .ifPresent(followRepository::delete);
+    }
+
+    /**
+     * 상대방과 나의 팔로우 상태 조회
+     */
+    public FollowStatusResponse getFollowStatus(User user, String userId) {
+        User other = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
+        boolean isFollowing = followRepository.findByUserAndFollowingUser(user, other).isPresent();
+        boolean isFollower = followRepository.findByUserAndFollowingUser(other, user).isPresent();
+
+        return FollowStatusResponse.builder()
+                .isFollower(isFollower)
+                .isFollowing(isFollowing)
+                .build();
     }
 }
