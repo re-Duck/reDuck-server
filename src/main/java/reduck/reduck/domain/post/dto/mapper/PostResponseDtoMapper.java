@@ -28,8 +28,15 @@ public class PostResponseDtoMapper {
                 .postUpdatedAt(post.getUpdatedAt())
 
                 .commentsCount(post.getComments().size())
+                .hits(post.getPostHit().getHits())
                 .build();
         return postResponseDto;
+    }
+
+    public static PostResponseDto of(Post post, int likes) {
+        PostResponseDto from = from(post);
+        from.setLikes(likes);
+        return from;
     }
 
 }

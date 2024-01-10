@@ -26,7 +26,7 @@ spring:
 #    suffix: .ftl
   datasource:
     url: jdbc:mysql://${ip}:3306/${database}?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&serverTimezone=Asia/Seoul&characterSetResults=UTF-8&characterEncoding=UTF-8
-    username: root
+    username: admin
     password: ${password}
     driver-class-name: com.mysql.cj.jdbc.Driver
   redis:
@@ -61,5 +61,5 @@ mail_password: utgoumexcfqezlfd
 database: reduck
 password: p39pwt12!
 secret_key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
-#ip: reduck-rds.c504g2qmsiuo.ap-northeast-2.rds.amazonaws.com
-ip: localhost
+ip: reduck-rds.c504g2qmsiuo.ap-northeast-2.rds.amazonaws.com
+#ip: localhost

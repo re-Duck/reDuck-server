@@ -6,16 +6,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import reduck.reduck.domain.like.entity.PostLikeCache;
+import reduck.reduck.domain.like.entity.PostLikes;
 import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
-import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.entity.PostType;
+import reduck.reduck.domain.post.entity.*;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
+import reduck.reduck.domain.post.repository.PostLikeCacheRepository;
+import reduck.reduck.domain.post.repository.PostLikeRepository;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
+import reduck.reduck.domain.post.repository.PostHitRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.repository.UserRepository;
@@ -39,6 +43,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final PostHitRepository postHitRepository;
+    private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
@@ -87,7 +93,21 @@ public class PostService {
         User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
+
+
+        // 조회수 테이블 초기화.
+        PostHit readCount = PostHit.builder()
+                .hits(0)
+                .post(postEntity)
+                .build();
+        postEntity.setPostHit(readCount);
         postRepository.save(postEntity);
+
+        PostLikeCache postLikeCache = PostLikeCache.builder()
+                .post(postEntity)
+                .count(0).build();
+        postHitRepository.save(readCount);
+        postLikeCacheRepository.save(postLikeCache);
     }
 
     @Transactional
@@ -128,8 +148,9 @@ public class PostService {
     public PostDetailResponseDto findByPostOriginId(String postOriginId) {
         Post post = postRepository.findByPostOriginId(postOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
+        postHitRepository.updateHits(post);
+        PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
         return postDetailResponseDto;
     }
 
@@ -150,10 +171,22 @@ public class PostService {
             posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
                     .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         }
-        return posts
-                .stream()
-                .map(PostResponseDtoMapper::from)
-                .collect(Collectors.toList());
+        List<PostLikeCache> postLikes = postLikeCacheRepository.findByPosts(posts);
+
+        List<PostResponseDto> dtos = new ArrayList<>();
+
+        for (Post post : posts) {
+            for (PostLikeCache plc : postLikes) {
+                if (post.getId() == plc.getPost().getId()) {
+                    dtos.add(PostResponseDtoMapper.of(post, plc.getCount()));
+                    break;
+                }
+            }
+        }
+        return dtos;
+//        List<PostResponseDto> postResponseDtos = posts.stream()
+//                .map(PostResponseDtoMapper::from)
+//                .collect(Collectors.toList());
     }
 
     public void removePost(String postOriginId) {

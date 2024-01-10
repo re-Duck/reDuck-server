@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.UserErrorCode;
+import reduck.reduck.global.exception.exception.NotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +17,6 @@ public class JpaUserDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     /**
-     *
      * userId를 조회
      *
      * @param userId
@@ -25,9 +26,8 @@ public class JpaUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
         //username == userId
-        User user = userRepository.findByUserId(userId).orElseThrow(
-                () -> new UsernameNotFoundException("Invalid authentication!")
-        );
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
 
         return new CustomUserDetails(user);
     }

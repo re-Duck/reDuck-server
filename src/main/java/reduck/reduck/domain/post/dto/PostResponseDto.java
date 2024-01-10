@@ -32,4 +32,7 @@ public class PostResponseDto {
     //comment
     private int commentsCount;
 
+    private int hits;
+    private int likes;
+
 }

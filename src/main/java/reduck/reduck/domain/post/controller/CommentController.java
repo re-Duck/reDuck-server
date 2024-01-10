@@ -5,10 +5,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.post.dto.CommentDto;
+import reduck.reduck.domain.post.dto.CommentResponseDto;
 import reduck.reduck.domain.post.dto.UpdateCommentDto;
 import reduck.reduck.domain.post.service.CommentService;
+import reduck.reduck.global.entity.Response;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,5 +34,13 @@ public class CommentController {
     public ResponseEntity<Void> updateComment(@PathVariable String commentOriginId, @RequestBody @Valid UpdateCommentDto commentDto) {
         commentService.updateComment(commentOriginId, commentDto);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/post/{postOriginId}/comments")
+    public ResponseEntity<Response<List<CommentResponseDto>>> getComments(
+            @PathVariable("postOriginId") String postOriginId
+    ) {
+        List<CommentResponseDto> commentResponseDtos = commentService.getComments(postOriginId);
+        return new ResponseEntity(Response.successResponse(commentResponseDtos), HttpStatus.OK);
     }
 }
