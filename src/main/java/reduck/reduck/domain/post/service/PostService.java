@@ -6,6 +6,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import reduck.reduck.domain.like.entity.PostLikeCache;
+import reduck.reduck.domain.like.entity.PostLikes;
 import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
@@ -42,7 +44,6 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final PostHitRepository postHitRepository;
-    private final PostLikeRepository postLikeRepository;
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
@@ -207,41 +208,5 @@ public class PostService {
         if (!post.getUser().getUserId().equals(userId)) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
-    }
-
-    /**
-     * 게시글 좋아요 기능
-     */
-    @Transactional
-    public void like(User user, String postOriginId) {
-        Post post = postRepository.findByPostOriginId(postOriginId)
-                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-
-        postLikeRepository.findByUserAndPost(user, post).ifPresentOrElse(
-                postLike -> modifyLikeStatus(postLike),
-                () -> makeLike(post, user)
-        ); // post - user 중간 테이블에 좋아요 상태 반영
-    }
-
-    private void modifyLikeStatus(PostLikes postLike) {
-        boolean status = postLike.isStatus();
-        boolean afterStatus = !status;
-        postLikeRepository.updateStatus(afterStatus, postLike.getId());
-        int afterCount = reflectNumberBy(afterStatus);
-        postLikeCacheRepository.updateLikeCount(afterCount, postLike.getPost());
-    }
-
-    private int reflectNumberBy(boolean status) {
-        if (status) return 1;
-        return -1;
-    }
-
-    private void makeLike(Post post, User user) {
-        PostLikes postLikes = PostLikes.builder()
-                .post(post)
-                .user(user)
-                .status(true).build();
-        postLikeRepository.save(postLikes);
-        postLikeCacheRepository.updateLikeCount(1, post);
     }
 }

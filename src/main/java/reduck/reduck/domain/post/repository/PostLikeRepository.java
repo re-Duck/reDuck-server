@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.entity.PostLikes;
+import reduck.reduck.domain.like.entity.PostLikes;
 import reduck.reduck.domain.user.entity.User;
 
 import java.util.List;
@@ -22,4 +22,6 @@ public interface PostLikeRepository extends JpaRepository<PostLikes, Long> {
 
     @Query("select count(pl) from PostLikes pl where pl.id in :postIds")
     Integer countByPosts(@Param("postIds") List<Long> postIds);
+
+    List<PostLikes> findAllByUser(User user);
 }

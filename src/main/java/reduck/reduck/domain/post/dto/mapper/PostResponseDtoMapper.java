@@ -29,7 +29,6 @@ public class PostResponseDtoMapper {
 
                 .commentsCount(post.getComments().size())
                 .hits(post.getPostHit().getHits())
-                .likes(-1)
                 .build();
         return postResponseDto;
     }

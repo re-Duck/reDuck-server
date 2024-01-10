@@ -65,13 +65,4 @@ public class PostController {
         postService.updatePost(postOriginId, postDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
-
-    @PostMapping("/like/{postOriginId}")
-    public ResponseEntity<Void> postLike(
-            @PathVariable("postOriginId") String postOriginId,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
-    ) {
-        postService.like(customUserDetails.getuser(), postOriginId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
 }

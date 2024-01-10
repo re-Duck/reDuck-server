@@ -1,9 +1,10 @@
-package reduck.reduck.domain.post.entity;
+package reduck.reduck.domain.like.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 

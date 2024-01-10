@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.entity.PostLikeCache;
+import reduck.reduck.domain.like.entity.PostLikeCache;
 
 import java.util.List;
 
