@@ -29,14 +29,12 @@ public class PostResponseDtoMapper {
 
                 .commentsCount(post.getComments().size())
                 .hits(post.getPostHit().getHits())
-                .likes(-1)
                 .build();
         return postResponseDto;
     }
 
-    public static PostResponseDto of(Post post, int hits, int likes) {
+    public static PostResponseDto of(Post post, int likes) {
         PostResponseDto from = from(post);
-        from.setHits(hits);
         from.setLikes(likes);
         return from;
     }

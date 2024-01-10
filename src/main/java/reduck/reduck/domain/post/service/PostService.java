@@ -6,15 +6,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import reduck.reduck.domain.like.entity.PostLikeCache;
+import reduck.reduck.domain.like.entity.PostLikes;
 import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
-import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.entity.PostHit;
-import reduck.reduck.domain.post.entity.PostType;
+import reduck.reduck.domain.post.entity.*;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
+import reduck.reduck.domain.post.repository.PostLikeCacheRepository;
+import reduck.reduck.domain.post.repository.PostLikeRepository;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
 import reduck.reduck.domain.post.repository.PostHitRepository;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final PostHitRepository postHitRepository;
+    private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
@@ -100,7 +103,11 @@ public class PostService {
         postEntity.setPostHit(readCount);
         postRepository.save(postEntity);
 
+        PostLikeCache postLikeCache = PostLikeCache.builder()
+                .post(postEntity)
+                .count(0).build();
         postHitRepository.save(readCount);
+        postLikeCacheRepository.save(postLikeCache);
     }
 
     @Transactional
@@ -164,10 +171,22 @@ public class PostService {
             posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
                     .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         }
+        List<PostLikeCache> postLikes = postLikeCacheRepository.findByPosts(posts);
 
-        return posts.stream()
-                .map(PostResponseDtoMapper::from)
-                .collect(Collectors.toList());
+        List<PostResponseDto> dtos = new ArrayList<>();
+
+        for (Post post : posts) {
+            for (PostLikeCache plc : postLikes) {
+                if (post.getId() == plc.getPost().getId()) {
+                    dtos.add(PostResponseDtoMapper.of(post, plc.getCount()));
+                    break;
+                }
+            }
+        }
+        return dtos;
+//        List<PostResponseDto> postResponseDtos = posts.stream()
+//                .map(PostResponseDtoMapper::from)
+//                .collect(Collectors.toList());
     }
 
     public void removePost(String postOriginId) {
