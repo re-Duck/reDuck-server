@@ -9,6 +9,7 @@ import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostLikes;
 import reduck.reduck.domain.user.entity.User;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -18,4 +19,7 @@ public interface PostLikeRepository extends JpaRepository<PostLikes, Long> {
     @Modifying
     @Query("update PostLikes pl set pl.status = :afterStatus where pl.id = :id ")
     void updateStatus(@Param("afterStatus") boolean afterStatus, @Param("id") Long id);
+
+    @Query("select count(pl) from PostLikes pl where pl.id in :postIds")
+    Integer countByPosts(@Param("postIds") List<Long> postIds);
 }

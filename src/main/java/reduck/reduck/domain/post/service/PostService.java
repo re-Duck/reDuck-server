@@ -10,12 +10,10 @@ import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
-import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.entity.PostHit;
-import reduck.reduck.domain.post.entity.PostLikes;
-import reduck.reduck.domain.post.entity.PostType;
+import reduck.reduck.domain.post.entity.*;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
+import reduck.reduck.domain.post.repository.PostLikeCacheRepository;
 import reduck.reduck.domain.post.repository.PostLikeRepository;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +43,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostHitRepository postHitRepository;
     private final PostLikeRepository postLikeRepository;
+    private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
@@ -103,7 +102,11 @@ public class PostService {
         postEntity.setPostHit(readCount);
         postRepository.save(postEntity);
 
+        PostLikeCache postLikeCache = PostLikeCache.builder()
+                .post(postEntity)
+                .count(0).build();
         postHitRepository.save(readCount);
+        postLikeCacheRepository.save(postLikeCache);
     }
 
     @Transactional
@@ -167,10 +170,22 @@ public class PostService {
             posts = postRepository.findAllByPostTypeAndPostOriginIdOrderByIdDescLimitPage(postTypes, postOriginId, pageable)
                     .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         }
+        List<PostLikeCache> postLikes = postLikeCacheRepository.findByPosts(posts);
 
-        return posts.stream()
-                .map(PostResponseDtoMapper::from)
-                .collect(Collectors.toList());
+        List<PostResponseDto> dtos = new ArrayList<>();
+
+        for (Post post : posts) {
+            for (PostLikeCache plc : postLikes) {
+                if (post.getId() == plc.getPost().getId()) {
+                    dtos.add(PostResponseDtoMapper.of(post, plc.getCount()));
+                    break;
+                }
+            }
+        }
+        return dtos;
+//        List<PostResponseDto> postResponseDtos = posts.stream()
+//                .map(PostResponseDtoMapper::from)
+//                .collect(Collectors.toList());
     }
 
     public void removePost(String postOriginId) {
@@ -205,13 +220,20 @@ public class PostService {
         postLikeRepository.findByUserAndPost(user, post).ifPresentOrElse(
                 postLike -> modifyLikeStatus(postLike),
                 () -> makeLike(post, user)
-        );
+        ); // post - user 중간 테이블에 좋아요 상태 반영
     }
 
     private void modifyLikeStatus(PostLikes postLike) {
         boolean status = postLike.isStatus();
         boolean afterStatus = !status;
         postLikeRepository.updateStatus(afterStatus, postLike.getId());
+        int afterCount = reflectNumberBy(afterStatus);
+        postLikeCacheRepository.updateLikeCount(afterCount, postLike.getPost());
+    }
+
+    private int reflectNumberBy(boolean status) {
+        if (status) return 1;
+        return -1;
     }
 
     private void makeLike(Post post, User user) {
@@ -220,5 +242,6 @@ public class PostService {
                 .user(user)
                 .status(true).build();
         postLikeRepository.save(postLikes);
+        postLikeCacheRepository.updateLikeCount(1, post);
     }
 }
