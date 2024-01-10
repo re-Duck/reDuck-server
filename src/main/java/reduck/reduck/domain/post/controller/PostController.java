@@ -2,12 +2,15 @@ package reduck.reduck.domain.post.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.service.PostService;
+import reduck.reduck.global.security.CustomUserDetails;
+
 import javax.validation.Valid;
 import java.util.List;
 
@@ -21,8 +24,9 @@ public class PostController {
     public ResponseEntity<String> mayackImgaeCreate(
             @PathVariable("account") String account,
             @RequestPart(required = false) MultipartFile file) {
-        return new ResponseEntity<>(postService.mayackImage(account,file), HttpStatus.OK);
+        return new ResponseEntity<>(postService.mayackImage(account, file), HttpStatus.OK);
     }
+
     @PostMapping()
     public ResponseEntity<Void> createPost(@RequestBody @Valid PostDto postDto) {
         postService.createPost(postDto);
@@ -45,7 +49,7 @@ public class PostController {
     public ResponseEntity<List<PostResponseDto>> getPosts(@RequestParam String postOriginId,
                                                           @RequestParam List<String> postType,
                                                           @RequestParam int page) {
-        List<PostResponseDto> postResponseDtos = postService.getPosts(postOriginId,postType, page);
+        List<PostResponseDto> postResponseDtos = postService.getPosts(postOriginId, postType, page);
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }
 
@@ -57,8 +61,17 @@ public class PostController {
     }
 
     @PutMapping("/{postOriginId}")
-    public ResponseEntity<Void> updatePost(@PathVariable String postOriginId,@RequestBody @Valid PostDto postDto ) {
+    public ResponseEntity<Void> updatePost(@PathVariable String postOriginId, @RequestBody @Valid PostDto postDto) {
         postService.updatePost(postOriginId, postDto);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PostMapping("/like/{postOriginId}")
+    public ResponseEntity<Void> postLike(
+            @PathVariable("postOriginId") String postOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        postService.like(customUserDetails.getuser(), postOriginId);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }

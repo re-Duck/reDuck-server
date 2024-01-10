@@ -12,9 +12,11 @@ import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostHit;
+import reduck.reduck.domain.post.entity.PostLikes;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
+import reduck.reduck.domain.post.repository.PostLikeRepository;
 import reduck.reduck.domain.post.repository.PostRepository;
 import lombok.extern.slf4j.Slf4j;
 import reduck.reduck.domain.post.repository.PostHitRepository;
@@ -42,6 +44,7 @@ import java.util.stream.Collectors;
 public class PostService {
     private final PostRepository postRepository;
     private final PostHitRepository postHitRepository;
+    private final PostLikeRepository postLikeRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
@@ -189,5 +192,33 @@ public class PostService {
         if (!post.getUser().getUserId().equals(userId)) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
+    }
+
+    /**
+     * 게시글 좋아요 기능
+     */
+    @Transactional
+    public void like(User user, String postOriginId) {
+        Post post = postRepository.findByPostOriginId(postOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+
+        postLikeRepository.findByUserAndPost(user, post).ifPresentOrElse(
+                postLike -> modifyLikeStatus(postLike),
+                () -> makeLike(post, user)
+        );
+    }
+
+    private void modifyLikeStatus(PostLikes postLike) {
+        boolean status = postLike.isStatus();
+        boolean afterStatus = !status;
+        postLikeRepository.updateStatus(afterStatus, postLike.getId());
+    }
+
+    private void makeLike(Post post, User user) {
+        PostLikes postLikes = PostLikes.builder()
+                .post(post)
+                .user(user)
+                .status(true).build();
+        postLikeRepository.save(postLikes);
     }
 }
