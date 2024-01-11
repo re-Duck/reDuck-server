@@ -29,7 +29,7 @@ public class PostDetailResponseDtoMapper {
                 //comment
                 .comments(comments)
                 .hits(post.getPostHit().getHits())
-                .likse(-1)
+                .likes(-1)
                 .build();
 
         return postDetailResponseDto;

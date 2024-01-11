@@ -30,5 +30,5 @@ public class PostDetailResponseDto {
     private List<CommentResponseDto> comments;
 
     private int hits;
-    private int likse;
+    private int likes;
 }

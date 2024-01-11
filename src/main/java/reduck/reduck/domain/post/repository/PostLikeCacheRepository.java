@@ -8,6 +8,7 @@ import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.like.entity.PostLikeCache;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface PostLikeCacheRepository extends JpaRepository<PostLikeCache, Long> {
 
@@ -17,4 +18,6 @@ public interface PostLikeCacheRepository extends JpaRepository<PostLikeCache, Lo
 
     @Query("select plc from PostLikeCache plc where plc.post in :posts")
     List<PostLikeCache> findByPosts(@Param("posts") List<Post> posts);
+
+    Optional<PostLikeCache> findByPost(Post post);
 }

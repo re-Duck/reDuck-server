@@ -151,6 +151,11 @@ public class PostService {
 
         postHitRepository.updateHits(post);
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
+
+        PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+
+        postDetailResponseDto.setLikes(postLikeCache.getCount());
         return postDetailResponseDto;
     }
 
