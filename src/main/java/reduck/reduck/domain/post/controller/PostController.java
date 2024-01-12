@@ -20,16 +20,17 @@ import java.util.List;
 public class PostController {
     private final PostService postService;
 
-    @PostMapping("/mayack/{account}")
-    public ResponseEntity<String> mayackImgaeCreate(
-            @PathVariable("account") String account,
-            @RequestPart(required = false) MultipartFile file) {
-        return new ResponseEntity<>(postService.mayackImage(account, file), HttpStatus.OK);
-    }
-
     @PostMapping()
     public ResponseEntity<Void> createPost(@RequestBody @Valid PostDto postDto) {
         postService.createPost(postDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+    @PostMapping("/temporary")
+    public ResponseEntity<Void> createTemporaryPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody @Valid PostDto postDto
+    ) {
+        postService.createTemporaryPost(customUserDetails.getuser(), postDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
