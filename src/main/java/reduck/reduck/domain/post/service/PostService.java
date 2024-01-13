@@ -7,21 +7,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.like.entity.PostLikeCache;
-import reduck.reduck.domain.like.entity.PostLikes;
 import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
+import reduck.reduck.domain.post.dto.TemporaryPostResponse;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
 import reduck.reduck.domain.post.entity.*;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
-import reduck.reduck.domain.post.repository.PostLikeCacheRepository;
-import reduck.reduck.domain.post.repository.PostLikeRepository;
-import reduck.reduck.domain.post.repository.PostRepository;
+import reduck.reduck.domain.post.repository.*;
 import lombok.extern.slf4j.Slf4j;
-import reduck.reduck.domain.post.repository.PostHitRepository;
 import reduck.reduck.domain.user.entity.User;
-import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
@@ -30,6 +26,7 @@ import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.util.AuthenticationToken;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -43,57 +40,18 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PostService {
     private final PostRepository postRepository;
+    private final TemporaryPostRepository temporaryPostRepository;
     private final PostHitRepository postHitRepository;
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
 
-    public String mayackImage(String account, MultipartFile file) {
-        String mayackPath = DEV_PATH + "/mayack";
-        return saveMayackPostImage(mayackPath, file, account);
-    }
-
-    private String saveMayackPostImage(String myackPath, MultipartFile multipartFile, String userId) {
-        String originalFilename = multipartFile.getOriginalFilename();
-        String extension = originalFilename.split("\\.")[1];
-        String storageFileName = UUID.randomUUID() + "." + extension;
-        long size = multipartFile.getSize();
-        String path = myackPath + "/" + userId; //폴더 경로
-        File Folder = new File(path);
-        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-        if (!Folder.exists()) {
-            try {
-                Folder.mkdir(); //폴더 생성합니다.
-            } catch (Exception e) {
-                e.getStackTrace();
-            }
-        }
-        Path imagePath = Paths.get(path, storageFileName);
-        try {
-            UserProfileImg userProfileImg = UserProfileImg.builder()
-                    .storagedFileName(storageFileName)
-                    .uploadedFileName(originalFilename)
-                    .path(String.valueOf(imagePath))
-                    .extension(extension)
-                    .size(size)
-                    .build();
-            Files.write(imagePath, multipartFile.getBytes());
-            return String.valueOf(imagePath);
-
-        } catch (Exception e) {
-            log.error("이미지 저장 실패", e);
-            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @Transactional
-    public void createPost(PostDto postDto) {
-        String userId = AuthenticationToken.getUserId();
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
+    public void createPost(User user, PostDto postDto) {
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
-
 
         // 조회수 테이블 초기화.
         PostHit readCount = PostHit.builder()
@@ -108,6 +66,20 @@ public class PostService {
                 .count(0).build();
         postHitRepository.save(readCount);
         postLikeCacheRepository.save(postLikeCache);
+    }
+
+    /**
+     * 게시글 임시저장
+     */
+    @Transactional
+    public void createTemporaryPost(User user, PostDto postDto) {
+        TemporaryPost temporaryPost = TemporaryPost.builder()
+                .postType(postDto.getPostType())
+                .postTitle(postDto.getTitle())
+                .postOriginId(postDto.getPostOriginId())
+                .content(postDto.getContent())
+                .user(user).build();
+        temporaryPostRepository.save(temporaryPost);
     }
 
     @Transactional
@@ -213,5 +185,43 @@ public class PostService {
         if (!post.getUser().getUserId().equals(userId)) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
+    }
+
+    /**
+     * 임시저장된 게시글 목록 조회
+     *
+     * @return
+     */
+    public List<TemporaryPostResponse> getTemporaryPosts(User user, Optional<String> temporaryPostOriginId, Pageable pageable) {
+        List<TemporaryPost> result = temporaryPostRepository.findAllByUserOrderByIdDescLimitPage(user, pageable);
+        return result.stream().map(TemporaryPostResponse::from).collect(Collectors.toList());
+    }
+
+    /**
+     * 임시저장 게시글 작성 완료
+     *
+     * Post 테이블로 데이터를 이전한다.
+     */
+    @Transactional
+    public void completeTemporaryPost(User user, String temporaryPostOriginId, PostDto postDto) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!temporaryPost.getUser().equals(user)) {
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
+        }
+        createPost(user, postDto); // 새로운 게시글 생성
+        temporaryPostRepository.delete(temporaryPost); // 기존 임시 게시글 삭제
+    }
+
+    /**
+     * 임시 게시글 삭제
+     */
+    public void removeTemporaryPost(User user, String temporaryPostOriginId) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!temporaryPost.getUser().equals(user)) {
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
+        }
+        temporaryPostRepository.delete(temporaryPost);
     }
 }

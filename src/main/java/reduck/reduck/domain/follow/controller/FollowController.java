@@ -32,7 +32,7 @@ public class FollowController {
             @PathVariable("userId") String followingUserId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        followService.cancel(customUserDetails.getuser(), followingUserId);
+        followService.cancel(customUserDetails.getUser(), followingUserId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
@@ -59,7 +59,7 @@ public class FollowController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("userId") String userId
     ) {
-        FollowStatusResponse followStatus = followService.getFollowStatus(customUserDetails.getuser(), userId);
+        FollowStatusResponse followStatus = followService.getFollowStatus(customUserDetails.getUser(), userId);
         return new ResponseEntity<>(Response.successResponse(followStatus), HttpStatus.OK);
     }
 }
