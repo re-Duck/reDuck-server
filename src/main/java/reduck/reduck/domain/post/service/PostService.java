@@ -165,6 +165,7 @@ public class PostService {
 //                .collect(Collectors.toList());
     }
 
+    @Transactional
     public void removePost(String postOriginId) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(
                 () -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
@@ -175,7 +176,7 @@ public class PostService {
         postLikeRepository.deleteByPost(post);
         postRepository.delete(post);
     }
-
+    @Transactional
     public void updatePost(String postOriginId, PostDto postDto) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post);
@@ -219,6 +220,7 @@ public class PostService {
     /**
      * 임시 게시글 삭제
      */
+    @Transactional
     public void removeTemporaryPost(User user, String temporaryPostOriginId) {
         TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
@@ -231,9 +233,22 @@ public class PostService {
     /**
      * 임시저장 게시글 단일 조회
      */
-    public TemporaryPostResponse getTemporaryPost(User user, String temporaryPostOriginId) {
-        TemporaryPost temporaryPost = temporaryPostRepository.findByUserAndPostOriginId(user, temporaryPostOriginId)
+    public TemporaryPostResponse getTemporaryPost(String temporaryPostOriginId) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         return TemporaryPostResponse.from(temporaryPost);
+    }
+
+    /**
+     * 임시 저장 게시글 수정
+     */
+    @Transactional
+    public void updateTemporaryPost(User user, String temporaryPostOriginId, PostDto postDto) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!temporaryPost.getUser().equals(user)) {
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
+        }
+        temporaryPost.updateFrom(postDto);
     }
 }

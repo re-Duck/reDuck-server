@@ -95,10 +95,9 @@ public class PostController {
 
     @GetMapping("/temporary/{temporaryPostOriginId}")
     public ResponseEntity<Response<TemporaryPostResponse>> getTemporaryPost(
-            @PathVariable("temporaryPostOriginId") String temporaryPostOriginId,
-            @AuthenticationPrincipal CustomUserDetails customUserDetails
+            @PathVariable("temporaryPostOriginId") String temporaryPostOriginId
     ){
-        TemporaryPostResponse result = postService.getTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId);
+        TemporaryPostResponse result = postService.getTemporaryPost(temporaryPostOriginId);
         return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 
@@ -112,6 +111,16 @@ public class PostController {
     @PutMapping("/{postOriginId}")
     public ResponseEntity<Void> updatePost(@PathVariable String postOriginId, @RequestBody @Valid PostDto postDto) {
         postService.updatePost(postOriginId, postDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/temporary/{temporaryPostOriginId}")
+    public ResponseEntity<Void> updateTemporaryPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable String temporaryPostOriginId,
+            @RequestBody @Valid PostDto postDto
+    ){
+        postService.updateTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId, postDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
