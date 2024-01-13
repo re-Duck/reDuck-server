@@ -59,6 +59,15 @@ public class PostController {
         return new ResponseEntity<>(postService.saveMultipartFile(file), HttpStatus.CREATED);
     }
 
+    @DeleteMapping("/temporary/{temporaryPostOriginId}")
+    public ResponseEntity<Void> deleteTemporaryPost(
+            @PathVariable("temporaryPostOriginId") String temporaryPostOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        postService.removeTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     // 게시글 하나
     @GetMapping("/detail/{postOriginId}")
     public ResponseEntity<PostDetailResponseDto> getPost(@PathVariable String postOriginId) {

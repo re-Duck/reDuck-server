@@ -212,4 +212,16 @@ public class PostService {
         createPost(user, postDto); // 새로운 게시글 생성
         temporaryPostRepository.delete(temporaryPost); // 기존 임시 게시글 삭제
     }
+
+    /**
+     * 임시 게시글 삭제
+     */
+    public void removeTemporaryPost(User user, String temporaryPostOriginId) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!temporaryPost.getUser().equals(user)) {
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
+        }
+        temporaryPostRepository.delete(temporaryPost);
+    }
 }
