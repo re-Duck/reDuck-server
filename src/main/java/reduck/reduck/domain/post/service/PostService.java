@@ -7,10 +7,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.like.entity.PostLikeCache;
-import reduck.reduck.domain.like.entity.PostLikes;
 import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
+import reduck.reduck.domain.post.dto.TemporaryPostResponse;
 import reduck.reduck.domain.post.dto.mapper.PostDetailResponseDtoMapper;
 import reduck.reduck.domain.post.entity.*;
 import reduck.reduck.domain.post.entity.mapper.PostMapper;
@@ -18,7 +18,6 @@ import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.*;
 import lombok.extern.slf4j.Slf4j;
 import reduck.reduck.domain.user.entity.User;
-import reduck.reduck.domain.user.entity.UserProfileImg;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
@@ -84,6 +83,7 @@ public class PostService {
                 .user(user).build();
         temporaryPostRepository.save(temporaryPost);
     }
+
     @Transactional
     public String saveMultipartFile(MultipartFile multipartFile) {
         if (multipartFile.isEmpty()) {
@@ -189,4 +189,13 @@ public class PostService {
         }
     }
 
+    /**
+     * 임시저장된 게시글 목록 조회
+     *
+     * @return
+     */
+    public List<TemporaryPostResponse> getTemporaryPosts(User user, Optional<String> temporaryPostOriginId, Pageable pageable) {
+        List<TemporaryPost> result = temporaryPostRepository.findAllByUserOrderByIdDescLimitPage(user, pageable);
+        return result.stream().map(TemporaryPostResponse::from).collect(Collectors.toList());
+    }
 }

@@ -32,10 +32,6 @@ public class TemporaryPost extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
     public void updateFrom(PostDto dto) {
         this.postTitle = dto.getTitle();
         this.content = dto.getContent();

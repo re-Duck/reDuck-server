@@ -16,7 +16,7 @@ public class CustomUserDetails implements UserDetails {
         this.user = user;
     }
 
-    public final User getuser() {
+    public final User getUser() {
         return user;
     }
 

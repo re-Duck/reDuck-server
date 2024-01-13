@@ -7,7 +7,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.like.response.PostLikesResponse;
 import reduck.reduck.domain.like.service.LikeService;
-import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.global.entity.Response;
 import reduck.reduck.global.security.CustomUserDetails;
 
@@ -24,7 +23,7 @@ public class LikeController {
             @PathVariable("postOriginId") String postOriginId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        likeService.like(customUserDetails.getuser(), postOriginId);
+        likeService.like(customUserDetails.getUser(), postOriginId);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -32,7 +31,7 @@ public class LikeController {
     public ResponseEntity<Response<List<PostLikesResponse>>> getLikePosts(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-        List<PostLikesResponse> postLikesResponses = likeService.getLikePosts(customUserDetails.getuser());
+        List<PostLikesResponse> postLikesResponses = likeService.getLikePosts(customUserDetails.getUser());
         return new ResponseEntity<>(Response.successResponse(postLikesResponses), HttpStatus.OK);
     }
 }
