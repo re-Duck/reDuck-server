@@ -23,4 +23,6 @@ public interface TemporaryPostRepository extends JpaRepository<TemporaryPost, Lo
             Pageable pageable);
 
     Optional<TemporaryPost> findByPostOriginId(String temporaryPostOriginId);
+
+    Optional<TemporaryPost> findByUserAndPostOriginId(User user, String temporaryPostOriginId);
 }

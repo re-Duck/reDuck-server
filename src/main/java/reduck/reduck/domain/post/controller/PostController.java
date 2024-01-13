@@ -93,8 +93,18 @@ public class PostController {
         return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 
+    @GetMapping("/temporary/{temporaryPostOriginId}")
+    public ResponseEntity<Response<TemporaryPostResponse>> getTemporaryPost(
+            @PathVariable("temporaryPostOriginId") String temporaryPostOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ){
+        TemporaryPostResponse result = postService.getTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{postOriginId}")
     public ResponseEntity<Void> removePost(@PathVariable String postOriginId) {
+
         postService.removePost(postOriginId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }

@@ -39,6 +39,7 @@ public class Post extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.REMOVE, orphanRemoval = true)
     private PostHit postHit;
 
+
     public void setUser(User user) {
         this.user = user;
     }

@@ -22,11 +22,9 @@ import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.PostErrorCode;
-import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.util.AuthenticationToken;
 
-import javax.validation.Valid;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class PostService {
+    private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final TemporaryPostRepository temporaryPostRepository;
     private final PostHitRepository postHitRepository;
@@ -170,6 +169,10 @@ public class PostService {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(
                 () -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post);
+        PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        postLikeCacheRepository.delete(postLikeCache);
+        postLikeRepository.deleteByPost(post);
         postRepository.delete(post);
     }
 
@@ -223,5 +226,14 @@ public class PostService {
             throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
         temporaryPostRepository.delete(temporaryPost);
+    }
+
+    /**
+     * 임시저장 게시글 단일 조회
+     */
+    public TemporaryPostResponse getTemporaryPost(User user, String temporaryPostOriginId) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByUserAndPostOriginId(user, temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        return TemporaryPostResponse.from(temporaryPost);
     }
 }
