@@ -35,16 +35,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/temporary/{temporaryPostOriginId}")
-    public ResponseEntity<Void> completeTemporaryPost(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable String temporaryPostOriginId,
-            @RequestBody @Valid PostDto postDto
-    ) {
-        postService.completeTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId, postDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
     @PostMapping("/temporary")
     public ResponseEntity<Void> createTemporaryPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
@@ -93,8 +83,17 @@ public class PostController {
         return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 
+    @GetMapping("/temporary/{temporaryPostOriginId}")
+    public ResponseEntity<Response<TemporaryPostResponse>> getTemporaryPost(
+            @PathVariable("temporaryPostOriginId") String temporaryPostOriginId
+    ){
+        TemporaryPostResponse result = postService.getTemporaryPost(temporaryPostOriginId);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
+    }
+
     @DeleteMapping("/{postOriginId}")
     public ResponseEntity<Void> removePost(@PathVariable String postOriginId) {
+
         postService.removePost(postOriginId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -102,6 +101,16 @@ public class PostController {
     @PutMapping("/{postOriginId}")
     public ResponseEntity<Void> updatePost(@PathVariable String postOriginId, @RequestBody @Valid PostDto postDto) {
         postService.updatePost(postOriginId, postDto);
+        return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @PutMapping("/temporary/{temporaryPostOriginId}")
+    public ResponseEntity<Void> updateTemporaryPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable String temporaryPostOriginId,
+            @RequestBody @Valid PostDto postDto
+    ){
+        postService.updateTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId, postDto);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

@@ -22,11 +22,9 @@ import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.PostErrorCode;
-import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.util.AuthenticationToken;
 
-import javax.validation.Valid;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -39,6 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class PostService {
+    private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final TemporaryPostRepository temporaryPostRepository;
     private final PostHitRepository postHitRepository;
@@ -166,13 +165,18 @@ public class PostService {
 //                .collect(Collectors.toList());
     }
 
+    @Transactional
     public void removePost(String postOriginId) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(
                 () -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post);
+        PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        postLikeCacheRepository.delete(postLikeCache);
+        postLikeRepository.deleteByPost(post);
         postRepository.delete(post);
     }
-
+    @Transactional
     public void updatePost(String postOriginId, PostDto postDto) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post);
@@ -197,25 +201,11 @@ public class PostService {
         return result.stream().map(TemporaryPostResponse::from).collect(Collectors.toList());
     }
 
-    /**
-     * 임시저장 게시글 작성 완료
-     *
-     * Post 테이블로 데이터를 이전한다.
-     */
-    @Transactional
-    public void completeTemporaryPost(User user, String temporaryPostOriginId, PostDto postDto) {
-        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
-                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        if (!temporaryPost.getUser().equals(user)) {
-            throw new AuthException(AuthErrorCode.FORBIDDEN);
-        }
-        createPost(user, postDto); // 새로운 게시글 생성
-        temporaryPostRepository.delete(temporaryPost); // 기존 임시 게시글 삭제
-    }
 
     /**
      * 임시 게시글 삭제
      */
+    @Transactional
     public void removeTemporaryPost(User user, String temporaryPostOriginId) {
         TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
@@ -223,5 +213,27 @@ public class PostService {
             throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
         temporaryPostRepository.delete(temporaryPost);
+    }
+
+    /**
+     * 임시저장 게시글 단일 조회
+     */
+    public TemporaryPostResponse getTemporaryPost(String temporaryPostOriginId) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        return TemporaryPostResponse.from(temporaryPost);
+    }
+
+    /**
+     * 임시 저장 게시글 수정
+     */
+    @Transactional
+    public void updateTemporaryPost(User user, String temporaryPostOriginId, PostDto postDto) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!temporaryPost.getUser().equals(user)) {
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
+        }
+        temporaryPost.updateFrom(postDto);
     }
 }
