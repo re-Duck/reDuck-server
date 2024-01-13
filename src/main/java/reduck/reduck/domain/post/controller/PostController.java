@@ -28,8 +28,20 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping()
-    public ResponseEntity<Void> createPost(@RequestBody @Valid PostDto postDto) {
-        postService.createPost(postDto);
+    public ResponseEntity<Void> createPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody @Valid PostDto postDto) {
+        postService.createPost(customUserDetails.getUser(),postDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/temporary/{temporaryPostOriginId}")
+    public ResponseEntity<Void> completeTemporaryPost(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @PathVariable String temporaryPostOriginId,
+            @RequestBody @Valid PostDto postDto
+    ) {
+        postService.completeTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId, postDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

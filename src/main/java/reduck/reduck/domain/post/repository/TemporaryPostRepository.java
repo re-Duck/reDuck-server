@@ -8,6 +8,7 @@ import reduck.reduck.domain.post.entity.TemporaryPost;
 import reduck.reduck.domain.user.entity.User;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TemporaryPostRepository extends JpaRepository<TemporaryPost, Long> {
     @Query("Select tp from TemporaryPost tp join fetch tp.user where tp.user = :user and (select tp2 from TemporaryPost tp2 where tp2.postOriginId = :temporaryPostOriginId) > tp.id order by tp.id desc")
@@ -20,4 +21,6 @@ public interface TemporaryPostRepository extends JpaRepository<TemporaryPost, Lo
     List<TemporaryPost> findAllByUserOrderByIdDescLimitPage(
             @Param("user") User user,
             Pageable pageable);
+
+    Optional<TemporaryPost> findByPostOriginId(String temporaryPostOriginId);
 }

@@ -26,6 +26,7 @@ import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.*;
 import reduck.reduck.util.AuthenticationToken;
 
+import javax.validation.Valid;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -48,12 +49,9 @@ public class PostService {
 
 
     @Transactional
-    public void createPost(PostDto postDto) {
-        String userId = AuthenticationToken.getUserId();
-        User user = userRepository.findByUserId(userId).orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
+    public void createPost(User user, PostDto postDto) {
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
-
 
         // 조회수 테이블 초기화.
         PostHit readCount = PostHit.builder()
@@ -197,5 +195,21 @@ public class PostService {
     public List<TemporaryPostResponse> getTemporaryPosts(User user, Optional<String> temporaryPostOriginId, Pageable pageable) {
         List<TemporaryPost> result = temporaryPostRepository.findAllByUserOrderByIdDescLimitPage(user, pageable);
         return result.stream().map(TemporaryPostResponse::from).collect(Collectors.toList());
+    }
+
+    /**
+     * 임시저장 게시글 작성 완료
+     *
+     * Post 테이블로 데이터를 이전한다.
+     */
+    @Transactional
+    public void completeTemporaryPost(User user, String temporaryPostOriginId, PostDto postDto) {
+        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!temporaryPost.getUser().equals(user)) {
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
+        }
+        createPost(user, postDto); // 새로운 게시글 생성
+        temporaryPostRepository.delete(temporaryPost); // 기존 임시 게시글 삭제
     }
 }
