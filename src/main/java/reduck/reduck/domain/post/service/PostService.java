@@ -201,21 +201,6 @@ public class PostService {
         return result.stream().map(TemporaryPostResponse::from).collect(Collectors.toList());
     }
 
-    /**
-     * 임시저장 게시글 작성 완료
-     *
-     * Post 테이블로 데이터를 이전한다.
-     */
-    @Transactional
-    public void completeTemporaryPost(User user, String temporaryPostOriginId, PostDto postDto) {
-        TemporaryPost temporaryPost = temporaryPostRepository.findByPostOriginId(temporaryPostOriginId)
-                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        if (!temporaryPost.getUser().equals(user)) {
-            throw new AuthException(AuthErrorCode.FORBIDDEN);
-        }
-        createPost(user, postDto); // 새로운 게시글 생성
-        temporaryPostRepository.delete(temporaryPost); // 기존 임시 게시글 삭제
-    }
 
     /**
      * 임시 게시글 삭제

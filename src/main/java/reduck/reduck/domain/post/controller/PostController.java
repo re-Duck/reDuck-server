@@ -35,16 +35,6 @@ public class PostController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @PostMapping("/temporary/{temporaryPostOriginId}")
-    public ResponseEntity<Void> completeTemporaryPost(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
-            @PathVariable String temporaryPostOriginId,
-            @RequestBody @Valid PostDto postDto
-    ) {
-        postService.completeTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId, postDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
     @PostMapping("/temporary")
     public ResponseEntity<Void> createTemporaryPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
