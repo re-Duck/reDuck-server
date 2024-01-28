@@ -92,15 +92,21 @@ public class PostController {
     }
 
     @DeleteMapping("/{postOriginId}")
-    public ResponseEntity<Void> removePost(@PathVariable String postOriginId) {
-
-        postService.removePost(postOriginId);
+    public ResponseEntity<Void> removePost(
+            @PathVariable String postOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        postService.removePost(postOriginId, customUserDetails.getUser());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/{postOriginId}")
-    public ResponseEntity<Void> updatePost(@PathVariable String postOriginId, @RequestBody @Valid PostDto postDto) {
-        postService.updatePost(postOriginId, postDto);
+    public ResponseEntity<Void> updatePost(
+            @PathVariable String postOriginId,
+            @RequestBody @Valid PostDto postDto,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        postService.updatePost(postOriginId, postDto, customUserDetails.getUser());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 

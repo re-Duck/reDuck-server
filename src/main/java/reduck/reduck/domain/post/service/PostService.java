@@ -17,6 +17,8 @@ import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import reduck.reduck.domain.scrap.entity.ScrapPost;
+import reduck.reduck.domain.scrap.repository.ScrapRepository;
 import reduck.reduck.domain.tag.dto.TagDto;
 import reduck.reduck.domain.tag.entity.Tag;
 import reduck.reduck.domain.tag.mapper.TagMapper;
@@ -48,6 +50,7 @@ public class PostService {
     private final PostHitRepository postHitRepository;
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
+    private final ScrapRepository scrapRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
 
@@ -195,28 +198,57 @@ public class PostService {
     }
 
     @Transactional
-    public void removePost(String postOriginId) {
+    public void removePost(String postOriginId, User user) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(
                 () -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        validateAuthentication(post);
-        PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
-                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        postLikeCacheRepository.delete(postLikeCache);
-        postLikeRepository.deleteByPost(post);
+        validateAuthentication(post, user);
+        cascadeBeforeRemovePost(post, user);
+
         postRepository.delete(post);
     }
 
+    /**
+     * 게시글 삭제 전 연관 엔티티들 삭제.
+     * <p>
+     * 좋아요, 조회수, 태그, 스크랩
+     */
+    private void cascadeBeforeRemovePost(Post post, User user) {
+        deleteLikesCache(post);
+        deleteLikes(post);
+        deleteScraps(post, user);
+        deleteTags(post);
+    }
+
+    private void deleteLikesCache(Post post) {
+        PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
+                .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        postLikeCacheRepository.delete(postLikeCache);
+    }
+
+    private void deleteLikes(Post post) {
+        postLikeRepository.deleteByPost(post);
+    }
+
+    private void deleteScraps(Post post, User user) {
+        scrapRepository.findByUserAndPost(user, post)
+                .ifPresent(scrap -> scrapRepository.delete(scrap));
+    }
+
+    private void deleteTags(Post post) {
+        List<Tag> tags = tagRepository.findAllByPost(post);
+        tagRepository.deleteAll(tags);
+    }
+
     @Transactional
-    public void updatePost(String postOriginId, PostDto postDto) {
+    public void updatePost(String postOriginId, PostDto postDto, User user) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        validateAuthentication(post);
+        validateAuthentication(post, user);
         post.updateFrom(postDto);
         postRepository.save(post);
     }
 
-    private void validateAuthentication(Post post) {
-        String userId = AuthenticationToken.getUserId();
-        if (!post.getUser().getUserId().equals(userId)) {
+    private void validateAuthentication(Post post, User currentUser) {
+        if (!post.getUser().getUserId().equals(currentUser.getUserId())) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
     }
