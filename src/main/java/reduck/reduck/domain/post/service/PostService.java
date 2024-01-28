@@ -17,6 +17,10 @@ import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import reduck.reduck.domain.tag.dto.TagDto;
+import reduck.reduck.domain.tag.entity.Tag;
+import reduck.reduck.domain.tag.mapper.TagMapper;
+import reduck.reduck.domain.tag.repository.TagRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
@@ -40,6 +44,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final TemporaryPostRepository temporaryPostRepository;
+    private final TagRepository tagRepository;
     private final PostHitRepository postHitRepository;
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
@@ -51,20 +56,44 @@ public class PostService {
     public void createPost(User user, PostDto postDto) {
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
+        postRepository.save(postEntity);
+        // after post save
+        afterCreatePost(postEntity, postDto);
+    }
 
-        // 조회수 테이블 초기화.
+    /**
+     * 게시글 저장 후 벌어져야 하는 동작들 수행
+     * <p>
+     * 조회수, 좋아요 수 초기화
+     * 게시글 태그 키워드 초기화
+     */
+    private void afterCreatePost(Post postEntity, PostDto postDto) {
+        initHits(postEntity);
+        initLikes(postEntity);
+        initTags(postEntity, postDto.getTags());
+    }
+
+    private void initHits(Post postEntity) {
         PostHit readCount = PostHit.builder()
                 .hits(0)
                 .post(postEntity)
                 .build();
         postEntity.setPostHit(readCount);
-        postRepository.save(postEntity);
+        postHitRepository.save(readCount);
+    }
 
+    private void initLikes(Post postEntity) {
         PostLikeCache postLikeCache = PostLikeCache.builder()
                 .post(postEntity)
                 .count(0).build();
-        postHitRepository.save(readCount);
         postLikeCacheRepository.save(postLikeCache);
+    }
+
+    private void initTags(Post postEntity, List<TagDto> tagDtos) {
+        List<Tag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(postEntity, tag))
+                .collect(Collectors.toList());
+        tagRepository.saveAll(tags);
     }
 
     /**
@@ -176,6 +205,7 @@ public class PostService {
         postLikeRepository.deleteByPost(post);
         postRepository.delete(post);
     }
+
     @Transactional
     public void updatePost(String postOriginId, PostDto postDto) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
