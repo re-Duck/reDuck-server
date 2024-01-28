@@ -17,7 +17,6 @@ import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.*;
 import lombok.extern.slf4j.Slf4j;
-import reduck.reduck.domain.scrap.entity.ScrapPost;
 import reduck.reduck.domain.scrap.repository.ScrapRepository;
 import reduck.reduck.domain.tag.dto.TagDto;
 import reduck.reduck.domain.tag.entity.Tag;
@@ -148,11 +147,12 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailResponseDto findByPostOriginId(String postOriginId) {
+    public PostDetailResponseDto findByPostOriginId(String postOriginId, User user) {
         Post post = postRepository.findByPostOriginId(postOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!post.getUser().getUserId().equals(user.getUserId())) // 본인이 게시글을 조회한 경우 제외.
+            postHitRepository.updateHits(post);
 
-        postHitRepository.updateHits(post);
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
         PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
@@ -244,7 +244,16 @@ public class PostService {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post, user);
         post.updateFrom(postDto);
+        afterUpdatePost(post, postDto.getTags(), user);
         postRepository.save(post);
+    }
+
+    private void afterUpdatePost(Post post, List<TagDto> tagDtos, User user) {
+        tagRepository.deleteAllByPost(post);
+        List<Tag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(post, tag))
+                .collect(Collectors.toList());
+        tagRepository.saveAll(tags);
     }
 
     private void validateAuthentication(Post post, User currentUser) {
