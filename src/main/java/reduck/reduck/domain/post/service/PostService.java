@@ -17,6 +17,14 @@ import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import reduck.reduck.domain.scrap.repository.ScrapRepository;
+import reduck.reduck.domain.tag.dto.TagDto;
+import reduck.reduck.domain.tag.entity.Tag;
+import reduck.reduck.domain.tag.entity.TemporaryTag;
+import reduck.reduck.domain.tag.mapper.TagMapper;
+import reduck.reduck.domain.tag.mapper.TemporaryPostMapper;
+import reduck.reduck.domain.tag.repository.TagRepository;
+import reduck.reduck.domain.tag.repository.TemporaryTagRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
@@ -40,9 +48,12 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final PostRepository postRepository;
     private final TemporaryPostRepository temporaryPostRepository;
+    private final TagRepository tagRepository;
+    private final TemporaryTagRepository temporaryTagRepository;
     private final PostHitRepository postHitRepository;
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
+    private final ScrapRepository scrapRepository;
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
 
@@ -51,20 +62,44 @@ public class PostService {
     public void createPost(User user, PostDto postDto) {
         Post postEntity = PostMapper.from(postDto);
         postEntity.setUser(user);
+        postRepository.save(postEntity);
+        // after post save
+        afterCreatePost(postEntity, postDto);
+    }
 
-        // 조회수 테이블 초기화.
+    /**
+     * 게시글 저장 후 벌어져야 하는 동작들 수행
+     * <p>
+     * 조회수, 좋아요 수 초기화
+     * 게시글 태그 키워드 초기화
+     */
+    private void afterCreatePost(Post postEntity, PostDto postDto) {
+        initHits(postEntity);
+        initLikes(postEntity);
+        initTags(postEntity, postDto.getTags());
+    }
+
+    private void initHits(Post postEntity) {
         PostHit readCount = PostHit.builder()
                 .hits(0)
                 .post(postEntity)
                 .build();
         postEntity.setPostHit(readCount);
-        postRepository.save(postEntity);
+        postHitRepository.save(readCount);
+    }
 
+    private void initLikes(Post postEntity) {
         PostLikeCache postLikeCache = PostLikeCache.builder()
                 .post(postEntity)
                 .count(0).build();
-        postHitRepository.save(readCount);
         postLikeCacheRepository.save(postLikeCache);
+    }
+
+    private void initTags(Post postEntity, List<TagDto> tagDtos) {
+        List<Tag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(postEntity, tag))
+                .collect(Collectors.toList());
+        tagRepository.saveAll(tags);
     }
 
     /**
@@ -72,13 +107,22 @@ public class PostService {
      */
     @Transactional
     public void createTemporaryPost(User user, PostDto postDto) {
-        TemporaryPost temporaryPost = TemporaryPost.builder()
-                .postType(postDto.getPostType())
-                .postTitle(postDto.getTitle())
-                .postOriginId(postDto.getPostOriginId())
-                .content(postDto.getContent())
-                .user(user).build();
+        TemporaryPost temporaryPost = TemporaryPostMapper.of(postDto, user);
         temporaryPostRepository.save(temporaryPost);
+
+        afterCreateTemporaryPost(temporaryPost, postDto);
+    }
+
+    private void afterCreateTemporaryPost(TemporaryPost temporaryPost, PostDto dto) {
+        initTemporaryTags(temporaryPost, dto.getTags());
+
+    }
+
+    private void initTemporaryTags(TemporaryPost temporaryPost, List<TagDto> tagDtos) {
+        List<TemporaryTag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(temporaryPost, tag))
+                .collect(Collectors.toList());
+        temporaryTagRepository.saveAll(tags);
     }
 
     @Transactional
@@ -116,11 +160,12 @@ public class PostService {
     }
 
     @Transactional
-    public PostDetailResponseDto findByPostOriginId(String postOriginId) {
+    public PostDetailResponseDto findByPostOriginId(String postOriginId, User user) {
         Post post = postRepository.findByPostOriginId(postOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
+        if (!post.getUser().getUserId().equals(user.getUserId())) // 본인이 게시글을 조회한 경우 제외.
+            postHitRepository.updateHits(post);
 
-        postHitRepository.updateHits(post);
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
         PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
@@ -166,35 +211,72 @@ public class PostService {
     }
 
     @Transactional
-    public void removePost(String postOriginId) {
+    public void removePost(String postOriginId, User user) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(
                 () -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        validateAuthentication(post);
+        validateAuthentication(post, user);
+        cascadeBeforeRemovePost(post, user);
+
+        postRepository.delete(post);
+    }
+
+    /**
+     * 게시글 삭제 전 연관 엔티티들 삭제.
+     * <p>
+     * 좋아요, 조회수, 태그, 스크랩
+     */
+    private void cascadeBeforeRemovePost(Post post, User user) {
+        deleteLikesCache(post);
+        deleteLikes(post);
+        deleteScraps(post, user);
+        deleteTags(post);
+    }
+
+    private void deleteLikesCache(Post post) {
         PostLikeCache postLikeCache = postLikeCacheRepository.findByPost(post)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         postLikeCacheRepository.delete(postLikeCache);
-        postLikeRepository.deleteByPost(post);
-        postRepository.delete(post);
     }
+
+    private void deleteLikes(Post post) {
+        postLikeRepository.deleteByPost(post);
+    }
+
+    private void deleteScraps(Post post, User user) {
+        scrapRepository.findByUserAndPost(user, post)
+                .ifPresent(scrap -> scrapRepository.delete(scrap));
+    }
+
+    private void deleteTags(Post post) {
+        List<Tag> tags = tagRepository.findAllByPost(post);
+        tagRepository.deleteAll(tags);
+    }
+
     @Transactional
-    public void updatePost(String postOriginId, PostDto postDto) {
+    public void updatePost(String postOriginId, PostDto postDto, User user) {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        validateAuthentication(post);
+        validateAuthentication(post, user);
         post.updateFrom(postDto);
+        afterUpdatePost(post, postDto.getTags());
         postRepository.save(post);
     }
 
-    private void validateAuthentication(Post post) {
-        String userId = AuthenticationToken.getUserId();
-        if (!post.getUser().getUserId().equals(userId)) {
+    private void afterUpdatePost(Post post, List<TagDto> tagDtos) {
+        tagRepository.deleteAllByPost(post);
+        List<Tag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(post, tag))
+                .collect(Collectors.toList());
+        tagRepository.saveAll(tags);
+    }
+
+    private void validateAuthentication(Post post, User currentUser) {
+        if (!post.getUser().getUserId().equals(currentUser.getUserId())) {
             throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
         }
     }
 
     /**
      * 임시저장된 게시글 목록 조회
-     *
-     * @return
      */
     public List<TemporaryPostResponse> getTemporaryPosts(User user, Optional<String> temporaryPostOriginId, Pageable pageable) {
         List<TemporaryPost> result = temporaryPostRepository.findAllByUserOrderByIdDescLimitPage(user, pageable);
@@ -212,7 +294,13 @@ public class PostService {
         if (!temporaryPost.getUser().equals(user)) {
             throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
+        cascadeBeforeRemoveTemporaryPost(temporaryPost);
         temporaryPostRepository.delete(temporaryPost);
+    }
+
+    private void cascadeBeforeRemoveTemporaryPost(TemporaryPost temporaryPost) {
+        List<TemporaryTag> tags = temporaryTagRepository.findAllByTemporaryPost(temporaryPost);
+        temporaryTagRepository.deleteAll(tags);
     }
 
     /**
@@ -235,5 +323,13 @@ public class PostService {
             throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
         temporaryPost.updateFrom(postDto);
+        afterUpdateTemporaryPost(temporaryPost, postDto.getTags());
+    }
+    private void afterUpdateTemporaryPost(TemporaryPost temporaryPost, List<TagDto> tagDtos) {
+        temporaryTagRepository.deleteAllByTemporaryPost(temporaryPost);
+        List<TemporaryTag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(temporaryPost, tag))
+                .collect(Collectors.toList());
+        temporaryTagRepository.saveAll(tags);
     }
 }

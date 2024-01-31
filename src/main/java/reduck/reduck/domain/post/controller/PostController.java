@@ -12,7 +12,6 @@ import reduck.reduck.domain.post.dto.PostDetailResponseDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.dto.TemporaryPostResponse;
-import reduck.reduck.domain.post.entity.TemporaryPost;
 import reduck.reduck.domain.post.service.PostService;
 import reduck.reduck.global.entity.Response;
 import reduck.reduck.global.security.CustomUserDetails;
@@ -60,8 +59,11 @@ public class PostController {
 
     // 게시글 하나
     @GetMapping("/detail/{postOriginId}")
-    public ResponseEntity<PostDetailResponseDto> getPost(@PathVariable String postOriginId) {
-        return new ResponseEntity(postService.findByPostOriginId(postOriginId), HttpStatus.OK);
+    public ResponseEntity<PostDetailResponseDto> getPost(
+            @PathVariable String postOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        return new ResponseEntity(postService.findByPostOriginId(postOriginId, customUserDetails.getUser()), HttpStatus.OK);
     }
 
     // 게시글 page수 만큼 조회
@@ -92,15 +94,21 @@ public class PostController {
     }
 
     @DeleteMapping("/{postOriginId}")
-    public ResponseEntity<Void> removePost(@PathVariable String postOriginId) {
-
-        postService.removePost(postOriginId);
+    public ResponseEntity<Void> removePost(
+            @PathVariable String postOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        postService.removePost(postOriginId, customUserDetails.getUser());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/{postOriginId}")
-    public ResponseEntity<Void> updatePost(@PathVariable String postOriginId, @RequestBody @Valid PostDto postDto) {
-        postService.updatePost(postOriginId, postDto);
+    public ResponseEntity<Void> updatePost(
+            @PathVariable String postOriginId,
+            @RequestBody @Valid PostDto postDto,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        postService.updatePost(postOriginId, postDto, customUserDetails.getUser());
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
