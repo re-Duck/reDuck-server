@@ -20,8 +20,11 @@ import lombok.extern.slf4j.Slf4j;
 import reduck.reduck.domain.scrap.repository.ScrapRepository;
 import reduck.reduck.domain.tag.dto.TagDto;
 import reduck.reduck.domain.tag.entity.Tag;
+import reduck.reduck.domain.tag.entity.TemporaryTag;
 import reduck.reduck.domain.tag.mapper.TagMapper;
+import reduck.reduck.domain.tag.mapper.TemporaryPostMapper;
 import reduck.reduck.domain.tag.repository.TagRepository;
+import reduck.reduck.domain.tag.repository.TemporaryTagRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
@@ -46,6 +49,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final TemporaryPostRepository temporaryPostRepository;
     private final TagRepository tagRepository;
+    private final TemporaryTagRepository temporaryTagRepository;
     private final PostHitRepository postHitRepository;
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
@@ -103,13 +107,22 @@ public class PostService {
      */
     @Transactional
     public void createTemporaryPost(User user, PostDto postDto) {
-        TemporaryPost temporaryPost = TemporaryPost.builder()
-                .postType(postDto.getPostType())
-                .postTitle(postDto.getTitle())
-                .postOriginId(postDto.getPostOriginId())
-                .content(postDto.getContent())
-                .user(user).build();
+        TemporaryPost temporaryPost = TemporaryPostMapper.of(postDto, user);
         temporaryPostRepository.save(temporaryPost);
+
+        afterCreateTemporaryPost(temporaryPost, postDto);
+    }
+
+    private void afterCreateTemporaryPost(TemporaryPost temporaryPost, PostDto dto) {
+        initTemporaryTags(temporaryPost, dto.getTags());
+
+    }
+
+    private void initTemporaryTags(TemporaryPost temporaryPost, List<TagDto> tagDtos) {
+        List<TemporaryTag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(temporaryPost, tag))
+                .collect(Collectors.toList());
+        temporaryTagRepository.saveAll(tags);
     }
 
     @Transactional
@@ -244,11 +257,11 @@ public class PostService {
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         validateAuthentication(post, user);
         post.updateFrom(postDto);
-        afterUpdatePost(post, postDto.getTags(), user);
+        afterUpdatePost(post, postDto.getTags());
         postRepository.save(post);
     }
 
-    private void afterUpdatePost(Post post, List<TagDto> tagDtos, User user) {
+    private void afterUpdatePost(Post post, List<TagDto> tagDtos) {
         tagRepository.deleteAllByPost(post);
         List<Tag> tags = tagDtos.stream()
                 .map(tag -> TagMapper.of(post, tag))
@@ -264,8 +277,6 @@ public class PostService {
 
     /**
      * 임시저장된 게시글 목록 조회
-     *
-     * @return
      */
     public List<TemporaryPostResponse> getTemporaryPosts(User user, Optional<String> temporaryPostOriginId, Pageable pageable) {
         List<TemporaryPost> result = temporaryPostRepository.findAllByUserOrderByIdDescLimitPage(user, pageable);
@@ -283,7 +294,13 @@ public class PostService {
         if (!temporaryPost.getUser().equals(user)) {
             throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
+        cascadeBeforeRemoveTemporaryPost(temporaryPost);
         temporaryPostRepository.delete(temporaryPost);
+    }
+
+    private void cascadeBeforeRemoveTemporaryPost(TemporaryPost temporaryPost) {
+        List<TemporaryTag> tags = temporaryTagRepository.findAllByTemporaryPost(temporaryPost);
+        temporaryTagRepository.deleteAll(tags);
     }
 
     /**
@@ -306,5 +323,13 @@ public class PostService {
             throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
         temporaryPost.updateFrom(postDto);
+        afterUpdateTemporaryPost(temporaryPost, postDto.getTags());
+    }
+    private void afterUpdateTemporaryPost(TemporaryPost temporaryPost, List<TagDto> tagDtos) {
+        temporaryTagRepository.deleteAllByTemporaryPost(temporaryPost);
+        List<TemporaryTag> tags = tagDtos.stream()
+                .map(tag -> TagMapper.of(temporaryPost, tag))
+                .collect(Collectors.toList());
+        temporaryTagRepository.saveAll(tags);
     }
 }
