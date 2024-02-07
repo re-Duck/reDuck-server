@@ -77,7 +77,7 @@ public class PostController {
 
     @GetMapping("/temporary")
     public ResponseEntity<Response<List<TemporaryPostResponse>>> getTemporaryPosts(
-            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @Valid @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestParam Optional<String> temporaryPostOriginId,
             @PageableDefault(page = 0, size = 10, direction = Sort.Direction.DESC) Pageable pageable
     ) {

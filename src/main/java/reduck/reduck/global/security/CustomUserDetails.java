@@ -4,12 +4,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import reduck.reduck.domain.user.entity.User;
 
+import javax.validation.constraints.NotNull;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 
 public class CustomUserDetails implements UserDetails {
 
+    @NotNull
     private final User user;
 
     public CustomUserDetails(User user) {

@@ -163,8 +163,8 @@ public class PostService {
     public PostDetailResponseDto findByPostOriginId(String postOriginId, User user) {
         Post post = postRepository.findByPostOriginId(postOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
-        if (!post.getUser().getUserId().equals(user.getUserId())) // 본인이 게시글을 조회한 경우 제외.
-            postHitRepository.updateHits(post);
+
+        postHitRepository.updateHits(post);
 
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
@@ -325,6 +325,7 @@ public class PostService {
         temporaryPost.updateFrom(postDto);
         afterUpdateTemporaryPost(temporaryPost, postDto.getTags());
     }
+
     private void afterUpdateTemporaryPost(TemporaryPost temporaryPost, List<TagDto> tagDtos) {
         temporaryTagRepository.deleteAllByTemporaryPost(temporaryPost);
         List<TemporaryTag> tags = tagDtos.stream()
