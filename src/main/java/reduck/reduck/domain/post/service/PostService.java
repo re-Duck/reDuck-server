@@ -81,7 +81,7 @@ public class PostService {
 
     private void initHits(Post postEntity) {
         PostHit readCount = PostHit.builder()
-                .hits(0)
+                .hits(1)
                 .post(postEntity)
                 .build();
         postEntity.setPostHit(readCount);
@@ -115,7 +115,6 @@ public class PostService {
 
     private void afterCreateTemporaryPost(TemporaryPost temporaryPost, PostDto dto) {
         initTemporaryTags(temporaryPost, dto.getTags());
-
     }
 
     private void initTemporaryTags(TemporaryPost temporaryPost, List<TagDto> tagDtos) {
@@ -164,7 +163,9 @@ public class PostService {
         Post post = postRepository.findByPostOriginId(postOriginId)
                 .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
 
-        postHitRepository.updateHits(post);
+        if (user != null && user.getUserId().equals(post.getUser().getUserId())) {
+        } else
+            postHitRepository.updateHits(post);
 
         PostDetailResponseDto postDetailResponseDto = PostDetailResponseDtoMapper.from(post);
 
