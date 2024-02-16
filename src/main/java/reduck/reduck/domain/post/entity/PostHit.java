@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import reduck.reduck.global.entity.BaseEntity;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToOne;
@@ -20,5 +21,6 @@ public class PostHit extends BaseEntity {
     @OneToOne(fetch = FetchType.LAZY)
     private Post post;
 
+    @Column(nullable = false, columnDefinition = "integer default 1")
     private int hits;
 }
