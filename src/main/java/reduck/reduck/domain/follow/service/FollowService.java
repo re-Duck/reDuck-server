@@ -97,4 +97,13 @@ public class FollowService {
                 .isFollowing(isFollowing)
                 .build();
     }
+
+    /**
+     * 대상의 팔로워 숫자를 반환한다.
+     */
+    public Long getFollowerCount(String userId) {
+        User other = userRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(UserErrorCode.USER_NOT_EXIST));
+        return followRepository.countByUser(other);
+    }
 }
