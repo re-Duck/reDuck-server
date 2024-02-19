@@ -23,6 +23,7 @@ public class CommentResponseDtoMapper {
                 .commentUpdatedAt(comment.getUpdatedAt())
                 .commentContent(comment.getCommentContent())
                 .commentOriginId(comment.getCommentOriginId())
+                .parentCommentOriginId(comment.getParentCommentOriginId())
                 .build();
         return commentResponseDto;
     }
