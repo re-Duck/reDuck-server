@@ -10,6 +10,8 @@ import reduck.reduck.domain.scrap.dto.ScrapPostDto;
 import reduck.reduck.domain.scrap.entity.ScrapPost;
 import reduck.reduck.domain.scrap.repository.ScrapRepository;
 import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.NotFoundException;
 
 import java.util.List;
@@ -21,6 +23,7 @@ import java.util.stream.Collectors;
 public class ScrapService {
     private final ScrapRepository scrapRepository;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     public void scrapPost(User user, String postOriginId) {
@@ -48,5 +51,14 @@ public class ScrapService {
         return scrapPosts.stream()
                 .map(scrap -> ScrapPostDto.from(scrap.getPost()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 본인의 게시글의 스크랩 여부를 확인한다.
+     */
+    public Boolean getScrapPostStatus(User user, String postOriginId) {
+        Post post = postRepository.findByPostOriginId(postOriginId)
+                .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
+        return scrapRepository.findByUserAndPost(user, post).isPresent();
     }
 }
