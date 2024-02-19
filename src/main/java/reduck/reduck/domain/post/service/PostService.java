@@ -17,6 +17,9 @@ import reduck.reduck.domain.post.entity.mapper.PostMapper;
 import reduck.reduck.domain.post.dto.mapper.PostResponseDtoMapper;
 import reduck.reduck.domain.post.repository.*;
 import lombok.extern.slf4j.Slf4j;
+import reduck.reduck.domain.rank.entity.Active;
+import reduck.reduck.domain.rank.repository.RankRepository;
+import reduck.reduck.domain.rank.service.RankService;
 import reduck.reduck.domain.scrap.repository.ScrapRepository;
 import reduck.reduck.domain.tag.dto.TagDto;
 import reduck.reduck.domain.tag.entity.Tag;
@@ -54,6 +57,7 @@ public class PostService {
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final UserRepository userRepository;
     private final ScrapRepository scrapRepository;
+
     private final String PATH = "C:\\reduckStorage\\post";
     private static final String DEV_PATH = "/home/ubuntu/reduck/storage/post";
 
@@ -78,6 +82,7 @@ public class PostService {
         initLikes(postEntity);
         initTags(postEntity, postDto.getTags());
     }
+
 
     private void initHits(Post postEntity) {
         PostHit readCount = PostHit.builder()
