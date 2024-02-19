@@ -25,7 +25,7 @@ public class ScrapController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
 
-        scrapService.scrapPost(customUserDetails.getUser(),postOriginId);
+        scrapService.scrapPost(customUserDetails.getUser(), postOriginId);
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
@@ -34,6 +34,15 @@ public class ScrapController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         List<ScrapPostDto> result = scrapService.getScrapPosts(customUserDetails.getUser());
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
+    }
+
+    @GetMapping("/posts/{postOriginId}/status")
+    public ResponseEntity<Response<Boolean>> getScrapPostStatus(
+            @PathVariable("postOriginId") String postOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Boolean result = scrapService.getScrapPostStatus(customUserDetails.getUser(), postOriginId);
         return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 }

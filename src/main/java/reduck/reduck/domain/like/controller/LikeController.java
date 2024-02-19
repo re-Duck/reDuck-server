@@ -34,4 +34,13 @@ public class LikeController {
         List<PostLikesResponse> postLikesResponses = likeService.getLikePosts(customUserDetails.getUser());
         return new ResponseEntity<>(Response.successResponse(postLikesResponses), HttpStatus.OK);
     }
+
+    @GetMapping("/posts/{postOriginId}/status")
+    public ResponseEntity<Response<Boolean>> getLikePostStatus(
+            @PathVariable("postOriginId") String postOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Boolean result = likeService.getLikePostStatus(customUserDetails.getUser(), postOriginId);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
+    }
 }

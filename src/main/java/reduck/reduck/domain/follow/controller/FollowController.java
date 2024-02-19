@@ -45,6 +45,15 @@ public class FollowController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/{userId}/followers/count")
+    public ResponseEntity<Response<Long>> getFollowerCount(
+            @PathVariable("userId") String userId
+    ) {
+        Long result = followService.getFollowerCount(userId);
+        Response<Long> response = Response.successResponse(result);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/followings/{userId}")
     public ResponseEntity<Response<List<FollowerResponse>>> getFollowings(
             @PathVariable("userId") String userId
