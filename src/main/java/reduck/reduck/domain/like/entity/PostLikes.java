@@ -25,5 +25,5 @@ public class PostLikes extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private User user;
 
-    private boolean status;
+    private boolean isLike;
 }

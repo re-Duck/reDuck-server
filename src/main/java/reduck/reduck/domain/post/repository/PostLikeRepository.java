@@ -17,7 +17,7 @@ public interface PostLikeRepository extends JpaRepository<PostLikes, Long> {
     Optional<PostLikes> findByUserAndPost(User user, Post post);
 
     @Modifying
-    @Query("update PostLikes pl set pl.status = :afterStatus where pl.id = :id ")
+    @Query("update PostLikes pl set pl.isLike = :afterStatus where pl.id = :id ")
     void updateStatus(@Param("afterStatus") boolean afterStatus, @Param("id") Long id);
 
     @Query("select count(pl) from PostLikes pl where pl.id in :postIds")

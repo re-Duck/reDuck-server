@@ -14,6 +14,7 @@ import reduck.reduck.global.exception.errorcode.PostErrorCode;
 import reduck.reduck.global.exception.exception.NotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +39,7 @@ public class LikeService {
     }
 
     private void modifyLikeStatus(PostLikes postLike) {
-        boolean status = postLike.isStatus();
+        boolean status = postLike.isLike();
         boolean afterStatus = !status;
         postLikeRepository.updateStatus(afterStatus, postLike.getId());
         int afterCount = reflectNumberBy(afterStatus);
@@ -54,7 +55,7 @@ public class LikeService {
         PostLikes postLikes = PostLikes.builder()
                 .post(post)
                 .user(user)
-                .status(true).build();
+                .isLike(true).build();
         postLikeRepository.save(postLikes);
         postLikeCacheRepository.updateLikeCount(1, post);
     }
@@ -70,5 +71,18 @@ public class LikeService {
                 .map(postLike ->
                         PostLikesResponse.from(postLike.getPost()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 본인의 게시글의 좋아요 여부를 확인한다.
+     */
+    public Boolean getLikePostStatus(User user, String postOriginId) {
+        Post post = postRepository.findByPostOriginId(postOriginId)
+                .orElseThrow(() -> new NotFoundException("게시글을 찾을 수 없습니다."));
+
+        Optional<PostLikes> cat = postLikeRepository.findByUserAndPost(user, post);
+        if (cat.isPresent())
+            return cat.get().isLike();
+        return false;
     }
 }
