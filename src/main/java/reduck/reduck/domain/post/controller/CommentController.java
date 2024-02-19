@@ -3,12 +3,14 @@ package reduck.reduck.domain.post.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.post.dto.CommentDto;
 import reduck.reduck.domain.post.dto.CommentResponseDto;
 import reduck.reduck.domain.post.dto.UpdateCommentDto;
 import reduck.reduck.domain.post.service.CommentService;
 import reduck.reduck.global.entity.Response;
+import reduck.reduck.global.security.CustomUserDetails;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -23,6 +25,15 @@ public class CommentController {
         commentService.createComment(commentDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
+
+    @PostMapping("/comments/posts/reply")
+    public ResponseEntity<Void> createReplyComment(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
+            @RequestBody @Valid CommentDto commentDto) {
+        commentService.createReplyComment(customUserDetails.getUser(), commentDto);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
 
     @DeleteMapping("/post/comment/{commentOriginId}")
     public ResponseEntity<Void> removeComment(@PathVariable String commentOriginId) {

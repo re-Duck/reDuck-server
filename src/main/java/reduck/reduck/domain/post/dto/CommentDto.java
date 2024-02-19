@@ -1,6 +1,5 @@
 package reduck.reduck.domain.post.dto;
 
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,4 +15,6 @@ public class CommentDto {
     private String commentOriginId;
     @NotBlank
     private String postOriginId;
+
+    private String parentCommentOriginId;
 }

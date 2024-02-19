@@ -1,8 +1,6 @@
 package reduck.reduck.domain.post.dto.mapper;
 
-import reduck.reduck.domain.post.dto.CommentResponseDto;
 import reduck.reduck.domain.post.dto.PostResponseDto;
-import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.util.DevelopAnnualCalculation;
 

@@ -18,8 +18,8 @@ public class CommentResponseDto {
 
     //comment
     private String commentContent;
+    private String parentCommentOriginId;
     private String commentOriginId;
     private LocalDateTime commentUpdatedAt;
     private LocalDateTime commentCreatedAt;
-
 }

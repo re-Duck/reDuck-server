@@ -35,6 +35,9 @@ public class Comment extends BaseEntity {
     @Column(columnDefinition = "integer default 0")
     private int likes;
 
+    @Column(columnDefinition = "varchar(255) default 'root'")
+    private String parentCommentOriginId;
+
     public void updateFrom(UpdateCommentDto commentDto) {
         this.commentContent = commentDto.getContent();
     }
