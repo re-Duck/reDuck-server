@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.post.dto.CommentDto;
 import reduck.reduck.domain.post.dto.CommentResponseDto;
 import reduck.reduck.domain.post.dto.UpdateCommentDto;
+import reduck.reduck.domain.post.dto.mapper.CommentMapper;
 import reduck.reduck.domain.post.dto.mapper.CommentResponseDtoMapper;
 import reduck.reduck.domain.post.entity.Comment;
 import reduck.reduck.domain.post.entity.Post;
@@ -79,5 +80,18 @@ public class CommentService {
         return comments.stream()
                 .map(comment -> CommentResponseDtoMapper.of(comment.getUser(), comment))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 댓글의 답글을 단다.
+     */
+    @Transactional
+    public void createReplyComment(User user,CommentDto commentDto) {
+        String postOriginId = commentDto.getPostOriginId();
+        Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
+
+        String commentOriginId = commentDto.getCommentOriginId();
+        Comment reply = CommentMapper.replyOf(commentDto, post, user);
+        commentRepository.save(reply);
     }
 }

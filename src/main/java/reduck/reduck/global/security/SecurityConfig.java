@@ -64,7 +64,7 @@ public class SecurityConfig {
                 .authorizeRequests()
                 // 회원가입과 로그인은 모두 승인 => 만약 method type + uri로 분기 하고 싶다면 mvcMatchers 쓰면 될듯함.
 //                .regexMatchers(HttpMethod.POST, "/user")
-                .mvcMatchers(HttpMethod.POST, "/login", "/user", "/auth/email/user/**", "/user/mayack/**", "/post/mayack/**").permitAll()
+                .mvcMatchers(HttpMethod.POST, "/login", "/user", "/auth/email/user/**").permitAll()
                 .mvcMatchers(HttpMethod.GET, "/**").permitAll()
                 //채팅 구현을 위해 일시적으로 허용.
                 .mvcMatchers(HttpMethod.POST, "/chat/**").permitAll()
@@ -76,6 +76,10 @@ public class SecurityConfig {
                 .antMatchers("/post/**").authenticated()
                 .antMatchers("/chat/**").authenticated()
                 .antMatchers("/auth/**").authenticated()
+                .antMatchers("/comments/**").authenticated()
+                .antMatchers("/scrap/**").authenticated()
+                .antMatchers("/like/**").authenticated()
+                .antMatchers("/follow/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 // JWT 인증 필터 적용
