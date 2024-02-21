@@ -1,7 +1,7 @@
 package reduck.reduck.domain.post.entity;
 
 import lombok.*;
-import reduck.reduck.domain.post.dto.CommentDto;
+import org.hibernate.annotations.DynamicInsert;
 import reduck.reduck.domain.post.dto.UpdateCommentDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
@@ -16,6 +16,7 @@ import javax.persistence.ManyToOne;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@DynamicInsert
 public class Comment extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String commentContent;
