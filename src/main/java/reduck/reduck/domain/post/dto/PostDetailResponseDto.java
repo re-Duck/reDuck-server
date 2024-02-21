@@ -26,9 +26,6 @@ public class PostDetailResponseDto {
     private LocalDateTime postCreatedAt;
     private LocalDateTime postUpdatedAt;
 
-    //comment
-    private List<CommentResponseDto> comments;
-
     private int hits;
     private int likes;
 }

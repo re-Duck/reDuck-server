@@ -2,7 +2,6 @@ package reduck.reduck.domain.post.dto.mapper;
 
 import reduck.reduck.domain.post.dto.CommentResponseDto;
 import reduck.reduck.domain.post.dto.PostDetailResponseDto;
-import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.util.DevelopAnnualCalculation;
 
@@ -26,8 +25,7 @@ public class PostDetailResponseDtoMapper {
                 .postType(post.getPostType())
                 .postCreatedAt(post.getCreatedAt())
                 .postUpdatedAt(post.getUpdatedAt())
-                //comment
-                .comments(comments)
+
                 .hits(post.getPostHit().getHits())
                 .likes(-1)
                 .build();
