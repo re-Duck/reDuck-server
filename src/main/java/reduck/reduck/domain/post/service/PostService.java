@@ -176,9 +176,12 @@ public class PostService {
         return postDetailResponseDto;
     }
 
-    // paging의 경우.
-    // DB에 post가 Long id순으로 삽임됨 == createdAt순
-    // 단순 page만 있으면 최신순으로 page갯수만큼 조회
+    /**
+     * 게시글들을 cursor 기반 페이징 조회 방식으로 반환한다.
+     * @param postOriginId 기준 cursor로 사용
+     * @param types 조회 할 게시글의 타입
+     * @param page 조회 할 게시글의 갯수
+     */
     public List<PostResponseDto> getPosts(String postOriginId, List<String> types, int page) {
         List<PostType> postTypes = types
                 .stream()
@@ -194,21 +197,21 @@ public class PostService {
                     .orElseThrow(() -> new NotFoundException(PostErrorCode.POST_NOT_EXIST));
         }
         List<PostLikeCache> postLikes = postLikeCacheRepository.findByPosts(posts);
-
         List<PostResponseDto> dtos = new ArrayList<>();
 
         for (Post post : posts) {
             for (PostLikeCache plc : postLikes) {
                 if (post.getId() == plc.getPost().getId()) {
-                    dtos.add(PostResponseDtoMapper.of(post, plc.getCount()));
+                    List<Tag> tags = tagRepository.findAllByPost(post);
+                    dtos.add(PostResponseDtoMapper.of(post, plc.getCount(),tags));
                     break;
                 }
             }
         }
+
+
+
         return dtos;
-//        List<PostResponseDto> postResponseDtos = posts.stream()
-//                .map(PostResponseDtoMapper::from)
-//                .collect(Collectors.toList());
     }
 
     @Transactional

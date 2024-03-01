@@ -2,9 +2,12 @@ package reduck.reduck.domain.post.dto.mapper;
 
 import reduck.reduck.domain.post.dto.PostResponseDto;
 import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.tag.dto.TagDto;
+import reduck.reduck.domain.tag.entity.Tag;
 import reduck.reduck.util.DevelopAnnualCalculation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class PostResponseDtoMapper {
 
@@ -31,9 +34,11 @@ public class PostResponseDtoMapper {
         return postResponseDto;
     }
 
-    public static PostResponseDto of(Post post, int likes) {
+    public static PostResponseDto of(Post post, int likes, List<Tag> tags) {
         PostResponseDto from = from(post);
         from.setLikes(likes);
+        List<TagDto> tagDtos = tags.stream().map(tag -> TagDto.from(tag)).collect(Collectors.toList());
+        from.setTags(tagDtos);
         return from;
     }
 
