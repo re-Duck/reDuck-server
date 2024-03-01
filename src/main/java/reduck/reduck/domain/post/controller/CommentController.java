@@ -42,7 +42,7 @@ public class CommentController {
     }
 
     @PutMapping("/post/comment/{commentOriginId}")
-    public ResponseEntity<Void> updateComment(@PathVariable String commentOriginId, @RequestBody @Valid UpdateCommentDto commentDto) {
+    public ResponseEntity<Void> updateComment(@PathVariable("commentOriginId") String commentOriginId, @RequestBody @Valid UpdateCommentDto commentDto) {
         commentService.updateComment(commentOriginId, commentDto);
         return ResponseEntity.ok().build();
     }

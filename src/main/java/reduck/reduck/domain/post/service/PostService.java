@@ -182,6 +182,7 @@ public class PostService {
     public List<PostResponseDto> getPosts(String postOriginId, List<String> types, int page) {
         List<PostType> postTypes = types
                 .stream()
+                .map(String::toUpperCase)
                 .map(PostType::getType)
                 .collect(Collectors.toList());
         Pageable pageable = PageRequest.of(0, page);

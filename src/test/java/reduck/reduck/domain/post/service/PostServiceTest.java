@@ -10,36 +10,21 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.auth.dto.SignInDto;
 import reduck.reduck.domain.auth.dto.SignInResponseDto;
 import reduck.reduck.domain.auth.service.AuthService;
 import reduck.reduck.domain.post.dto.CommentDto;
 import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.post.dto.UpdateCommentDto;
-import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.post.repository.PostRepository;
-import reduck.reduck.domain.user.entity.Authority;
-import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.security.JwtProvider;
-import reduck.reduck.util.AuthenticationToken;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.assertj.core.internal.bytebuddy.matcher.ElementMatchers.is;
@@ -143,7 +128,7 @@ class PostServiceTest {
         PostDto update = PostDto.builder()
                 .content("<p>updated@@@@@@@@@@@@@</p>")
                 .postOriginId("post55")
-                .postType(PostType.stack)
+                .postType(PostType.STACK)
                 .title("test title")
                 .build();
         String s = gson.toJson(update);
@@ -201,13 +186,13 @@ class PostServiceTest {
         PostDto postDto = PostDto.builder()
                 .content("<p>hello</p>")
                 .postOriginId("post111")
-                .postType(PostType.qna)
+                .postType(PostType.QNA)
                 .title("test title")
                 .build();
         PostDto empty = PostDto.builder()
                 .content("<p>hello</p>")
                 .postOriginId("post222")
-                .postType(PostType.qna)
+                .postType(PostType.QNA)
                 .title("test title")
                 .build();
         return Stream.of(

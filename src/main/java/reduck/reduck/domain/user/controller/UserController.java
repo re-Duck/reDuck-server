@@ -45,6 +45,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
+
     @GetMapping("/{userId}")
     public ResponseEntity<UserInfoDtoRes> getUser(@PathVariable("userId") String userId) {
         return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);

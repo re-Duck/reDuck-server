@@ -7,7 +7,7 @@ import reduck.reduck.domain.user.entity.User;
 public class TemporaryPostMapper {
     static public TemporaryPost of(PostDto dto, User user) {
         return TemporaryPost.builder()
-                .postType(dto.getPostType())
+                .postType(dto.getPostType().toUpperCase())
                 .postTitle(dto.getTitle())
                 .postOriginId(dto.getPostOriginId())
                 .content(dto.getContent())

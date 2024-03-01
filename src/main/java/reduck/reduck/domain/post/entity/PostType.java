@@ -1,13 +1,11 @@
 package reduck.reduck.domain.post.entity;
 
-import reduck.reduck.domain.user.entity.DevelopAnnual;
-
 import java.util.Arrays;
 
 public enum PostType {
 
-    qna("qna"),
-    stack("stack"),
+    QNA("QNA"),
+    STACK("STACK"),
     ;
 
     private String type;
@@ -23,5 +21,10 @@ public enum PostType {
                 .findAny()
                 .orElseThrow(IllegalArgumentException::new);
         return type;
+    }
+
+    public PostType toUpperCase() {
+        String type = this.type;
+        return getType(type.toUpperCase());
     }
 }

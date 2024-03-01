@@ -35,6 +35,6 @@ public class TemporaryPost extends BaseEntity {
     public void updateFrom(PostDto dto) {
         this.postTitle = dto.getTitle();
         this.content = dto.getContent();
-        this.postType = dto.getPostType();
+        this.postType = dto.getPostType().toUpperCase();
     }
 }
