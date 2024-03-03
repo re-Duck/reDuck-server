@@ -17,12 +17,10 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-import reduck.reduck.global.security.JwtAuthenticationFilter;
-import reduck.reduck.global.security.JwtProvider;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
@@ -62,24 +60,25 @@ public class SecurityConfig {
                 .and()
                 // 조건별로 요청 허용/제한 설정
                 .authorizeRequests()
+
                 // 회원가입과 로그인은 모두 승인 => 만약 method type + uri로 분기 하고 싶다면 mvcMatchers 쓰면 될듯함.
 //                .regexMatchers(HttpMethod.POST, "/user")
-                .mvcMatchers(HttpMethod.POST, "/login", "/user", "/auth/email/user/**").permitAll()
-                .mvcMatchers(HttpMethod.GET, "/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/login", "/user", "/auth/email/user/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/**").permitAll()
                 //채팅 구현을 위해 일시적으로 허용.
-                .mvcMatchers(HttpMethod.POST, "/chat/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/chat/**").permitAll()
 //                .antMatchers("/register").permitAll()
                 // /admin으로 시작하는 요청은 ADMIN 권한이 있는 유저에게만 허용
-                .antMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
                 // /user 로 시작하는 요청은 USER 권한이 있는 유저에게만 허용
-                .antMatchers("/user/**").hasRole("USER")
-                .antMatchers("/post/**").authenticated()
-                .antMatchers("/chat/**").authenticated()
-                .antMatchers("/auth/**").authenticated()
-                .antMatchers("/comments/**").authenticated()
-                .antMatchers("/scrap/**").authenticated()
-                .antMatchers("/like/**").authenticated()
-                .antMatchers("/follow/**").authenticated()
+                .requestMatchers("/user/**").hasRole("USER")
+                .requestMatchers("/post/**").authenticated()
+                .requestMatchers("/chat/**").authenticated()
+                .requestMatchers("/auth/**").authenticated()
+                .requestMatchers("/comments/**").authenticated()
+                .requestMatchers("/scrap/**").authenticated()
+                .requestMatchers("/like/**").authenticated()
+                .requestMatchers("/follow/**").authenticated()
                 .anyRequest().permitAll()
                 .and()
                 // JWT 인증 필터 적용

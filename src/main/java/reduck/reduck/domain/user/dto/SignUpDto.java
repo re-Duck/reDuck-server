@@ -2,10 +2,8 @@ package reduck.reduck.domain.user.dto;
 
 
 import lombok.*;
-import org.springframework.web.multipart.MultipartFile;
-import reduck.reduck.domain.user.entity.User;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 @Builder
 @Getter

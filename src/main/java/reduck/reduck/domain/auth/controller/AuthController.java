@@ -9,9 +9,8 @@ import reduck.reduck.domain.auth.service.AuthService;
 import reduck.reduck.domain.auth.dto.SignInDto;
 import reduck.reduck.domain.auth.dto.SignInResponseDto;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {

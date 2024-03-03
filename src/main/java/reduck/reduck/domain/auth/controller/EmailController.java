@@ -4,15 +4,14 @@ package reduck.reduck.domain.auth.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import reduck.reduck.domain.auth.dto.EmailAuthenticateRequestDto;
 import reduck.reduck.domain.auth.dto.EmailAuthenticateResponseDto;
 import reduck.reduck.domain.auth.dto.EmailRequestDto;
 import reduck.reduck.domain.auth.service.EmailService;
 
-import javax.mail.MessagingException;
-import javax.validation.Valid;
+import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import java.io.UnsupportedEncodingException;
 
 @RestController

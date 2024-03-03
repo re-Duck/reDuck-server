@@ -2,10 +2,9 @@ package reduck.reduck.domain.chat.entity;
 
 import lombok.*;
 
-import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Getter

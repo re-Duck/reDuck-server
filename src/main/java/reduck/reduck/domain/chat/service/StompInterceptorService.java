@@ -2,7 +2,6 @@ package reduck.reduck.domain.chat.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Service;
 import reduck.reduck.domain.chat.entity.ChatRoom;
@@ -10,11 +9,10 @@ import reduck.reduck.domain.chat.entity.Session;
 import reduck.reduck.domain.chat.repository.ChatRoomRepository;
 import reduck.reduck.domain.chat.repository.SessionRepository;
 import reduck.reduck.global.exception.errorcode.ChatErrorCode;
-import reduck.reduck.global.exception.exception.ChatException;
 import reduck.reduck.global.exception.exception.NotFoundException;
 import reduck.reduck.util.StompAuth;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import java.util.Map;
 

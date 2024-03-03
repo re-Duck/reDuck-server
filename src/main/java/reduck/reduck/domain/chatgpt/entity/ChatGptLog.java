@@ -4,11 +4,11 @@ import lombok.*;
 import reduck.reduck.domain.chatgpt.dto.ChatGptLogRequest;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
-import java.time.Instant;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 

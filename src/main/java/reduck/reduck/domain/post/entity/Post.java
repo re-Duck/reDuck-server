@@ -5,7 +5,7 @@ import reduck.reduck.domain.post.dto.PostDto;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

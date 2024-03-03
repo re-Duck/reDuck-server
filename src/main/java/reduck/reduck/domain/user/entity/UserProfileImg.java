@@ -1,9 +1,8 @@
 package reduck.reduck.domain.user.entity;
 
 import lombok.*;
-import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 
 @Builder

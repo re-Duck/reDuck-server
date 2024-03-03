@@ -5,9 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.FieldError;
-import org.springframework.validation.annotation.Validated;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.List;
 

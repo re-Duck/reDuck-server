@@ -9,7 +9,7 @@ import reduck.reduck.domain.post.entity.Post;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 

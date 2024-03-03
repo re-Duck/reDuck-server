@@ -17,10 +17,9 @@ import reduck.reduck.global.exception.errorcode.AuthErrorCode;
 import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.AuthException;
 import reduck.reduck.global.exception.exception.IllegalArgumentException;
-import reduck.reduck.global.exception.exception.UserException;
 import reduck.reduck.global.security.JwtProvider;
 import reduck.reduck.util.AuthenticationToken;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @Service

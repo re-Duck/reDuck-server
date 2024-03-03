@@ -1,6 +1,7 @@
 package reduck.reduck.domain.post.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -16,13 +17,14 @@ import reduck.reduck.domain.post.service.PostService;
 import reduck.reduck.global.entity.Response;
 import reduck.reduck.global.security.CustomUserDetails;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/post")
+@Slf4j
 public class PostController {
     private final PostService postService;
 
@@ -71,6 +73,9 @@ public class PostController {
     public ResponseEntity<List<PostResponseDto>> getPosts(@RequestParam String postOriginId,
                                                           @RequestParam List<String> postType,
                                                           @RequestParam int page) {
+        log.info("PostController.getPosts");
+        log.error("PostController.getPosts" + "$$$$$$$$$");
+        log.debug("PostController.getPosts");
         List<PostResponseDto> postResponseDtos = postService.getPosts(postOriginId, postType, page);
         return new ResponseEntity<>(postResponseDtos, HttpStatus.OK);
     }

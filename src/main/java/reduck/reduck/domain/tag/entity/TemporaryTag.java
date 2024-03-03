@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 import reduck.reduck.domain.post.entity.TemporaryPost;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
 
 @Entity
 @Getter

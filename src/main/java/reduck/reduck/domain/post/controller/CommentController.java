@@ -12,7 +12,7 @@ import reduck.reduck.domain.post.service.CommentService;
 import reduck.reduck.global.entity.Response;
 import reduck.reduck.global.security.CustomUserDetails;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import java.util.List;
 
 @RestController

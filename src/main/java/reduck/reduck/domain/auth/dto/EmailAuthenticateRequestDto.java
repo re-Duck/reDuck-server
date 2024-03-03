@@ -3,7 +3,7 @@ package reduck.reduck.domain.auth.dto;
 import lombok.Getter;
 import reduck.reduck.domain.auth.entity.EmailType;
 
-import javax.validation.constraints.*;
+import jakarta.validation.constraints.*;
 
 @Getter
 public class EmailAuthenticateRequestDto {

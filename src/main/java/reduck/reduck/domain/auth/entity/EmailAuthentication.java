@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import reduck.reduck.global.entity.BaseEntity;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 @Entity
 @Builder

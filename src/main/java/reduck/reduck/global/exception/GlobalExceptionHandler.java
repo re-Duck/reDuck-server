@@ -43,20 +43,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(errorCode, e.getHandleMessage());
     }
 
-    @Override
-    public ResponseEntity<Object> handleMethodArgumentNotValid(
-            final MethodArgumentNotValidException e,
-            final HttpHeaders headers,
-            final HttpStatus status,
-            final WebRequest request) {
-        log.warn("handleIllegalArgument", e);
-        fieldErrors = e.getBindingResult().getFieldErrors();
-        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getField());
-        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getRejectedValue());
-        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getDefaultMessage());
-        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
-        return handleExceptionInternal(e, errorCode);
-    }
+//    @Override
+//    public ResponseEntity<Object> handleMethodArgumentNotValid(
+//            final MethodArgumentNotValidException e,
+//            final HttpHeaders headers,
+//            final HttpStatus status,
+//            final WebRequest request) {
+//        log.warn("handleIllegalArgument", e);
+//        fieldErrors = e.getBindingResult().getFieldErrors();
+//        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getField());
+//        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getRejectedValue());
+//        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getDefaultMessage());
+//        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+//        return handleExceptionInternal(e, errorCode);
+//    }
 
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllException(Exception ex) {

@@ -1,59 +1,45 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
 
-    <property name="LOGS" value="./logs" />
+    <property name="CONSOLE_LOG_PATTERN"
+              value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %clr(%5level) %cyan(%logger) - %msg%n"/>
+    <property name="FILE_LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %5level %logger - %msg%n"/>
 
-    <appender name="Console"
-              class="ch.qos.logback.core.ConsoleAppender">
-        <layout class="ch.qos.logback.classic.PatternLayout">
-            <Pattern>
-                %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
-            </Pattern>
-        </layout>
-    </appender>
+    <!--local-->
+    <springProfile name="dev">
+        <include resource="console-appender.xml"/>
 
-    <appender name="RollingFile"
-              class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <!-- 에러로그를 설정하고 로그의 레벨이 맞으면 onMatch, 아니라면 onMismatch  -->
-            <level>error</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
-        <file>${LOGS}/spring-boot-logger.log</file>
-        <encoder
-                class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
-        </encoder>
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+    </springProfile>
 
-        <rollingPolicy
-                class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- rollover daily and when the file reaches 10 MegaBytes -->
-            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}.%i.log
-            </fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy
-                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-        </rollingPolicy>
-    </appender>
+    <!--dev-->
+    <springProfile name="dev">
+        <include resource="file-info-appender.xml"/>
 
-    <!-- info 레벨부터 콘솔에 출력 -->
-    <root level="info">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </root>
+        <root level="INFO">
+            <appender-ref ref="FILE-INFO"/>
+        </root>
 
+        <logger level="DEBUG" name="org.hibernate.SQL">
+            <appender-ref ref="FILE-INFO"/>
+        </logger>
 
-    <!--    <root level="error">-->
-    <!--        <appender-ref ref="RollingFile" />-->
-    <!--        <appender-ref ref="Console" />-->
-    <!--    </root>-->
+        <logger level="TRACE" name="org.hibernate.type.descriptor.sql.BasicBinder">
+            <appender-ref ref="FILE-INFO"/>
+        </logger>
+    </springProfile>
 
+    <!--prod-->
+    <springProfile name="prod">
+        <include resource="file-error-appender.xml"/>
 
-    <logger name="com.baeldung" level="error" additivity="false">
-        <appender-ref ref="RollingFile" />
-        <appender-ref ref="Console" />
-    </logger>
+        <root level="ERROR">
+            <appender-ref ref="FILE-ERROR"/>
+        </root>
+    </springProfile>
 
 </configuration>

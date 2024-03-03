@@ -20,7 +20,6 @@ spring:
     password: p39pwt12!
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
-
     database: mysql
     database-platform: org.hibernate.dialect.MySQL8Dialect
     generate-ddl: true
@@ -32,8 +31,13 @@ spring:
           time_zone: Asia/Seoul
     hibernate:
       ddl-auto: update
-
 jwt:
-  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
-## local
-ip: localhost
+  secret: ${secret_key}
+
+mail_username: donghunkim1101@gmail.com
+mail_password: utgoumexcfqezlfd
+database: reduck
+password: p39pwt12!
+secret_key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+ip: reduck-rds.c504g2qmsiuo.ap-northeast-2.rds.amazonaws.com
+#ip: localhost
