@@ -1,6 +1,10 @@
 package reduck.reduck.global.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +17,8 @@ import java.util.List;
 @Builder
 @RequiredArgsConstructor
 public class ErrorResponse {
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     private final String code;
     private final int status;
     private final String message;
@@ -37,4 +43,10 @@ public class ErrorResponse {
         }
     }
 
+    public String convertToJson() throws JsonProcessingException {
+        return objectMapper
+                .registerModule(new JavaTimeModule())
+                .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .writeValueAsString(this);
+    }
 }
