@@ -1,23 +1,23 @@
 package reduck.reduck.global.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import reduck.reduck.global.exception.exception.AuthException;
+
 import java.io.IOException;
 
-import static jakarta.servlet.http.HttpServletResponse.*;
-import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * Jwt가 유효성을 검증하는 Filter
  */
+@Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
@@ -40,11 +40,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(auth);
 
         } else if (token != null &&jwtProvider.isExpireToken(token)) {
-            response.setStatus(SC_UNAUTHORIZED);
-            response.setContentType(APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding("utf-8");
-            response.getWriter().write("ACCESS TOKEN 이 만료되었습니다.");
-            new ObjectMapper().writeValue(response.getWriter(), HttpStatus.UNAUTHORIZED);
+            throw new AuthException("ACCESS TOKEN 이 만료되었습니다.");
         }
 
         filterChain.doFilter(request, response);
