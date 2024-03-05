@@ -3,7 +3,7 @@ package reduck.reduck.global.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
 import org.springframework.validation.FieldError;
@@ -12,14 +12,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
 import org.springframework.validation.BindException;
 import reduck.reduck.global.exception.errorcode.CommonErrorCode;
 import reduck.reduck.global.exception.errorcode.ErrorCode;
 import reduck.reduck.global.exception.exception.*;
-import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.IllegalArgumentException;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,6 +25,7 @@ import java.util.stream.Collectors;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private List<FieldError> fieldErrors;
+
 
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<Object> handleCustomException(CustomException e) {
@@ -43,20 +41,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(errorCode, e.getHandleMessage());
     }
 
-//    @Override
-//    public ResponseEntity<Object> handleMethodArgumentNotValid(
-//            final MethodArgumentNotValidException e,
-//            final HttpHeaders headers,
-//            final HttpStatus status,
-//            final WebRequest request) {
-//        log.warn("handleIllegalArgument", e);
-//        fieldErrors = e.getBindingResult().getFieldErrors();
-//        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getField());
-//        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getRejectedValue());
-//        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getDefaultMessage());
-//        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
-//        return handleExceptionInternal(e, errorCode);
-//    }
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
+        log.error("handleIllegalArgument", ex);
+        fieldErrors = ex.getBindingResult().getFieldErrors();
+        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getField());
+        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getRejectedValue());
+        System.out.println("e.getBindingResult().getFieldErrors() = " + fieldErrors.get(0).getDefaultMessage());
+        final ErrorCode errorCode = CommonErrorCode.INVALID_PARAMETER;
+        return handleExceptionInternal(ex, errorCode);
+    }
 
     @ExceptionHandler({Exception.class})
     public ResponseEntity<Object> handleAllException(Exception ex) {

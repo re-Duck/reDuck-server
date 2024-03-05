@@ -24,6 +24,9 @@ public class Response<T> implements Serializable{
     public static <T> Response<T> successResponse(T data) {
         return new Response<>(data, ResponseStatus.SUCCESS, null);
     }
+    public static <T> Response<T> successResponse() {
+        return new Response<>(null, ResponseStatus.SUCCESS, null);
+    }
 }
 
 enum ResponseStatus {

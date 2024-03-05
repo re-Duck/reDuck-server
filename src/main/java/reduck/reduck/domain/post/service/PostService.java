@@ -208,9 +208,6 @@ public class PostService {
                 }
             }
         }
-
-
-
         return dtos;
     }
 
@@ -275,7 +272,7 @@ public class PostService {
 
     private void validateAuthentication(Post post, User currentUser) {
         if (!post.getUser().getUserId().equals(currentUser.getUserId())) {
-            throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
     }
 
@@ -283,6 +280,7 @@ public class PostService {
      * 임시저장된 게시글 목록 조회
      */
     public List<TemporaryPostResponse> getTemporaryPosts(User user, Optional<String> temporaryPostOriginId, Pageable pageable) {
+        // 스크롤 조회 기능. 로직 작성
         List<TemporaryPost> result = temporaryPostRepository.findAllByUserOrderByIdDescLimitPage(user, pageable);
         return result.stream().map(TemporaryPostResponse::from).collect(Collectors.toList());
     }

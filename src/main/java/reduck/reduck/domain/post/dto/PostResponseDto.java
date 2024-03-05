@@ -1,5 +1,6 @@
 package reduck.reduck.domain.post.dto;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.tag.dto.TagDto;
@@ -14,6 +15,7 @@ import java.util.List;
 @NoArgsConstructor
 public class PostResponseDto {
     //user
+    @Schema(description = "저자 Id", defaultValue = "reduck")
     private String postAuthorId;
     private String postAuthorProfileImgPath;
     private String postAuthorName;
