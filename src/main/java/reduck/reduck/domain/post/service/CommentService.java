@@ -63,7 +63,7 @@ public class CommentService {
     private void validateAuthentication(Comment comment) {
         String userId = AuthenticationToken.getUserId();
         if (!comment.getUser().getUserId().equals(userId)) {
-            throw new AuthException(AuthErrorCode.NOT_AUTHORIZED);
+            throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
     }
 
@@ -90,7 +90,6 @@ public class CommentService {
         String postOriginId = commentDto.getPostOriginId();
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
 
-        String commentOriginId = commentDto.getCommentOriginId();
         Comment reply = CommentMapper.replyOf(commentDto, post, user);
         commentRepository.save(reply);
     }

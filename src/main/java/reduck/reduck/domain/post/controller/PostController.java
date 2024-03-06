@@ -191,7 +191,7 @@ public class PostController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         postService.removeTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.NO_CONTENT);
     }
 
     @Operation(summary = "임시 게시글 수정")
@@ -203,12 +203,12 @@ public class PostController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PutMapping("/temporary/{temporaryPostOriginId}")
-    public ResponseEntity<Void> updateTemporaryPost(
+    public ResponseEntity<Response<Void>> updateTemporaryPost(
             @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("temporaryPostOriginId") String temporaryPostOriginId,
             @RequestBody @Valid PostDto postDto
     ) {
         postService.updateTemporaryPost(customUserDetails.getUser(), temporaryPostOriginId, postDto);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.OK);
     }
 }
