@@ -18,7 +18,7 @@ import java.nio.file.Paths;
 public class ImageController {
 
     @GetMapping("/C:/{storage}/{type}/{userId}/{name}")
-    public ResponseEntity<Response<Resource>> getImage(@PathVariable String storage,@PathVariable String type, @PathVariable String userId,@PathVariable String name) throws IOException {
+    public ResponseEntity<Resource> getImage(@PathVariable String storage,@PathVariable String type, @PathVariable String userId,@PathVariable String name) throws IOException {
         Path path = Paths.get("C:/" + storage + "/" +type+ "/" +userId+ "/" +name);
         String contentType = Files.probeContentType(path);
 
@@ -27,10 +27,10 @@ public class ImageController {
 
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
 //        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-        return new ResponseEntity<>(Response.successResponse(resource), headers, HttpStatus.OK);
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
     @GetMapping("/home/ubuntu/reduck/storage/{type}/{userId}/{name}")
-    public ResponseEntity<Response<Resource>> getProdImage(@PathVariable String type, @PathVariable String userId,@PathVariable String name) throws IOException {
+    public ResponseEntity<Resource> getProdImage(@PathVariable String type, @PathVariable String userId,@PathVariable String name) throws IOException {
         Path path = Paths.get("/home/ubuntu/reduck/storage" + "/" +type+ "/" +userId+ "/" +name);
         String contentType = Files.probeContentType(path);
 
@@ -39,6 +39,6 @@ public class ImageController {
 
         headers.add(HttpHeaders.CONTENT_TYPE, contentType);
 //        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
-        return new ResponseEntity<>(Response.successResponse(resource), headers, HttpStatus.OK);
+        return new ResponseEntity<>(resource, headers, HttpStatus.OK);
     }
 }
