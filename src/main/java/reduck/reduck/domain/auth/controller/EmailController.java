@@ -12,6 +12,8 @@ import reduck.reduck.domain.auth.service.EmailService;
 
 import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
+import reduck.reduck.global.entity.Response;
+
 import java.io.UnsupportedEncodingException;
 
 @RestController
@@ -22,22 +24,24 @@ public class EmailController {
     private final EmailService emailService;
 
     @PostMapping("/email/user/number") //회원가입
-    public ResponseEntity<Void> sendUserEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto userEmailRequestDto) throws MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<Response<Void>> sendUserEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto userEmailRequestDto) throws MessagingException, UnsupportedEncodingException {
         emailService.sendEmail(userEmailRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
     }
     @PostMapping("/email/profile/number") // 마이페이지
-    public ResponseEntity<Void> sendEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto profileEmailRequestDto) throws MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<Response<Void>> sendEmailAuthenticationNumber(@RequestBody @Valid EmailRequestDto profileEmailRequestDto) throws MessagingException, UnsupportedEncodingException {
         emailService.sendEmail(profileEmailRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
     }
     @PostMapping("/email/user") //회원가입
-    public ResponseEntity<EmailAuthenticateResponseDto> authenticateUserEmail(@RequestBody @Valid EmailAuthenticateRequestDto userEmailAuthRequestDto) {
-        return new ResponseEntity(emailService.authenticateEmail(userEmailAuthRequestDto), HttpStatus.CREATED);
+    public ResponseEntity<Response<EmailAuthenticateResponseDto>> authenticateUserEmail(@RequestBody @Valid EmailAuthenticateRequestDto userEmailAuthRequestDto) {
+        EmailAuthenticateResponseDto result = emailService.authenticateEmail(userEmailAuthRequestDto);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.CREATED);
+
     }
     @PostMapping("/email/profile") //마이 페이지
-    public ResponseEntity<EmailAuthenticateResponseDto> authenticateEmail(@RequestBody @Valid EmailAuthenticateRequestDto profileEmailAuthRequestDto) {
-        return new ResponseEntity(emailService.authenticateEmail(profileEmailAuthRequestDto), HttpStatus.CREATED);
+    public ResponseEntity<Response<EmailAuthenticateResponseDto>> authenticateEmail(@RequestBody @Valid EmailAuthenticateRequestDto profileEmailAuthRequestDto) {
+        EmailAuthenticateResponseDto result = emailService.authenticateEmail(profileEmailAuthRequestDto);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.CREATED);
     }
-
 }

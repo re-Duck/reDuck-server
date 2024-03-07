@@ -19,12 +19,12 @@ public class LikeController {
     private final LikeService likeService;
 
     @PostMapping("/post/{postOriginId}")
-    public ResponseEntity<Void> postLike(
+    public ResponseEntity<Response<Void>> postLike(
             @PathVariable("postOriginId") String postOriginId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         likeService.like(customUserDetails.getUser(), postOriginId);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
     }
 
     @GetMapping("/post")

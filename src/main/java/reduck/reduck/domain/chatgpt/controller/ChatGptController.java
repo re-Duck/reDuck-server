@@ -20,9 +20,9 @@ public class ChatGptController {
     private final ChatGptLogService chatGptLogService;
 
     @GetMapping("/remain-usage")
-    public Response<GptUsableCountResponse> getRemainingUsage() {
+    public ResponseEntity<Response<GptUsableCountResponse>> getRemainingUsage() {
         GptUsableCountResponse remainingUsage = chatGptService.getRemainingUsage();
-        return Response.successResponse(remainingUsage);
+        return new ResponseEntity<>(Response.successResponse(remainingUsage), HttpStatus.OK);
     }
 
     @PostMapping()
@@ -36,6 +36,6 @@ public class ChatGptController {
     @PutMapping("/membership")
     public ResponseEntity<Response<Void>> changeMembership(@RequestParam ChatGptMembership membership) {
         chatGptService.changeMembership(membership);
-        return new ResponseEntity<>(Response.successResponse(null), HttpStatus.OK);
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.OK);
     }
 }
