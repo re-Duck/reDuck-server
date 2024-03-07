@@ -25,6 +25,8 @@ public class PostResponseDtoMapper {
                 .postContent(post.getContent())
                 .postOriginId(post.getPostOriginId())
                 .postType(post.getPostType())
+                .thumbnailContent(post.getThumbnailContent())
+                .thumbnailImagePath(post.getThumbnailImagePath())
                 .postCreatedAt(post.getCreatedAt())
                 .postUpdatedAt(post.getUpdatedAt())
 

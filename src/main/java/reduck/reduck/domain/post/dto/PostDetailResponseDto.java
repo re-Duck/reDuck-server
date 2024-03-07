@@ -23,6 +23,8 @@ public class PostDetailResponseDto {
     private String postContent;
     private String postOriginId;
     private PostType postType;
+    private String thumbnailContent;
+    private String thumbnailImagePath;
     private LocalDateTime postCreatedAt;
     private LocalDateTime postUpdatedAt;
 

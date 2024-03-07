@@ -11,6 +11,8 @@ public class PostMapper {
                 .postTitle(obj.getTitle())
                 .postType(obj.getPostType())
                 .content(obj.getContent())
+                .thumbnailContent(obj.getThumbnailContent())
+                .thumbnailImagePath(obj.getThumbnailImagePath())
                 .build();
         return post;
 
