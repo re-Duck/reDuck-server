@@ -41,13 +41,13 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public ResponseEntity<UserInfoDtoRes> getUser(@PathVariable("userId") String userId) {
+    public ResponseEntity<Response<UserInfoDtoRes>> getUser(@PathVariable("userId") String userId) {
         UserInfoDtoRes result = userService.getUser(userId);
         return new ResponseEntity(Response.successResponse(result), HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserInfoDtoRes> modifyUserInfo(
+    public ResponseEntity<Response<UserInfoDtoRes>> modifyUserInfo(
             @RequestPart @Valid ModifyUserDto modifyUserDto,
             @RequestPart(required = false) MultipartFile file
     ) {
