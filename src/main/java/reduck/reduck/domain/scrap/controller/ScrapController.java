@@ -20,13 +20,12 @@ public class ScrapController {
     private final ScrapService scrapService;
 
     @PostMapping("/posts/{postOriginId}")
-    public ResponseEntity<Void> scrapPost(
+    public ResponseEntity<Response<Void>> scrapPost(
             @PathVariable("postOriginId") String postOriginId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
-
         scrapService.scrapPost(customUserDetails.getUser(), postOriginId);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.OK);
     }
 
     @GetMapping("/posts")

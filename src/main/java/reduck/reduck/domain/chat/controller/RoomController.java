@@ -11,6 +11,7 @@ import reduck.reduck.domain.chat.dto.mapper.RecommendUserResDtoMapper;
 import reduck.reduck.domain.chat.service.SimpleChatService;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
+import reduck.reduck.global.entity.Response;
 import reduck.reduck.util.AuthenticationToken;
 
 import java.net.URI;
@@ -29,45 +30,42 @@ public class RoomController {
 
     //유저에 대한 채팅방 목록 조회
     @GetMapping(value = "/rooms/{userId}")
-    public ResponseEntity<List<ChatRoomListResDto>> getRooms(@PathVariable String userId,
-                                                             @PageableDefault(size = 20) Pageable pageable) {
-
-        log.info("# All Chat Rooms By User : " + userId);
-
-        return new ResponseEntity(simpleChatService.getRooms(pageable), HttpStatus.OK);
+    public ResponseEntity<Response<List<ChatRoomListResDto>>> getRooms(
+            @PathVariable String userId,
+            @PageableDefault(size = 20) Pageable pageable
+    ) {
+        List<ChatRoomListResDto> result = simpleChatService.getRooms(pageable);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 
     //    채팅방 조회 = 채팅방 입장
     @GetMapping("/room/{roomId}")
-    public ResponseEntity<ChatRoomResDto> getRoom(@PathVariable String roomId,
-                                                  @PageableDefault(size = 20) Pageable pageable,
-                                                  @RequestParam Optional<String> messageId) {
-        log.info("# enter chat room By id : " + roomId);
-        return new ResponseEntity(simpleChatService.getRoom(roomId, pageable, messageId)
-                , HttpStatus.OK);
+    public ResponseEntity<Response<ChatRoomResDto>> getRoom(
+            @PathVariable String roomId,
+            @PageableDefault(size = 20) Pageable pageable,
+            @RequestParam Optional<String> messageId
+    ) {
+        ChatRoomResDto result = simpleChatService.getRoom(roomId, pageable, messageId);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 
     // 채팅방 개설
     // 유저 선택 후 채팅 신청.
     @PostMapping("/room")
-    public ResponseEntity<Void> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomReqDto chatRoomReqDto) {
-
-        log.info("# Create Chat Room , roomId: " + chatRoomReqDto.getRoomId());
+    public ResponseEntity<Response<Void>> create(@RequestHeader HttpHeaders headers, @RequestBody ChatRoomReqDto chatRoomReqDto) {
         String redirectUrl = simpleChatService.createRoom(chatRoomReqDto);
         headers.setLocation(URI.create("/chat/room/" + redirectUrl));
-        return new ResponseEntity(headers, HttpStatus.FOUND);
+        return new ResponseEntity<>(Response.successResponse(), headers, HttpStatus.FOUND);
     }
 
     @GetMapping("/random")
-    public ResponseEntity<List<RecommendUserResDto>> recommendUsers() {
+    public ResponseEntity<Response<List<RecommendUserResDto>>> recommendUsers() {
         List<User> users = repository.findAll();
         List<RecommendUserResDto> recommendUsers = users.stream()
                 .filter(user -> !AuthenticationToken.getUserId().equals(user.getUserId()))
                 .map(user -> RecommendUserResDtoMapper.from(user))
                 .limit(2)
                 .collect(Collectors.toList());
-        return new ResponseEntity<>(recommendUsers, HttpStatus.OK);
+        return new ResponseEntity<>(Response.successResponse(recommendUsers), HttpStatus.OK);
     }
-
-
 }

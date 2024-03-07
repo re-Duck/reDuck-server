@@ -22,18 +22,18 @@ public class FollowController {
     private final FollowService followService;
 
     @PostMapping
-    public ResponseEntity<Void> follow(@RequestBody FollowRequest followDto) {
+    public ResponseEntity<Response<Void>> follow(@RequestBody FollowRequest followDto) {
         followService.follow(followDto);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> cancel(
+    public ResponseEntity<Response<Void>> cancel(
             @PathVariable("userId") String followingUserId,
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         followService.cancel(customUserDetails.getUser(), followingUserId);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/followers/{userId}")
@@ -41,8 +41,7 @@ public class FollowController {
             @PathVariable("userId") String userId
     ) {
         List<FollowerResponse> followers = followService.getFollowers(userId);
-        Response<List<FollowerResponse>> response = Response.successResponse(followers);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(Response.successResponse(followers), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/followers/count")
@@ -50,8 +49,7 @@ public class FollowController {
             @PathVariable("userId") String userId
     ) {
         Long result = followService.getFollowerCount(userId);
-        Response<Long> response = Response.successResponse(result);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 
     @GetMapping("/followings/{userId}")
@@ -59,8 +57,7 @@ public class FollowController {
             @PathVariable("userId") String userId
     ) {
         List<FollowerResponse> followings = followService.getFollowings(userId);
-        Response<List<FollowerResponse>> response = Response.successResponse(followings);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(Response.successResponse(followings), HttpStatus.OK);
     }
 
     @GetMapping("/status/{userId}")

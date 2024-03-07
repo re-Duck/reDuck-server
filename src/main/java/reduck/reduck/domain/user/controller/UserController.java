@@ -12,6 +12,7 @@ import reduck.reduck.domain.user.dto.UserInfoDtoRes;
 import reduck.reduck.domain.user.service.UserService;
 
 import jakarta.validation.Valid;
+import reduck.reduck.global.entity.Response;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,39 +20,38 @@ import jakarta.validation.Valid;
 public class UserController {
     private final UserService userService;
 
-    @PostMapping("/mayack/{account}")
-    public ResponseEntity<String> mayackImgaeCreate(
-            @PathVariable("account") String account,
-            @RequestPart(required = false) MultipartFile file) {
-        return new ResponseEntity<>(userService.mayackImage(account,file), HttpStatus.OK);
-    }
-
     @PostMapping()
-    public ResponseEntity<Void> signUp(@RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile file) throws Exception {
+    public ResponseEntity<Response<Void>> signUp(
+            @RequestPart @Valid SignUpDto signUpDto, @RequestPart(required = false) MultipartFile file
+    ) {
         userService.signUp(signUpDto, file);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return new ResponseEntity(Response.successResponse(), HttpStatus.CREATED);
     }
 
     @GetMapping("/duplicate/{userId}")
-    public ResponseEntity<Boolean> isDuplicateUserId(@PathVariable String userId) throws Exception {
-        return new ResponseEntity<>(userService.isDuplicatedUserId(userId), HttpStatus.OK);
+    public ResponseEntity<Response<Boolean>> isDuplicateUserId(@PathVariable String userId) {
+        boolean result = userService.isDuplicatedUserId(userId);
+        return new ResponseEntity(Response.successResponse(result), HttpStatus.OK);
     }
 
     @DeleteMapping("")
-    public ResponseEntity<Void> withdraw() {
+    public ResponseEntity<Response<Void>> withdraw() {
         userService.withdraw();
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return new ResponseEntity(Response.successResponse(), HttpStatus.NO_CONTENT);
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserInfoDtoRes> getUser(@PathVariable("userId") String userId) {
-        return new ResponseEntity<>(userService.getUser(userId), HttpStatus.OK);
+        UserInfoDtoRes result = userService.getUser(userId);
+        return new ResponseEntity(Response.successResponse(result), HttpStatus.OK);
     }
 
     @PutMapping("/{userId}")
-    public ResponseEntity<UserInfoDtoRes> modifyUserInfo(@RequestPart @Valid ModifyUserDto modifyUserDto, @RequestPart(required = false) MultipartFile file) {
-
-        return new ResponseEntity(userService.modifyUserInfo(modifyUserDto, file), HttpStatus.CREATED);
+    public ResponseEntity<UserInfoDtoRes> modifyUserInfo(
+            @RequestPart @Valid ModifyUserDto modifyUserDto,
+            @RequestPart(required = false) MultipartFile file
+    ) {
+        UserInfoDtoRes result = userService.modifyUserInfo(modifyUserDto, file);
+        return new ResponseEntity(Response.successResponse(result), HttpStatus.CREATED);
     }
-
 }

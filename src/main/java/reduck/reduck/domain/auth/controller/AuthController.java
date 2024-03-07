@@ -11,18 +11,21 @@ import reduck.reduck.domain.auth.dto.SignInResponseDto;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import reduck.reduck.global.entity.Response;
+
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login") // -> /user
-    public ResponseEntity<SignInResponseDto> signIn(@RequestBody @Valid  SignInDto signInDto){
-        return new ResponseEntity<>(authService.signIn(signInDto), HttpStatus.OK);
+    public ResponseEntity<Response<SignInResponseDto>> signIn(@RequestBody @Valid  SignInDto signInDto){
+        SignInResponseDto result = authService.signIn(signInDto);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
     @GetMapping("/auth/token")
-    public ResponseEntity<AccessTokenDto> refreshAccessToken(HttpServletRequest request) throws Exception {
-        return new ResponseEntity<>(authService.reissuanceAccessToken(request), HttpStatus.OK);
+    public ResponseEntity<Response<AccessTokenDto>> refreshAccessToken(HttpServletRequest request) throws Exception {
+        AccessTokenDto result = authService.reissuanceAccessToken(request);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
-
 }

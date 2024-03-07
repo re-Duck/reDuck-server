@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import reduck.reduck.domain.auth.entity.EmailType;
 import reduck.reduck.domain.chatgpt.entity.ChatGpt;
-import reduck.reduck.domain.chatgpt.entity.ChatGptMembership;
 import reduck.reduck.domain.chatgpt.repository.ChatGptRepository;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.domain.user.dto.SignUpDto;
@@ -35,7 +34,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -49,45 +47,6 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
     private final ChatGptRepository chatGptRepository;
-
-
-    public String mayackImage(String account, MultipartFile file) {
-        String mayackPath = DEV_PATH + "/mayack";
-        return saveMayackProfileImage(mayackPath, file, account);
-    }
-
-    private String saveMayackProfileImage(String myackPath, MultipartFile multipartFile, String userId) {
-        String originalFilename = multipartFile.getOriginalFilename();
-        String extension = originalFilename.split("\\.")[1];
-        String storageFileName = UUID.randomUUID() + "." + extension;
-        long size = multipartFile.getSize();
-        String path = myackPath + "/" + userId; //폴더 경로
-        File Folder = new File(path);
-        // 해당 디렉토리가 없을경우 디렉토리를 생성합니다.
-        if (!Folder.exists()) {
-            try {
-                Folder.mkdir(); //폴더 생성합니다.
-            } catch (Exception e) {
-                e.getStackTrace();
-            }
-        }
-        Path imagePath = Paths.get(path, storageFileName);
-        try {
-            UserProfileImg userProfileImg = UserProfileImg.builder()
-                    .storagedFileName(storageFileName)
-                    .uploadedFileName(originalFilename)
-                    .path(String.valueOf(imagePath))
-                    .extension(extension)
-                    .size(size)
-                    .build();
-            Files.write(imagePath, multipartFile.getBytes());
-            return String.valueOf(imagePath);
-
-        } catch (Exception e) {
-            log.error("이미지 저장 실패", e);
-            throw new CommonException(CommonErrorCode.INTERNAL_SERVER_ERROR);
-        }
-    }
 
     @Transactional
     public User signUp(SignUpDto signUpDto, MultipartFile multipartFile) {
