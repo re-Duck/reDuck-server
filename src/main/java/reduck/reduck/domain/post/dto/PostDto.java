@@ -1,5 +1,6 @@
 package reduck.reduck.domain.post.dto;
 
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import reduck.reduck.domain.post.entity.PostType;
 import reduck.reduck.domain.tag.dto.TagDto;
@@ -22,6 +23,11 @@ public class PostDto {
     private String postOriginId;
     @NotNull
     private PostType postType;
+
+    private String thumbnailImagePath;
+
+    @Size(max = 100)
+    private String thumbnailContent;
 
     private List<TagDto> tags;
 }

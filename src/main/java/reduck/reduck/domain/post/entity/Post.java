@@ -29,6 +29,10 @@ public class Post extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private PostType postType;
 
+    private String thumbnailImagePath;
+
+    private String thumbnailContent;
+
     @Column(columnDefinition = ("boolean default false"))
     private Boolean temporary;
 
@@ -50,5 +54,8 @@ public class Post extends BaseEntity {
     public void updateFrom(PostDto dto) {
         this.postTitle = dto.getTitle();
         this.content = dto.getContent();
+        this.postType = dto.getPostType();
+        this.thumbnailContent = dto.getThumbnailContent();
+        this.thumbnailImagePath = dto.getThumbnailImagePath();
     }
 }
