@@ -9,7 +9,7 @@ javadoc{
 	options.encoding='UTF-8'
 }
 group = 'reduck'
-version = '1.3.7-alpha'
+version = '1.3.7-beta'
 sourceCompatibility = '17'
 
 configurations {
