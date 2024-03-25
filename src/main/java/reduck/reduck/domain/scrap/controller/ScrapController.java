@@ -5,7 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-import reduck.reduck.domain.post.dto.TemporaryPostResponse;
 import reduck.reduck.domain.scrap.dto.ScrapPostDto;
 import reduck.reduck.domain.scrap.service.ScrapService;
 import reduck.reduck.global.entity.Response;

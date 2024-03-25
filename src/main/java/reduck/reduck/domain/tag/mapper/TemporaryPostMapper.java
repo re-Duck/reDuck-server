@@ -1,7 +1,7 @@
 package reduck.reduck.domain.tag.mapper;
 
-import reduck.reduck.domain.post.dto.PostDto;
-import reduck.reduck.domain.post.entity.TemporaryPost;
+import reduck.reduck.domain.board.dto.PostDto;
+import reduck.reduck.domain.board.entity.TemporaryPost;
 import reduck.reduck.domain.user.entity.User;
 
 public class TemporaryPostMapper {

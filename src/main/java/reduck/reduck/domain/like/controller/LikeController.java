@@ -27,6 +27,15 @@ public class LikeController {
         return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
     }
 
+    @PostMapping("/comments/{commentOriginId}")
+    public ResponseEntity<Response<Void>> commentLike(
+            @PathVariable("commentOriginId") String commentOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        likeService.likeComment(customUserDetails.getUser(), commentOriginId);
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
+    }
+
     @GetMapping("/post")
     public ResponseEntity<Response<List<PostLikesResponse>>> getLikePosts(
             @AuthenticationPrincipal CustomUserDetails customUserDetails

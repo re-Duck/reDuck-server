@@ -1,7 +1,7 @@
 package reduck.reduck.domain.tag.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import reduck.reduck.domain.post.entity.TemporaryPost;
+import reduck.reduck.domain.board.entity.TemporaryPost;
 import reduck.reduck.domain.tag.entity.TemporaryTag;
 
 import java.util.List;

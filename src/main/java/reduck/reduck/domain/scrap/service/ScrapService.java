@@ -4,14 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.repository.PostRepository;
+import reduck.reduck.domain.board.entity.Post;
+import reduck.reduck.domain.board.repository.PostRepository;
 import reduck.reduck.domain.scrap.dto.ScrapPostDto;
 import reduck.reduck.domain.scrap.entity.ScrapPost;
 import reduck.reduck.domain.scrap.repository.ScrapRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.repository.UserRepository;
-import reduck.reduck.global.exception.errorcode.UserErrorCode;
 import reduck.reduck.global.exception.exception.NotFoundException;
 
 import java.util.List;

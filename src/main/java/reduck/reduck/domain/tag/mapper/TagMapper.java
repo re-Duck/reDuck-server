@@ -1,7 +1,7 @@
 package reduck.reduck.domain.tag.mapper;
 
-import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.entity.TemporaryPost;
+import reduck.reduck.domain.board.entity.Post;
+import reduck.reduck.domain.board.entity.TemporaryPost;
 import reduck.reduck.domain.tag.dto.TagDto;
 import reduck.reduck.domain.tag.entity.Tag;
 import reduck.reduck.domain.tag.entity.TemporaryTag;
