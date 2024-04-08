@@ -120,4 +120,17 @@ public class LikeService {
             return cat.get().isLike();
         return false;
     }
+
+    /**
+     * 본인의 댓글의 좋아요 여부를 확인한다.
+     */
+    public Boolean getLikeCommentStatus(User user, String commentOriginId) {
+        Comment comment = commentRepository.findByCommentOriginId(commentOriginId)
+                .orElseThrow(() -> new NotFoundException("댓글을 찾을 수 없습니다."));
+
+        Optional<CommentLikes> cat = commentLikeRepository.findByUserAndComment(user, comment);
+        if (cat.isPresent())
+            return cat.get().isLike();
+        return false;
+    }
 }

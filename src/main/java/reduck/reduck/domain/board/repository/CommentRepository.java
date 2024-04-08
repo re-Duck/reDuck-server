@@ -6,6 +6,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import reduck.reduck.domain.board.entity.Comment;
 import reduck.reduck.domain.board.entity.Post;
+import reduck.reduck.domain.like.entity.CommentLikes;
+import reduck.reduck.domain.user.entity.User;
 
 import java.util.List;
 import java.util.Optional;

@@ -52,4 +52,13 @@ public class LikeController {
         Boolean result = likeService.getLikePostStatus(customUserDetails.getUser(), postOriginId);
         return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
+
+    @GetMapping("/comments/{commentOriginId}/status")
+    public ResponseEntity<Response<Boolean>> getLikeCommentStatus(
+            @PathVariable("commentOriginId") String commentOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Boolean result = likeService.getLikeCommentStatus(customUserDetails.getUser(), commentOriginId);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
+    }
 }
