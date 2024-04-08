@@ -12,6 +12,9 @@ import reduck.reduck.domain.board.entity.Comment;
 import reduck.reduck.domain.board.entity.Post;
 import reduck.reduck.domain.board.repository.CommentRepository;
 import reduck.reduck.domain.board.repository.PostRepository;
+import reduck.reduck.domain.like.entity.CommentLikeCache;
+import reduck.reduck.domain.like.repository.CommentLikeCacheRepository;
+import reduck.reduck.domain.like.repository.CommentLikeRepository;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.domain.user.service.UserService;
 import reduck.reduck.global.exception.errorcode.AuthErrorCode;
@@ -26,10 +29,11 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CommentService {
-
     private final UserService userService;
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final CommentLikeCacheRepository commentLikeCacheRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     @Transactional
     public void createComment(CommentDto commentDto) {
@@ -44,25 +48,53 @@ public class CommentService {
                 .user(user)
                 .build();
         commentRepository.save(comment);
+
+        afterCreateComment(comment);
+    }
+
+    private void afterCreateComment(Comment comment) {
+        createCommentLikeCache(comment);
+    }
+
+    private void createCommentLikeCache(Comment comment) {
+        CommentLikeCache commentLikeCache = CommentLikeCache.builder()
+                .count(0)
+                .comment(comment)
+                .build();
+        commentLikeCacheRepository.save(commentLikeCache);
     }
 
     @Transactional
-    public void removeComment(String commentOriginId) {
+    public void removeComment(User user, String commentOriginId) {
         Comment comment = commentRepository.findByCommentOriginId(commentOriginId).orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_EXIST));
-        validateAuthentication(comment);
+        validateAuthentication(user, comment);
         commentRepository.delete(comment);
+
+        afterRemoveCascade(user, comment);
     }
 
-    public void updateComment(String commentOriginId, UpdateCommentDto commentDto) {
+    private void afterRemoveCascade(User user, Comment comment) {
+        removeCommentLike(user, comment);
+        removeCommentLikeCache(comment);
+    }
+
+    private void removeCommentLike(User user, Comment comment) {
+        commentLikeRepository.deleteByUserAndComment(user, comment);
+    }
+
+    private void removeCommentLikeCache(Comment comment) {
+        commentLikeCacheRepository.deleteByComment(comment);
+    }
+
+    public void updateComment(User user, String commentOriginId, UpdateCommentDto commentDto) {
         Comment comment = commentRepository.findByCommentOriginId(commentOriginId).orElseThrow(() -> new CommentException(CommentErrorCode.COMMENT_NOT_EXIST));
-        validateAuthentication(comment);
+        validateAuthentication(user, comment);
         comment.updateFrom(commentDto);
         commentRepository.save(comment);
     }
 
-    private void validateAuthentication(Comment comment) {
-        String userId = AuthenticationToken.getUserId();
-        if (!comment.getUser().getUserId().equals(userId)) {
+    private void validateAuthentication(User user, Comment comment) {
+        if (!comment.getUser().getUserId().equals(user.getUserId())) {
             throw new AuthException(AuthErrorCode.FORBIDDEN);
         }
     }
@@ -86,7 +118,7 @@ public class CommentService {
      * 댓글의 답글을 단다.
      */
     @Transactional
-    public void createReplyComment(User user,CommentDto commentDto) {
+    public void createReplyComment(User user, CommentDto commentDto) {
         String postOriginId = commentDto.getPostOriginId();
         Post post = postRepository.findByPostOriginId(postOriginId).orElseThrow(() -> new PostException(PostErrorCode.POST_NOT_EXIST));
 

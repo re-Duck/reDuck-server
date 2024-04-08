@@ -11,4 +11,6 @@ public interface CommentLikeCacheRepository extends JpaRepository<CommentLikeCac
     @Modifying
     @Query("update CommentLikeCache clc set clc.count = clc.count + :afterCount where clc.comment = :comment")
     void updateLikeCount(@Param("afterCount") int afterCount, @Param("comment") Comment comment);
+
+    void deleteByComment(Comment comment);
 }

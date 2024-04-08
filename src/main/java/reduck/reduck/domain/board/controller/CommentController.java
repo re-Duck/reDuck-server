@@ -69,9 +69,10 @@ public class CommentController {
     })
     @DeleteMapping("/post/comment/{commentOriginId}")
     public ResponseEntity<Response<Void>> removeComment(
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @PathVariable("commentOriginId") String commentOriginId
     ) {
-        commentService.removeComment(commentOriginId);
+        commentService.removeComment(customUserDetails.getUser(), commentOriginId);
         return new ResponseEntity<>(Response.successResponse(), HttpStatus.NO_CONTENT);
     }
 
@@ -86,9 +87,10 @@ public class CommentController {
     @PutMapping("/post/comment/{commentOriginId}")
     public ResponseEntity<Response<Void>> updateComment(
             @PathVariable("commentOriginId") String commentOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails,
             @RequestBody @Valid UpdateCommentDto commentDto
     ) {
-        commentService.updateComment(commentOriginId, commentDto);
+        commentService.updateComment(customUserDetails.getUser(), commentOriginId, commentDto);
         return new ResponseEntity<>(Response.successResponse(), HttpStatus.OK);
     }
 

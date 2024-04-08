@@ -16,4 +16,7 @@ public interface CommentLikeRepository extends JpaRepository<CommentLikes, Long>
     @Modifying
     @Query("update CommentLikes cl set cl.isLike = :afterStatus where cl.id = :id ")
     void updateStatus(@Param("afterStatus") boolean afterStatus, @Param("id") Long id);
+
+
+    void deleteByUserAndComment(User user, Comment comment);
 }
