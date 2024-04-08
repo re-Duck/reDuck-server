@@ -1,12 +1,9 @@
 package reduck.reduck.domain.user.dto.mapper;
 
-import reduck.reduck.domain.post.dto.mapper.PostOfUserResponseDtoMapper;
+import reduck.reduck.domain.board.dto.mapper.PostOfUserResponseDtoMapper;
 import reduck.reduck.domain.user.dto.UserInfoDtoRes;
-import reduck.reduck.domain.user.entity.DevelopAnnual;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.util.DevelopAnnualCalculation;
-
-import java.time.LocalDateTime;
 
 public class UserInfoDtoResMapper {
     public static UserInfoDtoRes from(User user) {

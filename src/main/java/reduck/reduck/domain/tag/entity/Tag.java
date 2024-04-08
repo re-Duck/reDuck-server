@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.board.entity.Post;
 import reduck.reduck.global.entity.BaseEntity;
 
 import jakarta.persistence.Entity;

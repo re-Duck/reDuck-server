@@ -1,7 +1,7 @@
 package reduck.reduck.domain.scrap.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.board.entity.Post;
 import reduck.reduck.domain.scrap.entity.ScrapPost;
 import reduck.reduck.domain.user.entity.User;
 

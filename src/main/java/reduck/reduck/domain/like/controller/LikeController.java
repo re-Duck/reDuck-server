@@ -27,6 +27,15 @@ public class LikeController {
         return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
     }
 
+    @PostMapping("/comments/{commentOriginId}")
+    public ResponseEntity<Response<Void>> commentLike(
+            @PathVariable("commentOriginId") String commentOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        likeService.likeComment(customUserDetails.getUser(), commentOriginId);
+        return new ResponseEntity<>(Response.successResponse(), HttpStatus.CREATED);
+    }
+
     @GetMapping("/post")
     public ResponseEntity<Response<List<PostLikesResponse>>> getLikePosts(
             @AuthenticationPrincipal CustomUserDetails customUserDetails
@@ -41,6 +50,15 @@ public class LikeController {
             @AuthenticationPrincipal CustomUserDetails customUserDetails
     ) {
         Boolean result = likeService.getLikePostStatus(customUserDetails.getUser(), postOriginId);
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
+    }
+
+    @GetMapping("/comments/{commentOriginId}/status")
+    public ResponseEntity<Response<Boolean>> getLikeCommentStatus(
+            @PathVariable("commentOriginId") String commentOriginId,
+            @AuthenticationPrincipal CustomUserDetails customUserDetails
+    ) {
+        Boolean result = likeService.getLikeCommentStatus(customUserDetails.getUser(), commentOriginId);
         return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
 }

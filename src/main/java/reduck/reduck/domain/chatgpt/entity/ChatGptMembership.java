@@ -1,7 +1,5 @@
 package reduck.reduck.domain.chatgpt.entity;
 
-import reduck.reduck.domain.post.entity.PostType;
-
 import java.util.Arrays;
 
 public enum ChatGptMembership {

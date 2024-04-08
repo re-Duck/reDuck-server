@@ -2,8 +2,8 @@ package reduck.reduck.domain.scrap.dto;
 
 import lombok.Builder;
 import lombok.Getter;
-import reduck.reduck.domain.post.entity.Post;
-import reduck.reduck.domain.post.entity.PostType;
+import reduck.reduck.domain.board.entity.Post;
+import reduck.reduck.domain.board.entity.PostType;
 import reduck.reduck.util.DevelopAnnualCalculation;
 
 import java.time.LocalDateTime;

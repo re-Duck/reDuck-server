@@ -4,8 +4,8 @@ package reduck.reduck.domain.user.entity;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
-import reduck.reduck.domain.post.entity.Comment;
-import reduck.reduck.domain.post.entity.Post;
+import reduck.reduck.domain.board.entity.Comment;
+import reduck.reduck.domain.board.entity.Post;
 import reduck.reduck.domain.user.dto.ModifyUserDto;
 import reduck.reduck.global.entity.BaseEntity;
 
