@@ -1,5 +1,6 @@
 package reduck.reduck.domain.auth.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,10 +20,21 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login") // -> /user
-    public ResponseEntity<Response<SignInResponseDto>> signIn(@RequestBody @Valid  SignInDto signInDto){
+    public ResponseEntity<Response<SignInResponseDto>> signIn(@RequestBody @Valid SignInDto signInDto) {
         SignInResponseDto result = authService.signIn(signInDto);
         return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
     }
+
+    @PostMapping("/login/v2") // -> /user
+    public ResponseEntity<Response<SignInResponseDto>> signIn2(
+            @RequestBody @Valid SignInDto signInDto,
+            HttpServletResponse response
+    ) {
+        SignInResponseDto result = authService.signIn2(signInDto, response);
+
+        return new ResponseEntity<>(Response.successResponse(result), HttpStatus.OK);
+    }
+
     @GetMapping("/auth/token")
     public ResponseEntity<Response<AccessTokenDto>> refreshAccessToken(HttpServletRequest request) throws Exception {
         AccessTokenDto result = authService.reissuanceAccessToken(request);
