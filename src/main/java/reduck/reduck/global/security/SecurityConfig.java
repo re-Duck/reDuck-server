@@ -29,7 +29,7 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtFilter;
     private final JwtAuthenticationExceptionFilter jwtExceptionFilter;
 
-    private final String[] permitAllURI = new String[]{"/error", "/login", "/user", "/chat", "/auth/email/user/**"};
+    private final String[] permitAllURI = new String[]{"/error", "/login/**", "/user", "/chat", "/auth/email/user/**"};
     private final String[] hasAdminRoleURI = new String[]{"/admin/**"};
 
     @Bean

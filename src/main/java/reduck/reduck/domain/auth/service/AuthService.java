@@ -1,6 +1,8 @@
 package reduck.reduck.domain.auth.service;
 
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +32,26 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
+    public SignInResponseDto signIn2(SignInDto dto, HttpServletResponse response) {
 
+        User user = userService.findByUserId(dto.getUserId());
+        validatePassword(dto.getPassword(), user.getPassword());
+        String refreshToken = jwtProvider.createRefreshToken(user.getUserId(), user.getRoles());
+        saveRefreshToken(refreshToken, user);
+        String accessToken = jwtProvider.createToken(user.getUserId(), user.getRoles());
+        Cookie accessCookie = new Cookie("accessToken", accessToken);
+        accessCookie.setHttpOnly(true);
+        accessCookie.setPath("/");
+        Cookie refreshCookie = new Cookie("refreshToken", refreshToken);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setPath("/");
+
+        response.addCookie(accessCookie);
+        response.addCookie(refreshCookie);
+        return SignInResponseDtoMapper.of(user, accessToken, refreshToken);
+
+    }
     @Transactional
     public SignInResponseDto signIn(SignInDto dto){
 
