@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reduck.reduck.domain.rank.entity.Rank;
 import reduck.reduck.domain.rank.repository.RankRepository;
 import reduck.reduck.domain.user.entity.User;
+import reduck.reduck.domain.user.repository.UserRepository;
 import reduck.reduck.global.exception.exception.NotFoundException;
 
 @Service
@@ -14,9 +15,11 @@ import reduck.reduck.global.exception.exception.NotFoundException;
 @RequiredArgsConstructor
 public class RankService {
     private final RankRepository rankRepository;
+    private final UserRepository userRepository;
 
     @Transactional
-    public void updateRank(User user, int xp) {
+    public void updateRank(Long userId, int xp) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException());
         Rank rank = rankRepository.findByUser(user).orElseThrow(() -> new NotFoundException());
         rankRepository.updateScore(rank, xp);
     }
