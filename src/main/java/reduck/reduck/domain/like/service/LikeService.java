@@ -14,6 +14,7 @@ import reduck.reduck.domain.board.entity.Post;
 import reduck.reduck.domain.like.repository.PostLikeCacheRepository;
 import reduck.reduck.domain.like.repository.PostLikeRepository;
 import reduck.reduck.domain.board.repository.PostRepository;
+import reduck.reduck.domain.rank.service.RankService;
 import reduck.reduck.domain.user.entity.User;
 import reduck.reduck.global.exception.errorcode.PostErrorCode;
 import reduck.reduck.global.exception.exception.NotFoundException;
@@ -31,6 +32,7 @@ public class LikeService {
     private final PostLikeCacheRepository postLikeCacheRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final CommentLikeCacheRepository commentLikeCacheRepository;
+    private final RankService rankService;
 
     /**
      * 게시글 좋아요 기능
@@ -45,6 +47,7 @@ public class LikeService {
                 () -> makeLike(post, user)
         ); // post - user 중간 테이블에 좋아요 상태 반영
     }
+
     @Transactional
     public void likeComment(User user, String commentOriginId) {
         Comment comment = commentRepository.findByCommentOriginId(commentOriginId).orElseThrow(() -> new NotFoundException());
